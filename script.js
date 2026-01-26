@@ -17,41 +17,34 @@ const db = getDatabase(app);
 
 const isDisplayPage = document.getElementById('display-root');
 const isAdminPage = document.getElementById('admin-root');
-const DEFAULT_LOGO = "https://www.goldtraders.or.th/images/logo.png";
+const DEFAULT_SHOP_NAME = "ห้างทองจินฮั้วเฮง"; // ชื่อร้านเริ่มต้นถ้าไม่ได้ตั้ง
 
-// --- ส่วนทำงานหน้าจอ Display (index.html) ---
+// --- Display Logic ---
 if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
     const marqueeText = document.getElementById('marquee-text');
-    const logoImage = document.getElementById('logo-image');
+    const shopNameText = document.getElementById('shop-name-text'); // รับ Element ชื่อร้าน
 
-    // เรียกดึงราคาทองทันที และตั้งเวลาดึงซ้ำทุก 10 นาที
     fetchGoldPrice();
     setInterval(fetchGoldPrice, 600000); 
 
-    // ฟังค่า Realtime จาก Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // 1. Text ตัววิ่ง
+            // 1. ชื่อร้าน (ข้อความ)
+            shopNameText.textContent = data.shopName || DEFAULT_SHOP_NAME;
+
+            // 2. ตัววิ่ง
             if (data.marquee) marqueeText.textContent = data.marquee;
 
-            // 2. ปรับความเร็วตัววิ่ง (คำนวณกลับเป็นวินาที)
+            // 3. ความเร็วตัววิ่ง
             let speedVal = data.speed || 50;
-            // สูตร: ยิ่งค่า speedVal มาก = เวลาน้อย (วิ่งเร็ว)
             let duration = 65 - (speedVal * 0.6); 
-            if (duration < 5) duration = 5; // เร็วสุดลิมิตที่ 5 วินาที
+            if (duration < 5) duration = 5;
             document.documentElement.style.setProperty('--marquee-duration', `${duration}s`);
 
-            // 3. Logo
-            if (data.logoUrl && data.logoUrl.trim() !== "") {
-                if (logoImage.src !== data.logoUrl) logoImage.src = data.logoUrl;
-            } else {
-                logoImage.src = DEFAULT_LOGO;
-            }
-
-            // 4. Video (เปลี่ยนเฉพาะตอน ID เปลี่ยน)
+            // 4. วิดีโอ
             const videoId = getYoutubeID(data.videoUrl);
             if (videoId) {
                 const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
@@ -61,15 +54,14 @@ if (isDisplayPage) {
     });
 }
 
-// --- ส่วนทำงานหน้าจอ Admin (admin.html) ---
+// --- Admin Logic ---
 if (isAdminPage) {
-    // ระบบ Login
     const loginModal = document.getElementById('login-modal');
     const btnLogin = document.getElementById('btn-login');
     const passInput = document.getElementById('password-input');
     const errorMsg = document.getElementById('login-error');
 
-    // เช็ค Session ว่าเคยล็อกอินไหม
+    // Login Check
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         loginModal.style.display = 'none';
         isAdminPage.style.display = 'block';
@@ -85,58 +77,52 @@ if (isAdminPage) {
         }
     });
 
-    // Control Form
     const form = document.getElementById('control-form');
     const speedInput = document.getElementById('speed-input');
     const speedDisplay = document.getElementById('speed-display');
 
-    // Event Slider ปรับความเร็ว
     speedInput.addEventListener('input', (e) => {
         const val = e.target.value;
-        if(val < 30) speedDisplay.textContent = "🐢 ช้ามาก";
-        else if(val > 70) speedDisplay.textContent = "🚀 เร็วมาก";
+        if(val < 30) speedDisplay.textContent = "🐢 ช้า";
+        else if(val > 70) speedDisplay.textContent = "🚀 เร็ว";
         else speedDisplay.textContent = "😊 ปกติ";
     });
     
-    // โหลดค่าเดิมจาก Firebase มาใส่ Input
+    // Load existing data
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if(data) {
-            // กันไม่ให้ค่าเปลี่ยนตอนเรากำลังพิมพ์
             if(document.activeElement.tagName !== "INPUT") {
                 document.getElementById('marquee-input').value = data.marquee || "";
                 document.getElementById('video-input').value = data.videoUrl || "";
-                document.getElementById('logo-input').value = data.logoUrl || "";
-                
+                document.getElementById('shop-name-input').value = data.shopName || ""; // โหลดชื่อร้าน
                 if(data.speed) {
                     speedInput.value = data.speed;
-                    speedInput.dispatchEvent(new Event('input')); // Trigger อัปเดตข้อความ
+                    speedInput.dispatchEvent(new Event('input'));
                 }
             }
         }
     });
 
-    // บันทึกข้อมูล
+    // Save Data
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         set(ref(db, 'signage/status'), {
             videoUrl: document.getElementById('video-input').value,
             marquee: document.getElementById('marquee-input').value,
-            logoUrl: document.getElementById('logo-input').value,
+            shopName: document.getElementById('shop-name-input').value, // บันทึกชื่อร้าน
             speed: parseInt(speedInput.value),
             timestamp: Date.now()
         }).then(() => {
-            alert('✅ อัปเดตข้อมูลขึ้นจอเรียบร้อย!');
+            alert('✅ อัปเดตข้อมูลสำเร็จ!');
         }).catch((err) => {
             alert('❌ เกิดข้อผิดพลาด: ' + err.message);
         });
     });
 }
 
-// --- ฟังก์ชันเสริม (Helpers) ---
-
-// ดึงราคาทองและตัดทศนิยม
+// --- Helpers ---
 async function fetchGoldPrice() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
@@ -146,24 +132,18 @@ async function fetchGoldPrice() {
             const prices = data.response.price.gold_bar;
             const date = data.response.date;
             const time = data.response.update_time;
-
-            // Math.floor เพื่อตัดทศนิยมออก
             const buyPrice = Math.floor(parseFloat(prices.buy));
             const sellPrice = Math.floor(parseFloat(prices.sell));
 
-            // แสดงผลใส่ลูกน้ำ
             document.getElementById('gold-buy').textContent = buyPrice.toLocaleString('th-TH', { maximumFractionDigits: 0 });
             document.getElementById('gold-sell').textContent = sellPrice.toLocaleString('th-TH', { maximumFractionDigits: 0 });
             document.getElementById('gold-update-time').textContent = `อัปเดตล่าสุด: ${date} ${time}`;
         }
     } catch (error) {
         console.error("Gold API Error:", error);
-        document.getElementById('gold-buy').textContent = "-,---";
-        document.getElementById('gold-sell').textContent = "-,---";
     }
 }
 
-// แยก ID จาก Youtube URL
 function getYoutubeID(url) {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
