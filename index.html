@@ -8,10 +8,31 @@
 </head>
 <body>
     <div id="display-root" class="display-container">
-        <div class="content-area">
-            <iframe id="video-frame" src="" allow="autoplay; encrypted-media" style="display:none;"></iframe>
-            
-            <iframe id="web-frame" src="" style="display:none;"></iframe>
+        
+        <div class="top-section">
+            <div class="zone-gold">
+                <div class="gold-header">
+                    <img src="https://www.goldtraders.or.th/images/logo.png" alt="Logo" class="gold-logo">
+                    <h2>ราคาทองคำวันนี้</h2>
+                    <p>ทองคำแท่ง 96.5% (สมาคมค้าทองคำ)</p>
+                    <p id="gold-update-time" style="font-size: 0.8rem; opacity: 0.7;">เวลา --:-- น.</p>
+                </div>
+                
+                <div class="gold-price-container">
+                    <div class="price-box buy-box">
+                        <span class="price-label">รับซื้อ</span>
+                        <span id="gold-buy" class="price-number">-.--</span>
+                    </div>
+                    <div class="price-box sell-box">
+                        <span class="price-label">ขายออก</span>
+                        <span id="gold-sell" class="price-number">-.--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="zone-video">
+                <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+            </div>
         </div>
 
         <div class="marquee-container">
