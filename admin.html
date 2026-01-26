@@ -16,10 +16,16 @@
     </div>
 
     <div id="admin-root" class="control-panel">
-        <h1 style="text-align: center; margin: 10px 0 30px;">📱 Admin Control</h1>
+        <h1 style="text-align: center; margin: 10px 0 30px;">📱 ตั้งค่าร้านทอง</h1>
         
         <form id="control-form">
             
+            <div class="card">
+                <div class="card-title">🏠 ชื่อร้าน (หัวข้อป้าย)</div>
+                <label>พิมพ์ชื่อร้านของคุณ</label>
+                <input type="text" id="shop-name-input" placeholder="เช่น ห้างทองแม่รวย...">
+            </div>
+
             <div class="card">
                 <div class="card-title">📺 YouTube Video</div>
                 <label>ลิงก์วิดีโอ (URL)</label>
@@ -34,21 +40,10 @@
                 <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
                 
                 <label>ความเร็วตัววิ่ง: <span id="speed-display" style="color:var(--gold-color);">ปกติ</span></label>
-                <div style="display:flex; justify-content:space-between; color:#777; font-size:0.8rem;">
-                    <span>ช้า (เดินเล่น)</span><span>เร็ว (จรวด)</span>
-                </div>
                 <input type="range" id="speed-input" min="1" max="100" value="50">
             </div>
 
-            <div class="card">
-                <div class="card-title">🖼️ Logo</div>
-                <label>ลิงก์รูปภาพ</label>
-                <input type="text" id="logo-input" placeholder="URL รูปภาพ...">
-                <small style="color:gray;">เว้นว่างเพื่อใช้โลโก้ทองคำ</small>
-            </div>
-
-            <button type="submit" class="btn-save">🚀 อัปเดตขึ้นจอทันที</button>
-            <p style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem;">Guide Khon Kaen Signage System</p>
+            <button type="submit" class="btn-save">🚀 อัปเดตข้อมูล</button>
         </form>
     </div>
 
