@@ -1,7 +1,7 @@
-// --- Config Firebase (Guide Khon Kaen) ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
+// Config เดิมของคุณ
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -17,23 +17,32 @@ const db = getDatabase(app);
 
 const isDisplayPage = document.getElementById('display-root');
 const isAdminPage = document.getElementById('admin-root');
+const DEFAULT_LOGO = "https://www.goldtraders.or.th/images/logo.png";
 
 // --- DISPLAY LOGIC ---
 if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
     const marqueeText = document.getElementById('marquee-text');
+    const logoImage = document.getElementById('logo-image');
 
-    // 1. ดึงราคาทองคำ (ทำงานทันทีและทำซ้ำทุก 10 นาที)
+    // ดึงราคาทองคำ
     fetchGoldPrice();
     setInterval(fetchGoldPrice, 600000); 
 
-    // 2. ฟังค่าจาก Firebase
+    // ฟังค่าจาก Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             // อัปเดตตัววิ่ง
             if (data.marquee) marqueeText.textContent = data.marquee;
+
+            // อัปเดต Logo
+            if (data.logoUrl && data.logoUrl.trim() !== "") {
+                if (logoImage.src !== data.logoUrl) logoImage.src = data.logoUrl;
+            } else {
+                logoImage.src = DEFAULT_LOGO;
+            }
 
             // อัปเดตวิดีโอ
             const videoId = getYoutubeID(data.videoUrl);
@@ -44,6 +53,8 @@ if (isDisplayPage) {
                 }
             }
         }
+    }, (error) => {
+        console.error("Firebase Read Error:", error); // แสดง Error ถ้าอ่านไม่ได้
     });
 }
 
@@ -56,8 +67,12 @@ if (isAdminPage) {
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if(data) {
-            if(!document.getElementById('marquee-input').value) document.getElementById('marquee-input').value = data.marquee || "";
-            if(!document.getElementById('video-input').value) document.getElementById('video-input').value = data.videoUrl || "";
+            // เช็คว่าผู้ใช้กำลังพิมพ์อยู่ไหม (ป้องกันค่าเปลี่ยนขณะพิมพ์)
+            if(document.activeElement.tagName !== "INPUT") {
+                document.getElementById('marquee-input').value = data.marquee || "";
+                document.getElementById('video-input').value = data.videoUrl || "";
+                document.getElementById('logo-input').value = data.logoUrl || "";
+            }
         }
     });
 
@@ -66,30 +81,30 @@ if (isAdminPage) {
         e.preventDefault();
         const videoUrl = document.getElementById('video-input').value;
         const marquee = document.getElementById('marquee-input').value;
+        const logoUrl = document.getElementById('logo-input').value;
 
         set(ref(db, 'signage/status'), {
             videoUrl: videoUrl,
             marquee: marquee,
+            logoUrl: logoUrl,
             timestamp: Date.now()
         }).then(() => {
-            alert('✅ อัปเดตสำเร็จ');
+            alert('✅ อัปเดตสำเร็จ! หน้าจอควรเปลี่ยนทันที');
         }).catch((err) => {
-            alert('❌ ผิดพลาด: ' + err.message);
+            alert('❌ บันทึกไม่สำเร็จ: ' + err.message);
+            console.error(err);
         });
     });
 }
 
 // --- Helper Functions ---
-
-// ฟังก์ชันดึงราคาทอง (API ฟรีสำหรับนักพัฒนาไทย)
 async function fetchGoldPrice() {
     try {
-        // ใช้ API สาธารณะที่ดึงค่าจากสมาคมค้าทองคำโดยตรง
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
         const data = await response.json();
         
         if (data && data.response && data.response.price) {
-            const prices = data.response.price.gold_bar; // ทองคำแท่ง
+            const prices = data.response.price.gold_bar;
             const date = data.response.date;
             const time = data.response.update_time;
 
@@ -98,10 +113,7 @@ async function fetchGoldPrice() {
             document.getElementById('gold-update-time').textContent = `อัปเดตล่าสุด: ${date} ${time}`;
         }
     } catch (error) {
-        console.error("ดึงราคาทองไม่สำเร็จ:", error);
-        // กรณี Error ให้แสดงค่าขีดแทน
-        document.getElementById('gold-buy').textContent = "-,---";
-        document.getElementById('gold-sell').textContent = "-,---";
+        console.error("Gold API Error:", error);
     }
 }
 
