@@ -25,28 +25,27 @@ if (isDisplayPage) {
     const marqueeText = document.getElementById('marquee-text');
     const shopNameText = document.getElementById('shop-name-text');
 
+    // 1. เริ่มระบบราคาทอง
     fetchGoldPrice();
-    setInterval(fetchGoldPrice, 600000); // 10 นาที
+    setInterval(fetchGoldPrice, 600000); 
 
+    // 2. เริ่มระบบนาฬิกาใหญ่ (ใหม่)
+    updateBigClock();
+    setInterval(updateBigClock, 1000);
+
+    // 3. เริ่มระบบ Realtime Database
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // 1. ชื่อร้าน
-            if (shopNameText) {
-                shopNameText.textContent = (data.shopName && data.shopName.trim() !== "") ? data.shopName : DEFAULT_SHOP_NAME;
-            }
-
-            // 2. ตัววิ่ง
+            if (shopNameText) shopNameText.textContent = (data.shopName && data.shopName.trim() !== "") ? data.shopName : DEFAULT_SHOP_NAME;
             if (data.marquee) marqueeText.textContent = data.marquee;
 
-            // 3. ความเร็ว
             let speedVal = data.speed || 50;
             let duration = 65 - (speedVal * 0.6); 
             if (duration < 5) duration = 5;
             document.documentElement.style.setProperty('--marquee-duration', `${duration}s`);
 
-            // 4. วิดีโอ
             const videoId = getYoutubeID(data.videoUrl);
             if (videoId) {
                 const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
@@ -56,7 +55,7 @@ if (isDisplayPage) {
     });
 }
 
-// --- Admin Logic ---
+// --- Admin Logic (คงเดิม) ---
 if (isAdminPage) {
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         document.getElementById('login-modal').style.display = 'none';
@@ -82,7 +81,6 @@ if (isAdminPage) {
         speedDisplay.textContent = val < 30 ? "🐢 ช้า" : (val > 70 ? "🚀 เร็ว" : "😊 ปกติ");
     });
     
-    // โหลดค่าเดิม
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
@@ -97,7 +95,6 @@ if (isAdminPage) {
         }
     });
 
-    // บันทึก
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         set(ref(db, 'signage/status'), {
@@ -115,6 +112,33 @@ if (isAdminPage) {
 }
 
 // --- Helpers ---
+
+// ฟังก์ชันนาฬิกาใหญ่ (ใหม่)
+function updateBigClock() {
+    const now = new Date();
+    
+    // เวลา HH:mm
+    const timeString = now.toLocaleTimeString('th-TH', { 
+        hour: '2-digit', 
+        minute: '2-digit'
+        // ถ้าอยากได้วินาทีให้เพิ่ม second: '2-digit'
+    });
+    
+    // วันที่แบบไทยเต็ม (เช่น วันจันทร์ที่ 1 มกราคม 2567)
+    const dateString = now.toLocaleDateString('th-TH', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+
+    const timeEl = document.getElementById('clock-time');
+    const dateEl = document.getElementById('clock-date');
+
+    if(timeEl) timeEl.textContent = timeString;
+    if(dateEl) dateEl.textContent = dateString;
+}
+
 async function fetchGoldPrice() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
@@ -125,7 +149,6 @@ async function fetchGoldPrice() {
             const date = data.response.date;
             const time = data.response.update_time;
 
-            // 🔥 FIX: ลบลูกน้ำออกก่อนคำนวณ เพื่อแก้ปัญหาแสดงแค่หลักสิบ
             const rawBuy = prices.buy.toString().replace(/,/g, '');
             const rawSell = prices.sell.toString().replace(/,/g, '');
 
