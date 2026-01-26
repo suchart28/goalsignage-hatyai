@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
 
 :root {
-    --bg-color: #1a1a2e;
-    --accent-color: #e94560;
+    --bg-color: #000000;
+    --accent-color: #b71c1c; /* สีแดงเข้มร้านทอง */
+    --gold-color: #ffd700;    /* สีทอง */
     --text-color: #ffffff;
-    --marquee-bg: #16213e;
-    --marquee-text: #0f3460;
+    --marquee-height: 80px;
 }
 
 body, html {
@@ -14,84 +14,115 @@ body, html {
     font-family: 'Kanit', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    overflow: hidden; /* ป้องกัน Scrollbar บนหน้าจอ Display */
+    overflow: hidden;
     height: 100vh;
     width: 100vw;
 }
 
-/* --- Layout Display --- */
 .display-container {
     display: grid;
-    grid-template-rows: 1fr 60px; /* เนื้อหาหลักเต็มพื้นที่ / ตัววิ่ง 60px */
+    grid-template-rows: 1fr var(--marquee-height);
     height: 100vh;
+    width: 100vw;
 }
 
-.content-area {
-    position: relative;
+.top-section {
+    display: grid;
+    grid-template-columns: 40fr 60fr; /* ปรับสัดส่วน ทอง 40 : วิดีโอ 60 */
+    overflow: hidden;
+}
+
+/* --- โซนราคาทอง (ตกแต่งใหม่) --- */
+.zone-gold {
+    background: linear-gradient(135deg, #800000 0%, #b71c1c 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 4px solid var(--gold-color);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.gold-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+.gold-header h2 {
+    margin: 10px 0 5px 0;
+    font-size: 2.5rem;
+    color: var(--gold-color);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+.gold-logo {
+    height: 80px;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+}
+
+.gold-price-container {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
-    height: 100%;
+    gap: 15px;
+}
+
+.price-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--gold-color);
+    border-radius: 15px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.price-label {
+    font-size: 1.5rem;
+    color: #eee;
+    margin-bottom: 10px;
+}
+
+.price-number {
+    font-size: 3rem; /* ตัวเลขขนาดใหญ่ */
+    font-weight: 700;
+    color: var(--gold-color);
+}
+
+/* --- โซนวิดีโอ & ตัววิ่ง (คงเดิม) --- */
+.zone-video {
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-iframe {
-    border: none;
-    width: 100%;
-    height: 100%;
-}
+iframe { border: none; width: 100%; height: 100%; }
 
 .marquee-container {
-    background-color: var(--accent-color);
-    color: white;
-    font-size: 2rem;
+    background-color: #fff; /* พื้นหลังขาว */
+    color: #b71c1c; /* ตัวหนังสือแดง */
+    font-size: 2.5rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     white-space: nowrap;
     overflow: hidden;
-    box-shadow: 0 -4px 15px rgba(233, 69, 96, 0.4);
+    border-top: 5px solid var(--gold-color);
 }
-
 .marquee-content {
     display: inline-block;
     padding-left: 100%;
     animation: marquee 20s linear infinite;
 }
-
 @keyframes marquee {
     0% { transform: translate(0, 0); }
     100% { transform: translate(-100%, 0); }
 }
 
-/* --- Layout Admin --- */
-.admin-body {
-    overflow: auto;
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-.control-panel {
-    background: #16213e;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-input, select, button {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border: 1px solid #0f3460;
-    font-family: 'Kanit', sans-serif;
-}
-button {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-}
-button:hover {
-    opacity: 0.9;
-}
-h2 { text-align: center; color: var(--accent-color); }
+/* Admin Panel CSS (ย่อ) */
+.admin-body { background: #f4f4f4; padding: 20px; font-family: 'Kanit', sans-serif;}
+.control-panel { background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
+input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+button { background: #b71c1c; color: white; border: none; cursor: pointer; font-size: 1.1rem; }
