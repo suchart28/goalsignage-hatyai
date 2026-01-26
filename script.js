@@ -17,28 +17,30 @@ const db = getDatabase(app);
 
 const isDisplayPage = document.getElementById('display-root');
 const isAdminPage = document.getElementById('admin-root');
-const DEFAULT_SHOP_NAME = "ห้างทองจินฮั้วเฮง"; // ชื่อร้านเริ่มต้นถ้าไม่ได้ตั้ง
+const DEFAULT_SHOP_NAME = "ห้างทองจินฮั้วเฮง"; 
 
 // --- Display Logic ---
 if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
     const marqueeText = document.getElementById('marquee-text');
-    const shopNameText = document.getElementById('shop-name-text'); // รับ Element ชื่อร้าน
+    const shopNameText = document.getElementById('shop-name-text');
 
     fetchGoldPrice();
-    setInterval(fetchGoldPrice, 600000); 
+    setInterval(fetchGoldPrice, 600000); // 10 นาที
 
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // 1. ชื่อร้าน (ข้อความ)
-            shopNameText.textContent = data.shopName || DEFAULT_SHOP_NAME;
+            // 1. ชื่อร้าน
+            if (shopNameText) {
+                shopNameText.textContent = (data.shopName && data.shopName.trim() !== "") ? data.shopName : DEFAULT_SHOP_NAME;
+            }
 
             // 2. ตัววิ่ง
             if (data.marquee) marqueeText.textContent = data.marquee;
 
-            // 3. ความเร็วตัววิ่ง
+            // 3. ความเร็ว
             let speedVal = data.speed || 50;
             let duration = 65 - (speedVal * 0.6); 
             if (duration < 5) duration = 5;
@@ -56,24 +58,18 @@ if (isDisplayPage) {
 
 // --- Admin Logic ---
 if (isAdminPage) {
-    const loginModal = document.getElementById('login-modal');
-    const btnLogin = document.getElementById('btn-login');
-    const passInput = document.getElementById('password-input');
-    const errorMsg = document.getElementById('login-error');
-
-    // Login Check
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        loginModal.style.display = 'none';
+        document.getElementById('login-modal').style.display = 'none';
         isAdminPage.style.display = 'block';
     }
 
-    btnLogin.addEventListener('click', () => {
-        if (passInput.value === '987654321') {
+    document.getElementById('btn-login').addEventListener('click', () => {
+        if (document.getElementById('password-input').value === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
-            loginModal.style.display = 'none';
+            document.getElementById('login-modal').style.display = 'none';
             isAdminPage.style.display = 'block';
         } else {
-            errorMsg.style.display = 'block';
+            document.getElementById('login-error').style.display = 'block';
         }
     });
 
@@ -83,35 +79,31 @@ if (isAdminPage) {
 
     speedInput.addEventListener('input', (e) => {
         const val = e.target.value;
-        if(val < 30) speedDisplay.textContent = "🐢 ช้า";
-        else if(val > 70) speedDisplay.textContent = "🚀 เร็ว";
-        else speedDisplay.textContent = "😊 ปกติ";
+        speedDisplay.textContent = val < 30 ? "🐢 ช้า" : (val > 70 ? "🚀 เร็ว" : "😊 ปกติ");
     });
     
-    // Load existing data
+    // โหลดค่าเดิม
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
-        if(data) {
-            if(document.activeElement.tagName !== "INPUT") {
-                document.getElementById('marquee-input').value = data.marquee || "";
-                document.getElementById('video-input').value = data.videoUrl || "";
-                document.getElementById('shop-name-input').value = data.shopName || ""; // โหลดชื่อร้าน
-                if(data.speed) {
-                    speedInput.value = data.speed;
-                    speedInput.dispatchEvent(new Event('input'));
-                }
+        if(data && document.activeElement.tagName !== "INPUT") {
+            document.getElementById('marquee-input').value = data.marquee || "";
+            document.getElementById('video-input').value = data.videoUrl || "";
+            document.getElementById('shop-name-input').value = data.shopName || ""; 
+            if(data.speed) {
+                speedInput.value = data.speed;
+                speedInput.dispatchEvent(new Event('input'));
             }
         }
     });
 
-    // Save Data
+    // บันทึก
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         set(ref(db, 'signage/status'), {
+            shopName: document.getElementById('shop-name-input').value,
             videoUrl: document.getElementById('video-input').value,
             marquee: document.getElementById('marquee-input').value,
-            shopName: document.getElementById('shop-name-input').value, // บันทึกชื่อร้าน
             speed: parseInt(speedInput.value),
             timestamp: Date.now()
         }).then(() => {
@@ -132,15 +124,22 @@ async function fetchGoldPrice() {
             const prices = data.response.price.gold_bar;
             const date = data.response.date;
             const time = data.response.update_time;
-            const buyPrice = Math.floor(parseFloat(prices.buy));
-            const sellPrice = Math.floor(parseFloat(prices.sell));
 
-            document.getElementById('gold-buy').textContent = buyPrice.toLocaleString('th-TH', { maximumFractionDigits: 0 });
-            document.getElementById('gold-sell').textContent = sellPrice.toLocaleString('th-TH', { maximumFractionDigits: 0 });
+            // 🔥 FIX: ลบลูกน้ำออกก่อนคำนวณ เพื่อแก้ปัญหาแสดงแค่หลักสิบ
+            const rawBuy = prices.buy.toString().replace(/,/g, '');
+            const rawSell = prices.sell.toString().replace(/,/g, '');
+
+            const buyPrice = Math.floor(parseFloat(rawBuy));
+            const sellPrice = Math.floor(parseFloat(rawSell));
+
+            document.getElementById('gold-buy').textContent = buyPrice.toLocaleString('th-TH');
+            document.getElementById('gold-sell').textContent = sellPrice.toLocaleString('th-TH');
             document.getElementById('gold-update-time').textContent = `อัปเดตล่าสุด: ${date} ${time}`;
         }
     } catch (error) {
         console.error("Gold API Error:", error);
+        document.getElementById('gold-buy').textContent = "-,---";
+        document.getElementById('gold-sell').textContent = "-,---";
     }
 }
 
