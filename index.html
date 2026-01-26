@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Signage Display</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="display-root" class="display-container">
+        <div class="content-area">
+            <iframe id="video-frame" src="" allow="autoplay; encrypted-media" style="display:none;"></iframe>
+            
+            <iframe id="web-frame" src="" style="display:none;"></iframe>
+        </div>
+
+        <div class="marquee-container">
+            <div id="marquee-text" class="marquee-content">
+                กำลังโหลดข้อมูล...
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
