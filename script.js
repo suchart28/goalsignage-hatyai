@@ -113,18 +113,18 @@ if (isAdminPage) {
 
 // --- Helpers ---
 
-// ฟังก์ชันนาฬิกาใหญ่ (ใหม่)
+// ค้นหาฟังก์ชัน updateBigClock() ด้านล่างสุด แล้วแก้เป็นแบบนี้ครับ
+
 function updateBigClock() {
     const now = new Date();
     
-    // เวลา HH:mm
+    // ✅ เพิ่ม second: '2-digit' เพื่อแสดงวินาที
     const timeString = now.toLocaleTimeString('th-TH', { 
         hour: '2-digit', 
-        minute: '2-digit'
-        // ถ้าอยากได้วินาทีให้เพิ่ม second: '2-digit'
+        minute: '2-digit',
+        second: '2-digit' 
     });
     
-    // วันที่แบบไทยเต็ม (เช่น วันจันทร์ที่ 1 มกราคม 2567)
     const dateString = now.toLocaleDateString('th-TH', { 
         weekday: 'long', 
         day: 'numeric', 
@@ -138,7 +138,6 @@ function updateBigClock() {
     if(timeEl) timeEl.textContent = timeString;
     if(dateEl) dateEl.textContent = dateString;
 }
-
 async function fetchGoldPrice() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
