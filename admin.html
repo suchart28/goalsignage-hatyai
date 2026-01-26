@@ -33,9 +33,9 @@
                 
                 <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
                 
-                <label>ความเร็วตัววิ่ง: <span id="speed-display">ปกติ</span></label>
+                <label>ความเร็วตัววิ่ง: <span id="speed-display" style="color:var(--gold-color);">ปกติ</span></label>
                 <div style="display:flex; justify-content:space-between; color:#777; font-size:0.8rem;">
-                    <span>ช้า</span><span>เร็ว</span>
+                    <span>ช้า (เดินเล่น)</span><span>เร็ว (จรวด)</span>
                 </div>
                 <input type="range" id="speed-input" min="1" max="100" value="50">
             </div>
@@ -44,6 +44,7 @@
                 <div class="card-title">🖼️ Logo</div>
                 <label>ลิงก์รูปภาพ</label>
                 <input type="text" id="logo-input" placeholder="URL รูปภาพ...">
+                <small style="color:gray;">เว้นว่างเพื่อใช้โลโก้ทองคำ</small>
             </div>
 
             <button type="submit" class="btn-save">🚀 อัปเดตขึ้นจอทันที</button>
