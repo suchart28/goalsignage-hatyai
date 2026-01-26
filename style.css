@@ -80,12 +80,18 @@ body, html {
     min-height: 25%; /* กินพื้นที่อย่างน้อย 25% ของฝั่งขวา */
 }
 
+/* ค้นหา class .big-time แล้วแก้ตามนี้ครับ */
 .big-time {
-    font-size: 8rem; /* ตัวเลขเวลาใหญ่มาก */
+    /* ปรับขนาดลงให้พอดีกับ HH:MM:SS */
+    font-size: 7vw; 
+    
     font-weight: 800;
     color: white;
-    line-height: 0.9;
+    line-height: 1;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    
+    /* ล็อคความกว้างตัวเลขไม่ให้ดิ้นไปมาเวลานับวินาที */
+    font-feature-settings: "tnum"; 
     font-variant-numeric: tabular-nums;
 }
 
