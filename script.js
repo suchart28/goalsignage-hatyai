@@ -1,4 +1,4 @@
-// --- ส่วนตั้งค่า Firebase (Guide Khon Kaen) ---
+// --- Config Firebase (Guide Khon Kaen) ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
@@ -12,100 +12,99 @@ const firebaseConfig = {
   appId: "1:827592654626:web:5f1e9858dbc04e636daf7b"
 };
 
-// เริ่มการทำงาน Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- ตรวจสอบว่าเป็นหน้า Display หรือ Admin ---
 const isDisplayPage = document.getElementById('display-root');
 const isAdminPage = document.getElementById('admin-root');
 
-// --- Logic สำหรับหน้าจอแสดงผล (Display) ---
+// --- DISPLAY LOGIC ---
 if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
-    const webFrame = document.getElementById('web-frame');
     const marqueeText = document.getElementById('marquee-text');
 
-    // ฟังค่าจาก Database แบบ Realtime
+    // 1. ดึงราคาทองคำ (ทำงานทันทีและทำซ้ำทุก 10 นาที)
+    fetchGoldPrice();
+    setInterval(fetchGoldPrice, 600000); 
+
+    // 2. ฟังค่าจาก Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             // อัปเดตตัววิ่ง
-            if(data.marquee) {
-                marqueeText.textContent = data.marquee;
-            }
+            if (data.marquee) marqueeText.textContent = data.marquee;
 
-            // สลับโหมด
-            if (data.mode === 'video') {
-                webFrame.style.display = 'none';
-                videoFrame.style.display = 'block';
-                
-                // แปลง Youtube URL และป้องกันการ Refresh ถ้าวิดีโอเดิมเล่นอยู่
-                const videoId = getYoutubeID(data.videoUrl);
-                if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
-                    // เช็คว่า src เดิมตรงกันไหม เพื่อไม่ให้วิดีโอโหลดใหม่ตอนแก้ตัววิ่ง
-                    if(videoFrame.src !== embedUrl) {
-                        videoFrame.src = embedUrl;
-                    }
-                }
-                
-            } else if (data.mode === 'web') {
-                videoFrame.style.display = 'none';
-                webFrame.style.display = 'block';
-                
-                if(webFrame.src !== data.webUrl) {
-                    webFrame.src = data.webUrl;
+            // อัปเดตวิดีโอ
+            const videoId = getYoutubeID(data.videoUrl);
+            if (videoId) {
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                if(videoFrame.src !== embedUrl) {
+                    videoFrame.src = embedUrl;
                 }
             }
         }
     });
 }
 
-// --- Logic สำหรับหน้าควบคุม (Admin) ---
+// --- ADMIN LOGIC ---
 if (isAdminPage) {
     const form = document.getElementById('control-form');
     
-    // โหลดค่าเดิมมาแสดงในช่องกรอก
+    // โหลดค่าเดิม
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if(data) {
-            if(document.getElementById('marquee-input').value === "") { // เติมค่าเฉพาะตอนโหลดครั้งแรก หรือช่องว่าง
-                document.getElementById('marquee-input').value = data.marquee || "";
-            }
-            if(document.getElementById('video-input').value === "") {
-                document.getElementById('video-input').value = data.videoUrl || "";
-            }
-            document.getElementById('mode-select').value = data.mode || "video";
+            if(!document.getElementById('marquee-input').value) document.getElementById('marquee-input').value = data.marquee || "";
+            if(!document.getElementById('video-input').value) document.getElementById('video-input').value = data.videoUrl || "";
         }
     });
 
-    // บันทึกค่าลง Firebase
+    // บันทึกค่า
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const mode = document.getElementById('mode-select').value;
         const videoUrl = document.getElementById('video-input').value;
         const marquee = document.getElementById('marquee-input').value;
-        // URL ราคาทอง ฮั่วเซ่งเฮง
-        const goldUrl = "https://online965.huasengheng.com/webprice965/"; 
 
         set(ref(db, 'signage/status'), {
-            mode: mode,
             videoUrl: videoUrl,
-            webUrl: goldUrl,
-            marquee: marquee
+            marquee: marquee,
+            timestamp: Date.now()
         }).then(() => {
-            alert('✅ อัปเดตข้อมูลขึ้นจอเรียบร้อย!');
-        }).catch((error) => {
-            alert('❌ เกิดข้อผิดพลาด: ' + error.message);
-            console.error(error);
+            alert('✅ อัปเดตสำเร็จ');
+        }).catch((err) => {
+            alert('❌ ผิดพลาด: ' + err.message);
         });
     });
 }
 
-// Helper: ดึง ID จาก Youtube URL
+// --- Helper Functions ---
+
+// ฟังก์ชันดึงราคาทอง (API ฟรีสำหรับนักพัฒนาไทย)
+async function fetchGoldPrice() {
+    try {
+        // ใช้ API สาธารณะที่ดึงค่าจากสมาคมค้าทองคำโดยตรง
+        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+        const data = await response.json();
+        
+        if (data && data.response && data.response.price) {
+            const prices = data.response.price.gold_bar; // ทองคำแท่ง
+            const date = data.response.date;
+            const time = data.response.update_time;
+
+            document.getElementById('gold-buy').textContent = prices.buy.toLocaleString();
+            document.getElementById('gold-sell').textContent = prices.sell.toLocaleString();
+            document.getElementById('gold-update-time').textContent = `อัปเดตล่าสุด: ${date} ${time}`;
+        }
+    } catch (error) {
+        console.error("ดึงราคาทองไม่สำเร็จ:", error);
+        // กรณี Error ให้แสดงค่าขีดแทน
+        document.getElementById('gold-buy').textContent = "-,---";
+        document.getElementById('gold-sell').textContent = "-,---";
+    }
+}
+
 function getYoutubeID(url) {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
