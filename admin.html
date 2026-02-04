@@ -21,20 +21,27 @@
         <form id="control-form">
             
             <div class="card">
-                <div class="card-title">🏠 ชื่อร้าน (หัวข้อป้าย)</div>
-                <label>พิมพ์ชื่อร้านของคุณ</label>
-                <input type="text" id="shop-name-input" placeholder="เช่น ห้างทองแม่รวย...">
+                <div class="card-title">🏠 ชื่อร้าน</div>
+                <input type="text" id="shop-name-input" placeholder="เช่น ห้างทอง...">
+            </div>
+
+            <div class="card" style="border: 1px solid var(--gold-color);">
+                <div class="card-title">💍 ราคาทองรูปพรรณ (กำหนดเอง)</div>
+                
+                <label style="color:#33ff00;">ราคารับซื้อ (บาท)</label>
+                <input type="text" id="ornament-buy-input" placeholder="เช่น 40,000">
+                
+                <label style="color:#ffd700; margin-top:10px; display:block;">ราคาขายออก (บาท)</label>
+                <input type="text" id="ornament-sell-input" placeholder="เช่น 45,000">
             </div>
 
             <div class="card">
                 <div class="card-title">📺 YouTube Video</div>
-                <label>ลิงก์วิดีโอ (URL)</label>
                 <input type="text" id="video-input" placeholder="วางลิงก์ที่นี่...">
             </div>
 
             <div class="card">
                 <div class="card-title">📢 ข้อความตัววิ่ง</div>
-                <label>ข้อความประกาศ</label>
                 <input type="text" id="marquee-input" placeholder="พิมพ์ข้อความ...">
                 
                 <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
@@ -44,7 +51,6 @@
             </div>
 
             <button type="submit" class="btn-save">🚀 อัปเดตข้อมูล</button>
-            <p style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem;">Guide Khon Kaen Signage System</p>
         </form>
     </div>
 
