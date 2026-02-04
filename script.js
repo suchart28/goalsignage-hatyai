@@ -24,22 +24,30 @@ if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
     const marqueeText = document.getElementById('marquee-text');
     const shopNameText = document.getElementById('shop-name-text');
+    
+    // Elements สำหรับทองรูปพรรณ (Manual)
+    const ornamentBuyEl = document.getElementById('ornament-buy');
+    const ornamentSellEl = document.getElementById('ornament-sell');
 
-    // 1. เริ่มระบบราคาทอง
-    fetchGoldPrice();
-    setInterval(fetchGoldPrice, 600000); 
+    // 1. ดึงราคาทองแท่ง (API)
+    fetchGoldBarPrice();
+    setInterval(fetchGoldBarPrice, 600000); 
 
-    // 2. เริ่มระบบนาฬิกาใหญ่ (ใหม่)
+    // 2. นาฬิกา
     updateBigClock();
     setInterval(updateBigClock, 1000);
 
-    // 3. เริ่มระบบ Realtime Database
+    // 3. Listen Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             if (shopNameText) shopNameText.textContent = (data.shopName && data.shopName.trim() !== "") ? data.shopName : DEFAULT_SHOP_NAME;
             if (data.marquee) marqueeText.textContent = data.marquee;
+
+            // Update ราคาทองรูปพรรณ (Manual)
+            if (ornamentBuyEl) ornamentBuyEl.textContent = data.ornamentBuy || "-,---";
+            if (ornamentSellEl) ornamentSellEl.textContent = data.ornamentSell || "-,---";
 
             let speedVal = data.speed || 50;
             let duration = 65 - (speedVal * 0.6); 
@@ -55,7 +63,7 @@ if (isDisplayPage) {
     });
 }
 
-// --- Admin Logic (คงเดิม) ---
+// --- Admin Logic ---
 if (isAdminPage) {
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         document.getElementById('login-modal').style.display = 'none';
@@ -81,13 +89,19 @@ if (isAdminPage) {
         speedDisplay.textContent = val < 30 ? "🐢 ช้า" : (val > 70 ? "🚀 เร็ว" : "😊 ปกติ");
     });
     
+    // โหลดค่าเดิม
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if(data && document.activeElement.tagName !== "INPUT") {
-            document.getElementById('marquee-input').value = data.marquee || "";
+            document.getElementById('shop-name-input').value = data.shopName || "";
             document.getElementById('video-input').value = data.videoUrl || "";
-            document.getElementById('shop-name-input').value = data.shopName || ""; 
+            document.getElementById('marquee-input').value = data.marquee || "";
+            
+            // โหลดราคารูปพรรณเดิม
+            document.getElementById('ornament-buy-input').value = data.ornamentBuy || "";
+            document.getElementById('ornament-sell-input').value = data.ornamentSell || "";
+
             if(data.speed) {
                 speedInput.value = data.speed;
                 speedInput.dispatchEvent(new Event('input'));
@@ -95,12 +109,18 @@ if (isAdminPage) {
         }
     });
 
+    // บันทึก
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         set(ref(db, 'signage/status'), {
             shopName: document.getElementById('shop-name-input').value,
             videoUrl: document.getElementById('video-input').value,
             marquee: document.getElementById('marquee-input').value,
+            
+            // บันทึกราคาทองรูปพรรณ
+            ornamentBuy: document.getElementById('ornament-buy-input').value,
+            ornamentSell: document.getElementById('ornament-sell-input').value,
+            
             speed: parseInt(speedInput.value),
             timestamp: Date.now()
         }).then(() => {
@@ -113,32 +133,8 @@ if (isAdminPage) {
 
 // --- Helpers ---
 
-// ค้นหาฟังก์ชัน updateBigClock() ด้านล่างสุด แล้วแก้เป็นแบบนี้ครับ
-
-function updateBigClock() {
-    const now = new Date();
-    
-    // ✅ เพิ่ม second: '2-digit' เพื่อแสดงวินาที
-    const timeString = now.toLocaleTimeString('th-TH', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit' 
-    });
-    
-    const dateString = now.toLocaleDateString('th-TH', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    });
-
-    const timeEl = document.getElementById('clock-time');
-    const dateEl = document.getElementById('clock-date');
-
-    if(timeEl) timeEl.textContent = timeString;
-    if(dateEl) dateEl.textContent = dateString;
-}
-async function fetchGoldPrice() {
+// ฟังก์ชันดึงราคาทองแท่ง (API)
+async function fetchGoldBarPrice() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
         const data = await response.json();
@@ -150,19 +146,28 @@ async function fetchGoldPrice() {
 
             const rawBuy = prices.buy.toString().replace(/,/g, '');
             const rawSell = prices.sell.toString().replace(/,/g, '');
-
             const buyPrice = Math.floor(parseFloat(rawBuy));
             const sellPrice = Math.floor(parseFloat(rawSell));
 
-            document.getElementById('gold-buy').textContent = buyPrice.toLocaleString('th-TH');
-            document.getElementById('gold-sell').textContent = sellPrice.toLocaleString('th-TH');
-            document.getElementById('gold-update-time').textContent = `อัปเดตล่าสุด: ${date} ${time}`;
+            // แสดงผลเฉพาะช่องทองคำแท่ง (bar-buy, bar-sell)
+            document.getElementById('bar-buy').textContent = buyPrice.toLocaleString('th-TH');
+            document.getElementById('bar-sell').textContent = sellPrice.toLocaleString('th-TH');
+            document.getElementById('gold-update-time').textContent = `อัปเดตราคา API: ${date} ${time}`;
         }
     } catch (error) {
         console.error("Gold API Error:", error);
-        document.getElementById('gold-buy').textContent = "-,---";
-        document.getElementById('gold-sell').textContent = "-,---";
     }
+}
+
+function updateBigClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateString = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const timeEl = document.getElementById('clock-time');
+    const dateEl = document.getElementById('clock-date');
+    if(timeEl) timeEl.textContent = timeString;
+    if(dateEl) dateEl.textContent = dateString;
 }
 
 function getYoutubeID(url) {
