@@ -25,10 +25,11 @@ body, html {
 
 .display-container { display: grid; grid-template-rows: 1fr var(--marquee-height); height: 100vh; width: 100vw; }
 
-/* 🔧 ปรับสัดส่วนใหม่! ซ้าย 65% (ทอง) : ขวา 35% (Shorts) */
+/* 🔧 ปรับสัดส่วนใหม่! ซ้าย 75% (ทอง) : ขวา 25% (Shorts) 
+   เพื่อให้ช่องขวาแคบลง พอดีกับวิดีโอแนวตั้ง ไม่เหลือขอบดำ */
 .top-section { 
     display: grid; 
-    grid-template-columns: 65fr 35fr; 
+    grid-template-columns: 75fr 25fr; 
     overflow: hidden; 
 }
 
@@ -38,20 +39,16 @@ body, html {
     display: flex; flex-direction: column; 
     justify-content: space-evenly; 
     align-items: center;
-    border-right: 3px solid var(--gold-color); padding: 10px 30px; box-sizing: border-box;
+    border-right: 3px solid var(--gold-color); padding: 10px 40px; box-sizing: border-box;
 }
 
-/* Header ที่มีโลโก้ */
 .gold-header { 
-    text-align: center; 
-    width: 100%; 
-    margin-bottom: 5px;
+    text-align: center; width: 100%; margin-bottom: 5px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 
-/* Style โลโก้ */
 .shop-logo {
-    max-height: 12vh; /* สูงไม่เกิน 12% ของจอ */
+    max-height: 14vh; /* เพิ่มขนาดโลโก้ได้อีกนิดเพราะพื้นที่กว้างขึ้น */
     max-width: 80%;
     object-fit: contain;
     margin-bottom: 5px;
@@ -60,7 +57,8 @@ body, html {
 
 .shop-name {
     margin: 0;
-    font-size: clamp(2rem, 4.5vw, 4.5rem); 
+    /* ขยายชื่อร้านให้ใหญ่สะใจตามความกว้าง 75% */
+    font-size: clamp(3rem, 5.5vw, 6rem); 
     font-weight: 800; line-height: 1.2;
     background: linear-gradient(to bottom, #cfc09f 20%, #ffecb3 40%, #ffd700 60%, #99752b 80%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -71,24 +69,24 @@ body, html {
     width: 100%;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 20px;
-    padding: 10px 20px;
+    border-radius: 25px; /* เพิ่มความโค้ง */
+    padding: 10px 30px;
     box-sizing: border-box;
 }
 
 .section-title {
-    text-align: center; color: #eee; font-size: 1.4rem; margin-bottom: 5px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 5px;
+    text-align: center; color: #eee; font-size: 1.6rem; margin-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px;
 }
 
-.price-row { display: flex; justify-content: space-between; gap: 20px; }
+.price-row { display: flex; justify-content: space-between; gap: 30px; }
 .price-box { flex: 1; display: flex; flex-direction: column; align-items: center; }
-.price-label { font-size: 1.3rem; color: #ddd; margin-bottom: 0px; }
+.price-label { font-size: 1.5rem; color: #ddd; margin-bottom: 0px; }
 
-/* 🔧 ราคาทอง (Arial) */
+/* 🔧 ราคาทอง (Arial) ขยายใหญ่สุดๆ */
 .price-number {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 7vw; /* ใหญ่สะใจ */
+    font-size: 8vw; /* เพิ่มจาก 7vw เป็น 8vw */
     font-weight: bold;
     line-height: 1.1;
     font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
@@ -102,22 +100,22 @@ body, html {
 
 .clock-section {
     background: radial-gradient(circle, #222 0%, #000 100%);
-    padding: 15px; text-align: center; border-bottom: 2px solid #333;
+    padding: 10px; text-align: center; border-bottom: 2px solid #333;
     flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; 
-    min-height: 18%;
+    min-height: 15%; /* ลดความสูงลงนิดหน่อย ให้พื้นที่วิดีโอเยอะสุด */
 }
 
-/* 🔧 นาฬิกา (Arial) */
+/* 🔧 นาฬิกา (Arial) ต้องลดขนาดลงเพราะช่องแคบมาก (25%) */
 .big-time {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 5vw; /* ขนาดพอดีช่องแคบ */
+    font-size: 4vw; /* ลดเหลือ 4vw เพื่อไม่ให้ล้นจอ */
     font-weight: bold; color: white; line-height: 1;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
     font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
-.big-date { font-size: 1rem; color: var(--gold-color); margin-top: 5px; font-weight: 300; }
+.big-date { font-size: 0.8rem; color: var(--gold-color); margin-top: 5px; font-weight: 300; }
 
 .video-wrapper { 
     flex-grow: 1; width: 100%; position: relative; background: #000; 
