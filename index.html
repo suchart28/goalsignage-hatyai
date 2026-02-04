@@ -10,31 +10,48 @@
     <div id="display-root" class="display-container">
         
         <div class="top-section">
+            
             <div class="zone-gold">
                 <div class="gold-header">
                     <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
-                    <p class="sub-header">ทองคำแท่ง 96.5% (สมาคมค้าทองคำ)</p>
                     <p id="gold-update-time" class="update-time">เวลา --:-- น.</p>
                 </div>
                 
-                <div class="gold-price-container">
-                    <div class="price-box">
-                        <span class="price-label">รับซื้อ</span>
-                        <span id="gold-buy" class="price-number">-,---</span>
-                    </div>
-                    <div class="price-box">
-                        <span class="price-label">ขายออก</span>
-                        <span id="gold-sell" class="price-number">-,---</span>
+                <div class="price-section">
+                    <div class="section-title">ทองคำแท่ง 96.5% (สมาคมฯ)</div>
+                    <div class="price-row">
+                        <div class="price-box">
+                            <span class="price-label">รับซื้อ</span>
+                            <span id="bar-buy" class="price-number text-green">-,---</span>
+                        </div>
+                        <div class="price-box">
+                            <span class="price-label">ขายออก</span>
+                            <span id="bar-sell" class="price-number text-gold">-,---</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="price-section">
+                    <div class="section-title">ทองรูปพรรณ 96.5% (หน้าร้าน)</div>
+                    <div class="price-row">
+                        <div class="price-box">
+                            <span class="price-label">รับซื้อ</span>
+                            <span id="ornament-buy" class="price-number text-green">-,---</span>
+                        </div>
+                        <div class="price-box">
+                            <span class="price-label">ขายออก</span>
+                            <span id="ornament-sell" class="price-number text-gold">-,---</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="zone-video">
                 <div class="clock-section">
-                    <div id="clock-time" class="big-time">--:--</div>
+                    <div id="clock-time" class="big-time">--:--:--</div>
                     <div id="clock-date" class="big-date">กำลังโหลดวันที่...</div>
                 </div>
-
                 <div class="video-wrapper">
                     <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
                 </div>
