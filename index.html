@@ -76,10 +76,20 @@
             <form id="control-form">
                 <div class="admin-card">
                     <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
+                    
                     <label>ชื่อร้าน</label>
                     <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
+                    
                     <label>ข้อความตัววิ่ง</label>
                     <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
+                    
+                    <label>ความเร็วตัววิ่ง: <span id="speed-value-display" style="color:#f9d878">20</span> วินาที</label>
+                    <div class="slider-container">
+                        <span style="font-size:0.8rem">เร็ว (5s)</span>
+                        <input type="range" id="marquee-speed-input" min="5" max="60" step="1" value="20">
+                        <span style="font-size:0.8rem">ช้า (60s)</span>
+                    </div>
+                    
                     <label>ลิงก์ YouTube</label>
                     <input type="text" id="video-input" placeholder="URL วิดีโอ...">
                 </div>
