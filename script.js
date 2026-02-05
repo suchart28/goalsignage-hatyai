@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// --- Config Firebase ---
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -15,7 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- Elements ---
 const displayRoot = document.getElementById('display-root');
 const adminRoot = document.getElementById('admin-root');
 const adminTrigger = document.getElementById('admin-trigger');
@@ -23,9 +21,7 @@ const btnBackDisplay = document.getElementById('btn-back-display');
 
 let isManualMode = false;
 
-// ==========================================
-// 🚀 เริ่มต้นระบบ
-// ==========================================
+// --- Main Init ---
 checkMode();
 
 function checkMode() {
@@ -33,7 +29,6 @@ function checkMode() {
     else openDisplay();
 }
 
-// Admin Trigger (Double Click Bottom-Right)
 if(adminTrigger) {
     adminTrigger.addEventListener('dblclick', () => {
         window.location.hash = 'admin';
@@ -47,9 +42,7 @@ if(btnBackDisplay) {
     });
 }
 
-// ==========================================
-// 📺 DISPLAY LOGIC
-// ==========================================
+// --- Display Logic ---
 function openDisplay() {
     displayRoot.style.display = 'flex';
     adminRoot.style.display = 'none';
@@ -65,11 +58,12 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // --- Video Logic (พร้อมเสียง) ---
+        // --- Video Logic (เปิดเสียง) ---
         const videoFrame = document.getElementById('video-frame');
         const vidId = getYoutubeID(data.videoUrl);
         if (vidId) {
-            // mute=0 เพื่อเปิดเสียง (Browser อาจบล็อกถ้าไม่คลิกจอ)
+            // mute=0 เพื่อเปิดเสียง
+            // (หมายเหตุ: Browser อาจบล็อกเสียงถ้าผู้ใช้ยังไม่คลิกหน้าจอ)
             const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1`;
             if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
         }
@@ -95,9 +89,7 @@ function openDisplay() {
     }, 600000);
 }
 
-// ==========================================
-// ⚙️ ADMIN LOGIC
-// ==========================================
+// --- Admin Logic ---
 function openAdmin() {
     displayRoot.style.display = 'none';
     adminRoot.style.display = 'block';
@@ -168,9 +160,7 @@ function toggleManualInputs(isManual) {
     box.style.pointerEvents = isManual ? 'auto' : 'none';
 }
 
-// ==========================================
-// 🛠 Helpers
-// ==========================================
+// --- Helpers ---
 function updateText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
 function getVal(id) { return document.getElementById(id).value; }
 function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
