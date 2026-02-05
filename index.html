@@ -36,6 +36,8 @@
             <div class="spacer"></div>
 
             <div class="clock-footer">
+                <div id="last-update" class="update-info">รออัปเดตราคา...</div>
+                
                 <div id="clock-time" class="time-text">--:--:--</div>
                 <div id="clock-date" class="date-text">กำลังโหลด...</div>
                 <div id="mode-indicator" class="manual-tag" style="display: none;">⚠ Manual Mode</div>
@@ -54,7 +56,6 @@
     </div>
 
     <div id="admin-root" style="display: none;">
-        
         <div id="login-modal">
             <div class="admin-card login-box">
                 <h2>🔐 เข้าสู่ระบบจัดการ</h2>
@@ -71,18 +72,14 @@
             </div>
 
             <form id="control-form">
-                
                 <div class="admin-card">
                     <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
                     <label>ชื่อร้าน</label>
                     <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
-                    
                     <label>ข้อความตัววิ่ง</label>
                     <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
-
-                    <label>ลิงก์ YouTube (Video URL)</label>
-                    <input type="text" id="video-input" placeholder="เช่น https://www.youtube.com/watch?v=...">
-                    <small style="color:#aaa;">*รองรับทั้งลิงก์วิดีโอปกติและ Shorts</small>
+                    <label>ลิงก์ YouTube</label>
+                    <input type="text" id="video-input" placeholder="URL วิดีโอ...">
                 </div>
 
                 <div class="admin-card">
@@ -92,15 +89,12 @@
                             <input type="checkbox" id="manual-mode-check"> ปรับเอง (Manual)
                         </label>
                     </div>
-                    
-                    <div id="manual-controls" style="opacity: 0.5; pointer-events: none; transition: 0.3s;">
+                    <div id="manual-controls" style="opacity: 0.5; pointer-events: none;">
                         <label>ราคารับซื้อ</label>
-                        <input type="text" id="manual-buy-input" placeholder="เช่น 42,000">
-                        
+                        <input type="text" id="manual-buy-input">
                         <label>ราคาขายออก</label>
-                        <input type="text" id="manual-sell-input" placeholder="เช่น 42,100">
+                        <input type="text" id="manual-sell-input">
                     </div>
-                    <small style="color:#aaa; display:block; margin-top:5px;">*หากไม่ติ๊ก "ปรับเอง" ระบบจะดึงราคาจากสมาคมฯ อัตโนมัติ</small>
                 </div>
 
                 <button type="submit" class="btn-save">💾 บันทึกการตั้งค่า</button>
