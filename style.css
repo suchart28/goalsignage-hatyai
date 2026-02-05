@@ -17,18 +17,11 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 
 /* Left Panel */
 .left-panel { width: 40%; background-color: var(--bg-red); display: flex; flex-direction: column; align-items: center; border-right: 2px solid #333; position: relative; z-index: 10; box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
-
 .header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 3vh; }
 
-/* ✅ Style สำหรับ Logo ใหม่ */
 .shop-logo { 
-    height: 14vh; 
-    width: 14vh;
-    object-fit: cover;
-    margin-bottom: 10px; 
-    border-radius: 50%; /* ตัดเป็นวงกลม */
-    border: 3px solid var(--gold-label); /* ขอบทอง */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    height: 14vh; width: 14vh; object-fit: cover; margin-bottom: 10px; 
+    border-radius: 50%; border: 3px solid var(--gold-label); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .shop-name { color: var(--gold-label); font-size: clamp(1.5rem, 2.5vw, 3rem); margin: 0; font-weight: 300; text-transform: uppercase; }
@@ -55,19 +48,16 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .right-panel { width: 60%; background-color: #000; display: flex; align-items: center; justify-content: center; position: relative; }
 iframe { width: 100%; height: 100%; border: none; }
 
-/* ✅ Marquee ใหญ่ขึ้น */
+/* Marquee */
 .marquee-wrapper {
-    position: absolute; bottom: 0; left: 40%; width: 60%;
-    height: 12vh; /* เพิ่มความสูง */
-    background: #000;
-    overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
-    border-top: 4px solid var(--gold-dark);
-    box-sizing: border-box;
+    position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh;
+    background: #000; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    border-top: 4px solid var(--gold-dark); box-sizing: border-box;
 }
 .marquee-content {
-    color: #fff; 
-    font-size: clamp(2rem, 4vw, 4rem); /* ตัวใหญ่สะใจ */
-    font-weight: 600; padding-left: 100%; animation: marquee 20s linear infinite;
+    color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%;
+    /* Default Speed: 20s (จะถูกทับด้วย JS) */
+    animation: marquee 20s linear infinite; 
 }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
@@ -80,7 +70,11 @@ iframe { width: 100%; height: 100%; border: none; }
 .admin-card { background: var(--admin-card); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
 .login-box { width: 300px; text-align: center; }
 .card-title { font-size: 1.1rem; color: #ff4444; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: var(--input-bg); color: white; margin-bottom: 15px; box-sizing: border-box; }
+input:not([type="range"]) { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: var(--input-bg); color: white; margin-bottom: 15px; box-sizing: border-box; }
 .btn-save { width: 100%; padding: 15px; border-radius: 50px; background: linear-gradient(135deg, #cc0000, #990000); color: white; font-weight: bold; border: none; cursor: pointer; }
 .btn-secondary { width: 100%; padding: 12px; margin-top: 10px; border-radius: 50px; border: 1px solid #444; background: transparent; color: #aaa; cursor: pointer; }
 #login-error { color: red; display: none; margin-top: 10px; }
+
+/* ✅ Slider Style */
+.slider-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #2c2c2c; padding: 10px; border-radius: 8px; }
+input[type="range"] { flex-grow: 1; cursor: pointer; }
