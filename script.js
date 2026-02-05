@@ -18,7 +18,9 @@ const db = getDatabase(app);
 const isDisplayPage = document.getElementById('display-root');
 const isAdminPage = document.getElementById('admin-root');
 const DEFAULT_SHOP_NAME = "ห้างทองจินฮั้วเฮง"; 
-let isManualMode = false; // ตัวแปรเก็บสถานะ Manual
+
+// ตัวแปร Global สำหรับเก็บสถานะ (สำคัญมาก)
+let isManualMode = false; 
 
 // ==========================================
 // 📺 หน้า Display
@@ -27,51 +29,63 @@ if (isDisplayPage) {
     const videoFrame = document.getElementById('video-frame');
     const marqueeText = document.getElementById('marquee-text');
     const shopNameText = document.getElementById('shop-name-text');
+    
+    // อ้างอิง Element ราคา (ต้องตรงกับ ID ใน index.html ใหม่)
     const goldBuyEl = document.getElementById('gold-buy');
     const goldSellEl = document.getElementById('gold-sell');
     const modeIndicator = document.getElementById('mode-indicator');
 
-    // 1. นาฬิกา
+    // 1. เริ่มระบบนาฬิกา
     updateBigClock();
     setInterval(updateBigClock, 1000);
 
-    // 2. Fetch API ทุก 10 นาที (จะแสดงผลก็ต่อเมื่อไม่เปิด Manual Mode)
+    // 2. เริ่มระบบดึง API (ตั้งเวลาดึงทุก 10 นาที)
     fetchGoldBarPrice();
     setInterval(fetchGoldBarPrice, 600000);
 
-    // 3. Firebase Listener
+    // 3. ฟังค่าจาก Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // อัปเดตข้อมูลทั่วไป
+            // --- อัปเดตข้อมูลทั่วไป ---
             if (shopNameText) shopNameText.textContent = (data.shopName && data.shopName.trim() !== "") ? data.shopName : DEFAULT_SHOP_NAME;
             if (data.marquee) marqueeText.textContent = data.marquee;
+
+            // --- Video & Shorts ---
+            const videoId = getYoutubeID(data.videoUrl);
+            if (videoId) {
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                // เช็คก่อนเปลี่ยน src เพื่อไม่ให้วิดีโอกระตุกถ้าเป็นลิงก์เดิม
+                if(videoFrame.src !== embedUrl && videoFrame.src.indexOf(videoId) === -1) {
+                    videoFrame.src = embedUrl;
+                }
+            }
             
-            // Speed & Video
+            // --- Speed ---
             let speedVal = data.speed || 50;
             let duration = 65 - (speedVal * 0.6); 
             if (duration < 5) duration = 5;
             document.documentElement.style.setProperty('--marquee-duration', `${duration}s`);
 
-            const videoId = getYoutubeID(data.videoUrl);
-            if (videoId) {
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
-                if(videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
-            }
-
-            // --- Logic ราคาทอง (Auto vs Manual) ---
-            isManualMode = data.manualMode === true;
+            // --- 🔧 LOGIC สำคัญ: Manual vs Auto ---
+            isManualMode = (data.manualMode === true); // อัปเดตตัวแปร Global
             
             if (isManualMode) {
-                // ถ้าเปิดโหมด Manual ให้ใช้ค่าจาก Firebase
+                // ✅ ถ้าเป็น Manual: บังคับเปลี่ยนตัวเลขทันที!
                 if(goldBuyEl) goldBuyEl.textContent = data.manualBuy || "-,---";
                 if(goldSellEl) goldSellEl.textContent = data.manualSell || "-,---";
-                if(modeIndicator) modeIndicator.style.display = 'inline'; // แสดง text ว่า Manual
+                
+                // เปลี่ยนสีหรือแสดงสถานะว่า Manual
+                if(modeIndicator) modeIndicator.style.display = 'inline-block';
+                
             } else {
-                // ถ้าปิดโหมด Manual (Auto) ให้ดึง API ใหม่ทันทีเพื่อให้แน่ใจว่าเป็นราคาล่าสุด
+                // ✅ ถ้าเป็น Auto: ซ่อนป้าย Manual แล้วดึง API
                 if(modeIndicator) modeIndicator.style.display = 'none';
-                fetchGoldBarPrice(); // เรียกใช้ฟังก์ชันดึง API
+                
+                // (Optional) เรียก API ทันทีที่สลับกลับมา Auto เพื่อความชัวร์
+                // แต่ถ้าไม่อยากให้ API ยิงบ่อยเกินไป บรรทัดนี้ไม่ต้องใส่ก็ได้ รอรอบถัดไป
+                fetchGoldBarPrice(); 
             }
         }
     });
@@ -109,17 +123,23 @@ if (isAdminPage) {
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
-        if(data && document.activeElement.tagName !== "INPUT") {
-            document.getElementById('shop-name-input').value = data.shopName || "";
-            document.getElementById('video-input').value = data.videoUrl || "";
-            document.getElementById('marquee-input').value = data.marquee || "";
+        if(data) {
+            // เช็คว่า User กำลังพิมพ์อยู่ไหม (ยกเว้น Checkbox)
+            const activeTag = document.activeElement.tagName;
+            const activeId = document.activeElement.id;
             
-            // โหลดค่า Manual
-            document.getElementById('manual-mode-check').checked = data.manualMode || false;
-            document.getElementById('manual-buy-input').value = data.manualBuy || "";
-            document.getElementById('manual-sell-input').value = data.manualSell || "";
+            // อัปเดตค่า Input Text ถ้าไม่ได้กำลังพิมพ์ช่องนั้นอยู่
+            if (activeId !== 'shop-name-input') document.getElementById('shop-name-input').value = data.shopName || "";
+            if (activeId !== 'video-input') document.getElementById('video-input').value = data.videoUrl || "";
+            if (activeId !== 'marquee-input') document.getElementById('marquee-input').value = data.marquee || "";
+            
+            if (activeId !== 'manual-buy-input') document.getElementById('manual-buy-input').value = data.manualBuy || "";
+            if (activeId !== 'manual-sell-input') document.getElementById('manual-sell-input').value = data.manualSell || "";
 
-            if(data.speed) {
+            // Checkbox ไม่มีผลกับการพิมพ์ อัปเดตได้เลย
+            document.getElementById('manual-mode-check').checked = (data.manualMode === true);
+
+            if(data.speed && activeId !== 'speed-input') {
                 speedInput.value = data.speed;
                 speedInput.dispatchEvent(new Event('input'));
             }
@@ -129,14 +149,18 @@ if (isAdminPage) {
     // บันทึก
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        // ดึงค่า Checkbox ออกมา
+        const isManual = document.getElementById('manual-mode-check').checked;
+
         set(ref(db, 'signage/status'), {
             shopName: document.getElementById('shop-name-input').value,
             videoUrl: document.getElementById('video-input').value,
             marquee: document.getElementById('marquee-input').value,
             speed: parseInt(speedInput.value),
             
-            // บันทึกค่า Manual
-            manualMode: document.getElementById('manual-mode-check').checked,
+            // ส่งค่า Manual
+            manualMode: isManual,
             manualBuy: document.getElementById('manual-buy-input').value,
             manualSell: document.getElementById('manual-sell-input').value,
             
@@ -150,11 +174,11 @@ if (isAdminPage) {
 }
 
 // ==========================================
-// 🛠️ Helpers
+// 🛠️ Helper Functions
 // ==========================================
 
 async function fetchGoldBarPrice() {
-    // ถ้าเป็นโหมด Manual ให้จบการทำงานทันที ไม่ต้องดึง API
+    // 🛡️ ด่านที่ 1: ถ้าเป็นโหมด Manual อยู่ ให้ออกเลย ไม่ต้องยิง API
     if (isManualMode) return;
 
     try {
@@ -163,19 +187,24 @@ async function fetchGoldBarPrice() {
         
         if (data && data.response && data.response.price) {
             const prices = data.response.price.gold_bar;
-
             const rawBuy = prices.buy.toString().replace(/,/g, '');
             const rawSell = prices.sell.toString().replace(/,/g, '');
             const buyPrice = Math.floor(parseFloat(rawBuy));
             const sellPrice = Math.floor(parseFloat(rawSell));
 
-            // แสดงผล (เช็คอีกทีว่าระหว่างรอ API โหมดยังเป็น Auto อยู่ไหม)
-            if (!isManualMode) {
+            // 🛡️ ด่านที่ 2 (สำคัญมาก): เช็คอีกทีว่าระหว่างรอ API โหมดยังเป็น Auto อยู่ไหม
+            // เพราะบางทีเน็ตช้า ระหว่างรอ User อาจจะกดสลับโหมดไปแล้ว
+            if (isManualMode === false) { 
                 const goldBuyEl = document.getElementById('gold-buy');
                 const goldSellEl = document.getElementById('gold-sell');
 
                 if(goldBuyEl) goldBuyEl.textContent = buyPrice.toLocaleString('th-TH');
                 if(goldSellEl) goldSellEl.textContent = sellPrice.toLocaleString('th-TH');
+                
+                // Debug Log
+                console.log("API Updated: ", buyPrice, sellPrice);
+            } else {
+                console.log("API Fetched but ignored (Manual Mode is ON)");
             }
         }
     } catch (error) {
