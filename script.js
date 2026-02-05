@@ -58,20 +58,16 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // Speed Control
         const speed = data.marqueeSpeed || 20;
         document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
 
-        // Video Control
         const videoFrame = document.getElementById('video-frame');
         const vidId = getYoutubeID(data.videoUrl);
         if (vidId) {
-            // mute=0 for sound (user must interact once)
             const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1&showinfo=0`;
             if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
         }
 
-        // Price Control
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
         const updateInfo = document.getElementById('last-update');
