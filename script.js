@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// --- Config Firebase (ใช้ค่าเดิมของคุณ) ---
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -15,33 +14,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- Elements ---
 const displayRoot = document.getElementById('display-root');
 const adminRoot = document.getElementById('admin-root');
 const adminTrigger = document.getElementById('admin-trigger');
 const btnBackDisplay = document.getElementById('btn-back-display');
 
-// Global Vars
 let isManualMode = false;
 
-// ==========================================
-// 🚀 เริ่มต้นระบบ
-// ==========================================
-
-// 1. ตรวจสอบว่าเปิดโหมดไหน (URL Hash) หรือ Default
+// --- Init ---
 checkMode();
 
 function checkMode() {
-    if(window.location.hash === '#admin') {
-        openAdmin();
-    } else {
-        openDisplay();
-    }
+    if(window.location.hash === '#admin') openAdmin();
+    else openDisplay();
 }
 
-// 2. Event Listeners สำหรับเปลี่ยนโหมด
 if(adminTrigger) {
-    // คลิกมุมขวาล่าง 3 ครั้ง หรือ กดค้าง (สำหรับ Touch) เพื่อเข้า Admin
     adminTrigger.addEventListener('dblclick', () => {
         window.location.hash = 'admin';
         location.reload();
@@ -49,33 +37,27 @@ if(adminTrigger) {
 }
 if(btnBackDisplay) {
     btnBackDisplay.addEventListener('click', () => {
-        window.location.hash = ''; // เคลียร์ hash
+        window.location.hash = ''; 
         location.reload();
     });
 }
 
-// ==========================================
-// 📺 DISPLAY LOGIC
-// ==========================================
+// --- Display Logic ---
 function openDisplay() {
     displayRoot.style.display = 'flex';
     adminRoot.style.display = 'none';
 
-    // เริ่มนาฬิกา
     updateClock();
     setInterval(updateClock, 1000);
 
-    // ดึงข้อมูล Firebase
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // 1. Text Info
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // 2. Video
         const videoFrame = document.getElementById('video-frame');
         const vidId = getYoutubeID(data.videoUrl);
         if (vidId) {
@@ -83,31 +65,28 @@ function openDisplay() {
             if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
         }
 
-        // 3. Price Logic (Manual vs Auto)
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
+        const updateInfo = document.getElementById('last-update');
         
         if (isManualMode) {
-            // Manual Mode
             updateText('gold-buy', data.manualBuy || "-");
             updateText('gold-sell', data.manualSell || "-");
             if(modeIndicator) modeIndicator.style.display = 'block';
+            if(updateInfo) updateInfo.textContent = "ราคาปรับโดยทางร้าน";
         } else {
-            // Auto Mode
             if(modeIndicator) modeIndicator.style.display = 'none';
-            fetchGoldAPI(); // เรียก API ทันที
+            fetchGoldAPI(); 
         }
     });
 
-    // ตั้งเวลาเรียก API ทุก 10 นาที (ถ้า Auto อยู่)
+    // ดึง API ทุก 10 นาที
     setInterval(() => {
         if(!isManualMode) fetchGoldAPI();
     }, 600000);
 }
 
-// ==========================================
-// ⚙️ ADMIN LOGIC
-// ==========================================
+// --- Admin Logic ---
 function openAdmin() {
     displayRoot.style.display = 'none';
     adminRoot.style.display = 'block';
@@ -116,7 +95,6 @@ function openAdmin() {
     const controlPanel = document.getElementById('control-panel');
     const btnLogin = document.getElementById('btn-login');
     
-    // Check Session
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         loginModal.style.display = 'none';
         controlPanel.style.display = 'block';
@@ -124,8 +102,7 @@ function openAdmin() {
     }
 
     btnLogin.addEventListener('click', () => {
-        const pwd = document.getElementById('password-input').value;
-        if (pwd === '987654321') {
+        if (document.getElementById('password-input').value === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
             loginModal.style.display = 'none';
             controlPanel.style.display = 'block';
@@ -142,13 +119,10 @@ function openAdmin() {
 }
 
 function initAdminControls() {
-    // 1. Load Data to Inputs
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-
-        // Fill inputs only if not currently focused (to prevent overwriting while typing)
         if(document.activeElement.tagName !== 'INPUT') {
             setVal('shop-name-input', data.shopName);
             setVal('marquee-input', data.marquee);
@@ -160,16 +134,11 @@ function initAdminControls() {
         }
     });
 
-    // 2. Checkbox Logic
     const manualCheck = document.getElementById('manual-mode-check');
-    manualCheck.addEventListener('change', (e) => {
-        toggleManualInputs(e.target.checked);
-    });
+    manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
 
-    // 3. Save Data
     document.getElementById('control-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        
         set(ref(db, 'signage/status'), {
             shopName: getVal('shop-name-input'),
             marquee: getVal('marquee-input'),
@@ -184,22 +153,12 @@ function initAdminControls() {
 
 function toggleManualInputs(isManual) {
     const box = document.getElementById('manual-controls');
-    if(isManual) {
-        box.style.opacity = '1';
-        box.style.pointerEvents = 'auto';
-    } else {
-        box.style.opacity = '0.5';
-        box.style.pointerEvents = 'none';
-    }
+    if(isManual) { box.style.opacity = '1'; box.style.pointerEvents = 'auto'; } 
+    else { box.style.opacity = '0.5'; box.style.pointerEvents = 'none'; }
 }
 
-// ==========================================
-// 🛠 Helpers
-// ==========================================
-function updateText(id, text) {
-    const el = document.getElementById(id);
-    if(el && text) el.textContent = text;
-}
+// --- Helpers ---
+function updateText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
 function getVal(id) { return document.getElementById(id).value; }
 function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
 
@@ -209,16 +168,31 @@ function updateClock() {
     updateText('clock-date', now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
 }
 
+// 🔧 แก้ไขฟังก์ชันดึง API ให้รองรับ Cache Busting และแสดงวันที่อัปเดต
 async function fetchGoldAPI() {
     try {
-        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+        // เติม ?v=TimeNow เพื่อกัน Caching
+        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest?v=' + Date.now());
         const data = await response.json();
+        
         if (data?.response?.price?.gold_bar) {
             const p = data.response.price.gold_bar;
+            const r = data.response;
+            
+            // อัปเดตราคา
             updateText('gold-buy', Math.floor(p.buy).toLocaleString());
             updateText('gold-sell', Math.floor(p.sell).toLocaleString());
+            
+            // อัปเดตวันที่/เวลาของราคา (ใช้ update_date ถ้ามี หรือ date)
+            const dateStr = r.update_date || r.date || "-";
+            const timeStr = r.update_time || r.time || "-";
+            updateText('last-update', `ราคาอัปเดตล่าสุด: ${dateStr} ${timeStr}`);
         }
-    } catch (err) { console.error("API Error", err); }
+    } catch (err) { 
+        console.error("API Error", err); 
+        // กรณีดึงไม่ได้ ให้แสดงข้อความเตือนเล็กน้อย (หรือปล่อยเป็นค่าเดิม)
+        updateText('last-update', 'ไม่สามารถเชื่อมต่อสมาคมฯ ได้ (แสดงราคาเดิม)');
+    }
 }
 
 function getYoutubeID(url) {
