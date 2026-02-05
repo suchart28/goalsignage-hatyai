@@ -45,47 +45,28 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 @keyframes blink { 50% { opacity: 0.5; } }
 
 /* ========================================= */
-/* 🟡 Right Panel (Video Full Fill) */
+/* 🟡 Right Panel (Zoom Cover - No Black Bar) */
 /* ========================================= */
 .right-panel { 
     width: 60%; 
     background-color: #000; 
     position: relative; 
-    overflow: hidden; /* ตัดส่วนเกินออก */
+    overflow: hidden; 
 }
-
-/* Wrapper สำหรับจัดกึ่งกลางและขยาย */
 .video-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    /* สูตรคำนวณ: 
-       เพื่อให้วิดีโอ 16:9 สูงเต็มจอ (100vh) 
-       ความกว้างจะต้องเท่ากับ 100vh * (16/9) = 177.777vh
-       ด้วยวิธีนี้ วิดีโอจะใหญ่กว่ากล่องเสมอ ทำให้ไม่มีขอบดำ
-    */
-    height: 100vh;
-    width: 177.77vh; 
-    
-    /* กรณีหน้าจอแนวตั้งมากๆ ให้สลับ logic (เผื่อไว้) */
-    min-width: 100%;
-    min-height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; 
 }
-
-iframe { 
-    width: 100%; 
-    height: 100%; 
-    border: none; 
-    pointer-events: none; /* ป้องกันการคลิกที่วิดีโอ (เพื่อให้คลิกจอตรงไหนก็ได้) */
+iframe {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 100vw; height: 56.25vw; /* 16:9 ratio based on width */
+    min-height: 100vh; min-width: 177.78vh; /* 16:9 ratio based on height */
+    border: none;
 }
 
 /* Marquee */
 .marquee-wrapper {
     position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh;
-    background: rgba(0,0,0,0.8); /* โปร่งแสงนิดนึงให้เห็นวิดีโอข้างหลังลางๆ */
-    overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    background: rgba(0,0,0,0.8); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
     border-top: 4px solid var(--gold-dark); box-sizing: border-box;
 }
 .marquee-content {
