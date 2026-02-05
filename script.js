@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
+// ใส่ Firebase Config ของคุณที่นี่ (อันนี้เป็นตัวอย่าง)
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -42,7 +43,7 @@ if(btnBackDisplay) {
     });
 }
 
-// --- Display ---
+// --- Display Mode ---
 function openDisplay() {
     displayRoot.style.display = 'flex';
     adminRoot.style.display = 'none';
@@ -58,7 +59,8 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        const speed = data.marqueeSpeed || 20;
+        // ตั้งค่าความเร็วตัววิ่ง (ค่าเริ่มต้น 40s)
+        const speed = data.marqueeSpeed || 40;
         document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
 
         const videoFrame = document.getElementById('video-frame');
@@ -88,7 +90,7 @@ function openDisplay() {
     }, 600000);
 }
 
-// --- Admin ---
+// --- Admin Mode ---
 function openAdmin() {
     displayRoot.style.display = 'none';
     adminRoot.style.display = 'block';
@@ -132,7 +134,7 @@ function initAdminControls() {
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
-            const currentSpeed = data.marqueeSpeed || 20;
+            const currentSpeed = data.marqueeSpeed || 40;
             document.getElementById('marquee-speed-input').value = currentSpeed;
             updateText('speed-value-display', currentSpeed);
 
