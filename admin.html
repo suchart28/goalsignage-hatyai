@@ -24,12 +24,23 @@
                 <input type="text" id="shop-name-input" placeholder="เช่น ห้างทอง...">
             </div>
 
-            <div class="card" style="border: 1px solid var(--gold-color);">
-                <div class="card-title">💍 ราคาทองรูปพรรณ (กำหนดเอง)</div>
-                <label style="color:#33ff00;">ราคารับซื้อ (บาท)</label>
-                <input type="text" id="ornament-buy-input" placeholder="เช่น 40,000">
-                <label style="color:#ffd700; margin-top:10px; display:block;">ราคาขายออก (บาท)</label>
-                <input type="text" id="ornament-sell-input" placeholder="เช่น 45,000">
+            <div class="card" style="border: 2px solid var(--gold-color);">
+                <div class="card-title">💰 ราคาทองคำแท่ง</div>
+                
+                <div style="background:#333; padding:15px; border-radius:10px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
+                    <label style="margin:0; color:white; font-size:1.1rem;">โหมดกำหนดราคาเอง (Manual)</label>
+                    <input type="checkbox" id="manual-mode-check" style="width:25px; height:25px; accent-color:var(--accent-color);">
+                </div>
+
+                <div id="manual-inputs">
+                    <label style="color:#33ff00;">ราคารับซื้อ (บาท)</label>
+                    <input type="text" id="manual-buy-input" placeholder="เช่น 43,000">
+                    
+                    <label style="color:#ffd700; margin-top:10px; display:block;">ราคาขายออก (บาท)</label>
+                    <input type="text" id="manual-sell-input" placeholder="เช่น 43,100">
+                    
+                    <small style="display:block; margin-top:10px; color:#aaa;">* ถ้าไม่ติ๊ก "Manual" ระบบจะดึงราคาจากสมาคมฯ ให้อัตโนมัติ</small>
+                </div>
             </div>
 
             <div class="card">
