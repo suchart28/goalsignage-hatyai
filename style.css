@@ -25,10 +25,10 @@ body, html {
 
 .display-container { display: grid; grid-template-rows: 1fr var(--marquee-height); height: 100vh; width: 100vw; }
 
-/* 🔧 ปรับ Layout ใหม่: ให้พื้นที่วิดีโอ (ขวา) กว้างขึ้นเป็น 35% */
+/* 🔧 ปรับ Layout ใหม่: ให้พื้นที่วิดีโอ (ขวา) ใหญ่กว่าที่ 55% */
 .top-section { 
     display: grid; 
-    grid-template-columns: 65fr 35fr; 
+    grid-template-columns: 45fr 55fr; /* ซ้าย 45 : ขวา 55 */
     overflow: hidden; 
 }
 
@@ -37,19 +37,19 @@ body, html {
     background: radial-gradient(circle at center, #2b0000 0%, #100000 100%);
     display: flex; flex-direction: column; 
     border-right: 4px solid var(--gold-color); 
-    padding: 20px 40px; 
+    padding: 15px 30px; /* ลด padding ลงนิดหน่อย */
     box-sizing: border-box;
-    justify-content: flex-start; /* เริ่มเรียงจากด้านบน */
+    justify-content: flex-start;
 }
 
 .gold-header { 
     text-align: center; width: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    margin-bottom: 15px; flex-shrink: 0;
+    margin-bottom: 10px; flex-shrink: 0;
 }
 
 .shop-logo {
-    max-height: 12vh; /* ลดขนาดโลโก้นิดนึง เพื่อให้เนื้อหาอื่นมีที่ */
+    max-height: 10vh; /* ลดขนาดโลโก้ลงเพื่อให้เนื้อหาอื่นไม่อึดอัด */
     max-width: 80%;
     object-fit: contain;
     margin-bottom: 5px;
@@ -58,7 +58,7 @@ body, html {
 
 .shop-name {
     margin: 0;
-    font-size: clamp(2.5rem, 4vw, 5rem); 
+    font-size: clamp(2rem, 3.5vw, 4rem); 
     font-weight: 800; line-height: 1.2;
     background: linear-gradient(to bottom, #fffbcc 0%, #ffd700 50%, #b8860b 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -66,78 +66,71 @@ body, html {
 }
 
 .main-title {
-    font-size: 1.8rem; color: #ddd; margin-bottom: 20px; font-weight: 300; text-align: center;
+    font-size: 1.5rem; color: #ddd; margin-bottom: 15px; font-weight: 300; text-align: center;
     background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 50px;
     border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
 }
 
-/* --- Wrapper สำหรับ 2 กล่อง (แนวตั้ง) --- */
+/* --- Wrapper --- */
 .price-wrapper {
     display: flex;
-    flex-direction: column; /* 🔧 เรียงแนวตั้ง */
+    flex-direction: column;
     width: 100%;
-    height: 100%; /* ยืดเต็มพื้นที่ที่เหลือ */
-    gap: 20px; /* ช่องว่างระหว่างกล่อง */
-    padding-bottom: 20px;
+    height: 100%;
+    gap: 15px;
+    padding-bottom: 15px;
 }
 
 /* --- ดีไซน์การ์ดราคา --- */
 .price-card {
-    flex: 1; /* ยืดให้สูงเท่ากัน */
-    border-radius: 30px;
-    padding: 0 40px; /* Padding แนวนอน */
+    flex: 1;
+    border-radius: 25px;
+    padding: 10px 20px;
     display: flex;
-    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
-    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    flex-direction: column; /* 🔧 เปลี่ยนเป็นแนวตั้ง (Label บน, ราคา ล่าง) */
+    align-items: center; 
+    justify-content: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
-    border: 3px solid rgba(255,255,255,0.15);
-}
-
-.card-content {
-    width: 100%;
-    display: flex;
-    flex-direction: row; /* จัด Label กับ ตัวเลข ให้อยู่บรรทัดเดียวกัน หรือคนละฝั่ง */
-    justify-content: space-between;
-    align-items: center;
+    border: 2px solid rgba(255,255,255,0.15);
 }
 
 /* 🟩 การ์ดรับซื้อ */
 .card-buy {
-    background: linear-gradient(90deg, #002b15 0%, #004d26 50%, #002b15 100%);
+    background: linear-gradient(135deg, #002b15 0%, #004d26 100%);
     border-color: #00ff66;
-    box-shadow: 0 0 30px rgba(0, 255, 102, 0.1);
+    box-shadow: 0 0 25px rgba(0, 255, 102, 0.1);
 }
 
 /* 🟥 การ์ดขายออก */
 .card-sell {
-    background: linear-gradient(90deg, #4d0000 0%, #800000 50%, #4d0000 100%);
+    background: linear-gradient(135deg, #4d0000 0%, #800000 100%);
     border-color: #ff3333;
-    box-shadow: 0 0 30px rgba(255, 51, 51, 0.15);
+    box-shadow: 0 0 25px rgba(255, 51, 51, 0.15);
 }
 
 .card-label {
-    font-size: clamp(1.5rem, 2.5vw, 3rem);
+    font-size: clamp(1.2rem, 1.8vw, 2.5rem);
     color: #ffffff;
     font-weight: 500;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     background: rgba(0,0,0,0.3);
-    padding: 10px 25px; border-radius: 15px;
+    padding: 5px 20px; border-radius: 50px;
     white-space: nowrap;
+    margin-bottom: 5px; /* เว้นระยะห่างจากตัวเลข */
 }
 
-/* 🔧 ตัวเลขราคา (ปรับให้ใหญ่เต็มพื้นที่แนวนอน) */
+/* 🔧 ตัวเลขราคา */
 .price-number {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(4rem, 9vw, 12rem); /* ใหญ่สะใจ */
+    font-size: clamp(4rem, 10vw, 13rem); /* ยังคงใหญ่สะใจ */
     font-weight: bold;
     color: #ffeeb3;
     text-shadow: 0px 4px 0px #b8860b, 0px 0px 20px rgba(255, 215, 0, 0.4);
     font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
-    letter-spacing: -2px;
-    text-align: right;
-    flex-grow: 1;
+    letter-spacing: -3px;
+    line-height: 1;
 }
 
 /* ================= RIGHT ZONE (VIDEO + CLOCK) ================= */
@@ -149,49 +142,47 @@ body, html {
     justify-content: flex-start;
 }
 
-/* 🔧 กล่องวิดีโอ 16:9 แบบไม่มีขอบดำ */
+/* 🔧 กล่องวิดีโอ 16:9 */
 .video-container-16-9 {
     width: 100%;
-    aspect-ratio: 16 / 9; /* บังคับสัดส่วน 16:9 เป๊ะๆ */
+    aspect-ratio: 16 / 9; /* ล็อกสัดส่วน */
     background: #000;
     position: relative;
     border-bottom: 4px solid var(--gold-color);
 }
 
 iframe { 
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%; 
-    border: none; 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; 
 }
 
-/* พื้นที่นาฬิกา (อยู่ใต้วิดีโอ ยืดเต็มที่เหลือ) */
+/* พื้นที่นาฬิกา (เนื่องจากวิดีโอใหญ่ขึ้น พื้นที่ตรงนี้จะเล็กลง) */
 .clock-section {
-    flex-grow: 1; /* ยืดให้เต็มพื้นที่ด้านล่างที่เหลือ */
+    flex-grow: 1; 
     background: radial-gradient(circle, #222 0%, #000 100%);
     display: flex; 
     flex-direction: column; 
     justify-content: center; 
     align-items: center;
-    padding: 20px;
+    padding: 10px;
 }
 
 .big-time {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 8vw; /* ขยายนาฬิกาให้ใหญ่ขึ้นเพราะมีพื้นที่เยอะ */
+    font-size: 7vw; /* ปรับขนาดให้พอดีพื้นที่ */
     font-weight: bold; color: white; line-height: 1;
     text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
     font-feature-settings: "tnum"; font-variant-numeric: tabular-nums;
 }
 
 .big-date { 
-    font-size: 1.5rem; 
+    font-size: 1.2rem; 
     color: var(--gold-color); 
-    margin-top: 15px; 
+    margin-top: 10px; 
     font-weight: 300; 
 }
 
-/* ================= MARQUEE ================= */
+/* ================= MARQUEE & ADMIN ================= */
+/* (ส่วนนี้เหมือนเดิมครับ) */
 .marquee-container {
     background-color: var(--admin-card); color: var(--gold-color);
     font-size: 2.5rem; font-weight: 600;
@@ -201,8 +192,6 @@ iframe {
 .marquee-content { display: inline-block; padding-left: 100%; animation: marquee var(--marquee-duration) linear infinite; }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
-/* ================= ADMIN CSS ================= */
-/* (เหมือนเดิม ใช้จากชุดก่อนหน้าได้เลย หรือ Copy ส่วนนี้ไปก็ได้) */
 .admin-body { background-color: var(--admin-bg); color: var(--admin-text); padding: 20px; overflow-y: auto; }
 #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
 .control-panel { max-width: 600px; padding-bottom: 50px; display: none; margin: 0 auto; }
