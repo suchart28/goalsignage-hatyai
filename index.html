@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold Shop System</title>
+    <title>Gold Shop Digital Signage</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -40,6 +40,7 @@
                 
                 <div id="clock-time" class="time-text">--:--:--</div>
                 <div id="clock-date" class="date-text">กำลังโหลด...</div>
+                
                 <div id="mode-indicator" class="manual-tag" style="display: none;">⚠ Manual Mode</div>
             </div>
         </div>
@@ -52,23 +53,24 @@
             <div id="marquee-text" class="marquee-content">...</div>
         </div>
         
-        <div id="admin-trigger" style="position:fixed; bottom:0; right:0; width:50px; height:50px; z-index:9999; cursor:pointer;"></div>
+        <div id="admin-trigger"></div>
     </div>
 
     <div id="admin-root" style="display: none;">
+        
         <div id="login-modal">
             <div class="admin-card login-box">
                 <h2>🔐 เข้าสู่ระบบจัดการ</h2>
                 <input type="password" id="password-input" placeholder="รหัสผ่าน (987654321)">
                 <button id="btn-login" class="btn-save">เข้าสู่ระบบ</button>
-                <p id="login-error" style="color:red; display:none; margin-top:10px;">รหัสผ่านไม่ถูกต้อง</p>
+                <p id="login-error">รหัสผ่านไม่ถูกต้อง</p>
             </div>
         </div>
 
         <div id="control-panel" class="control-panel">
             <div class="admin-header">
                 <h2>⚙️ ตั้งค่าหน้าจอ</h2>
-                <button id="btn-logout" style="background:none; border:none; color:white; cursor:pointer;">ออกจากระบบ</button>
+                <button id="btn-logout">ออกจากระบบ</button>
             </div>
 
             <form id="control-form">
@@ -76,10 +78,12 @@
                     <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
                     <label>ชื่อร้าน</label>
                     <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
+                    
                     <label>ข้อความตัววิ่ง</label>
                     <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
-                    <label>ลิงก์ YouTube</label>
-                    <input type="text" id="video-input" placeholder="URL วิดีโอ...">
+
+                    <label>ลิงก์ YouTube (Video URL)</label>
+                    <input type="text" id="video-input" placeholder="เช่น https://www.youtube.com/watch?v=...">
                 </div>
 
                 <div class="admin-card">
@@ -89,11 +93,12 @@
                             <input type="checkbox" id="manual-mode-check"> ปรับเอง (Manual)
                         </label>
                     </div>
+                    
                     <div id="manual-controls" style="opacity: 0.5; pointer-events: none;">
                         <label>ราคารับซื้อ</label>
-                        <input type="text" id="manual-buy-input">
+                        <input type="text" id="manual-buy-input" placeholder="เช่น 42,000">
                         <label>ราคาขายออก</label>
-                        <input type="text" id="manual-sell-input">
+                        <input type="text" id="manual-sell-input" placeholder="เช่น 42,100">
                     </div>
                 </div>
 
