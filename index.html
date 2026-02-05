@@ -3,50 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Signage Display</title>
+    <title>Gold Shop Display</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="display-root" class="display-container">
+    <div class="main-layout">
         
-        <div class="top-section">
+        <div class="left-panel">
             
-            <div class="zone-gold">
-                <div class="gold-header">
-                    <img src="logo.png" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
-                    <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
-                </div>
-                
-                <div class="price-wrapper">
-                    <div class="price-card card-buy">
-                        <div class="card-label">ราคารับซื้อ (บาท)</div>
-                        <div id="gold-buy" class="price-number">-,---</div>
-                    </div>
-
-                    <div class="price-card card-sell">
-                        <div class="card-label">ราคาขายออก (บาท)</div>
-                        <div id="gold-sell" class="price-number">-,---</div>
-                    </div>
-                </div>
-
-                <div class="clock-section-mini">
-                    <div id="clock-time" class="mini-time">--:--:--</div>
-                    <div id="clock-date" class="mini-date">กำลังโหลดวันที่...</div>
-                    <div id="mode-indicator" class="manual-badge" style="display: none;">⚠ Manual Mode</div>
-                </div>
+            <div class="header-group">
+                <img src="logo.png" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
+                <h1 id="shop-name-text" class="shop-name">ห้างเพชรทองโกลด์ไซน์</h1>
+                <div class="sub-header">ราคาทองคำแท่ง</div>
             </div>
 
-            <div class="zone-video">
-                <div class="video-container-16-9">
-                    <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+            <div class="price-container">
+                
+                <div class="price-row">
+                    <div class="price-label">รับซื้อ</div>
+                    <div class="price-value-box">
+                        <span id="gold-buy" class="the-price">-,---</span>
+                    </div>
                 </div>
+
+                <div class="price-row">
+                    <div class="price-label">ขายออก</div>
+                    <div class="price-value-box">
+                        <span id="gold-sell" class="the-price">-,---</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="clock-footer">
+                <div id="clock-time" class="time-text">--:--:--</div>
+                <div id="clock-date" class="date-text">กำลังโหลดวันที่...</div>
+                <div id="mode-indicator" class="manual-tag" style="display: none;">Manual Mode</div>
             </div>
         </div>
 
-        <div class="marquee-container">
-            <div id="marquee-text" class="marquee-content">
-                กำลังโหลดข้อมูล...
-            </div>
+        <div class="right-panel">
+            <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+        </div>
+
+    </div>
+
+    <div class="marquee-wrapper">
+        <div id="marquee-text" class="marquee-content">
+            ยินดีต้อนรับเข้าสู่ห้างทอง...
         </div>
     </div>
 
