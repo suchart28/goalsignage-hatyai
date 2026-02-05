@@ -19,22 +19,22 @@
                 
                 <div class="main-title">
                     ราคาทองคำแท่ง 96.5%
-                    <span id="mode-indicator" style="font-size: 1rem; color: #aaa; display: none;">(Manual Mode)</span>
+                    <span id="mode-indicator" style="font-size: 1rem; color: #aaa; display: none;">(Manual)</span>
                 </div>
 
                 <div class="price-wrapper">
                     
                     <div class="price-card card-buy">
-                        <div class="card-header">ราคารับซื้อ (บาท)</div>
-                        <div class="card-body">
-                            <span id="gold-buy" class="price-number">-,---</span>
+                        <div class="card-content">
+                            <div class="card-label">ราคารับซื้อ (บาท)</div>
+                            <div id="gold-buy" class="price-number">-,---</div>
                         </div>
                     </div>
 
                     <div class="price-card card-sell">
-                        <div class="card-header">ราคาขายออก (บาท)</div>
-                        <div class="card-body">
-                            <span id="gold-sell" class="price-number">-,---</span>
+                        <div class="card-content">
+                            <div class="card-label">ราคาขายออก (บาท)</div>
+                            <div id="gold-sell" class="price-number">-,---</div>
                         </div>
                     </div>
 
@@ -42,12 +42,14 @@
             </div>
 
             <div class="zone-video">
+                
+                <div class="video-container-16-9">
+                    <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+                </div>
+
                 <div class="clock-section">
                     <div id="clock-time" class="big-time">--:--:--</div>
                     <div id="clock-date" class="big-date">กำลังโหลดวันที่...</div>
-                </div>
-                <div class="video-wrapper">
-                    <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
                 </div>
             </div>
         </div>
