@@ -17,7 +17,7 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 
 /* Left Panel */
 .left-panel { width: 40%; background-color: var(--bg-red); display: flex; flex-direction: column; align-items: center; border-right: 2px solid #333; position: relative; z-index: 10; box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
-.header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 3vh; }
+.header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 2vh; }
 
 .shop-logo { 
     height: 14vh; width: 14vh; object-fit: cover; margin-bottom: 10px; 
@@ -28,11 +28,40 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .sub-header { color: var(--gold-label); font-size: clamp(1.8rem, 3vw, 3.5rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
 
 /* Price Pills */
-.price-container { width: 90%; display: flex; flex-direction: column; gap: 3vh; }
+.price-container { width: 90%; display: flex; flex-direction: column; gap: 2.5vh; }
 .price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(1.5rem, 2.2vw, 3rem); font-weight: 700; }
 .price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
 .the-price { font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; color: var(--text-black); letter-spacing: -1px; }
+
+/* ✅ Contact Info Styles */
+.contact-container {
+    width: 90%;
+    margin-top: 3vh; /* ระยะห่างจากกล่องราคา */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+}
+.contact-item {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: clamp(0.8rem, 1.1vw, 1.3rem); /* ปรับขนาดตัวอักษรอัตโนมัติ */
+    font-weight: 300;
+    background: rgba(0, 0, 0, 0.2); /* พื้นหลังจางๆ ให้อ่านง่าย */
+    padding: 8px 15px;
+    border-radius: 50px;
+}
+.contact-icon {
+    font-size: 1.6em;
+    margin-right: 15px;
+    width: 30px;
+    text-align: center;
+}
+/* สีไอคอน */
+.fb-color { color: #1877F2; }
+.line-color { color: #06C755; }
+.tiktok-color { color: #ffffff; filter: drop-shadow(1px 1px 0px #000); }
 
 .spacer { flex-grow: 1; }
 
@@ -44,35 +73,14 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .manual-tag { color: #ff4444; font-size: 0.9rem; margin-top: 5px; animation: blink 2s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
 
-/* ========================================= */
-/* 🟡 Right Panel (Zoom Cover - No Black Bar) */
-/* ========================================= */
-.right-panel { 
-    width: 60%; 
-    background-color: #000; 
-    position: relative; 
-    overflow: hidden; 
-}
-.video-wrapper {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; 
-}
-iframe {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 100vw; height: 56.25vw; /* 16:9 ratio based on width */
-    min-height: 100vh; min-width: 177.78vh; /* 16:9 ratio based on height */
-    border: none;
-}
+/* Right Panel (Video Cover) */
+.right-panel { width: 60%; background-color: #000; position: relative; overflow: hidden; }
+.video-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+iframe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.78vh; border: none; }
 
 /* Marquee */
-.marquee-wrapper {
-    position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh;
-    background: rgba(0,0,0,0.8); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
-    border-top: 4px solid var(--gold-dark); box-sizing: border-box;
-}
-.marquee-content {
-    color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%;
-    animation: marquee 20s linear infinite; 
-}
+.marquee-wrapper { position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh; background: rgba(0,0,0,0.8); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20; border-top: 4px solid var(--gold-dark); box-sizing: border-box; }
+.marquee-content { color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%; animation: marquee 20s linear infinite; }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
 /* Admin */
