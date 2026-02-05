@@ -58,12 +58,14 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // --- Video Logic (เปิดเสียง) ---
+        // ✅ ปรับความเร็วตัววิ่ง (ถ้าไม่มีค่า ให้ใช้ 20s)
+        const speed = data.marqueeSpeed || 20;
+        document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
+
+        // --- Video Logic ---
         const videoFrame = document.getElementById('video-frame');
         const vidId = getYoutubeID(data.videoUrl);
         if (vidId) {
-            // mute=0 เพื่อเปิดเสียง
-            // (หมายเหตุ: Browser อาจบล็อกเสียงถ้าผู้ใช้ยังไม่คลิกหน้าจอ)
             const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1`;
             if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
         }
@@ -121,20 +123,35 @@ function openAdmin() {
 }
 
 function initAdminControls() {
+    // โหลดข้อมูลเดิมมาใส่ Input
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
+        
+        // ถ้า User กำลังเลื่อน Slider หรือพิมพ์อยู่ จะไม่ไปขัดจังหวะ
         if(document.activeElement.tagName !== 'INPUT') {
             setVal('shop-name-input', data.shopName);
             setVal('marquee-input', data.marquee);
             setVal('video-input', data.videoUrl);
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
+            
+            // ✅ ตั้งค่า Slider ความเร็ว
+            const currentSpeed = data.marqueeSpeed || 20;
+            document.getElementById('marquee-speed-input').value = currentSpeed;
+            updateText('speed-value-display', currentSpeed);
+
             const isMan = data.manualMode === true;
             document.getElementById('manual-mode-check').checked = isMan;
             toggleManualInputs(isMan);
         }
+    });
+
+    // อัปเดตตัวเลขเมื่อเลื่อน Slider
+    const speedInput = document.getElementById('marquee-speed-input');
+    speedInput.addEventListener('input', (e) => {
+        updateText('speed-value-display', e.target.value);
     });
 
     const manualCheck = document.getElementById('manual-mode-check');
@@ -145,6 +162,7 @@ function initAdminControls() {
         set(ref(db, 'signage/status'), {
             shopName: getVal('shop-name-input'),
             marquee: getVal('marquee-input'),
+            marqueeSpeed: getVal('marquee-speed-input'), // ✅ บันทึกความเร็ว
             videoUrl: getVal('video-input'),
             manualMode: manualCheck.checked,
             manualBuy: getVal('manual-buy-input'),
