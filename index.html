@@ -13,7 +13,8 @@
         
         <div class="left-panel">
             <div class="header-group">
-                <img src="logo.png" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
+                <img src="logo.jpg" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
+                
                 <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
                 <div class="sub-header">ราคาทองคำแท่ง</div>
             </div>
@@ -57,7 +58,6 @@
     </div>
 
     <div id="admin-root" style="display: none;">
-        
         <div id="login-modal">
             <div class="admin-card login-box">
                 <h2>🔐 เข้าสู่ระบบจัดการ</h2>
@@ -78,12 +78,10 @@
                     <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
                     <label>ชื่อร้าน</label>
                     <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
-                    
                     <label>ข้อความตัววิ่ง</label>
                     <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
-
-                    <label>ลิงก์ YouTube (Video URL)</label>
-                    <input type="text" id="video-input" placeholder="เช่น https://www.youtube.com/watch?v=...">
+                    <label>ลิงก์ YouTube</label>
+                    <input type="text" id="video-input" placeholder="URL วิดีโอ...">
                 </div>
 
                 <div class="admin-card">
@@ -93,12 +91,11 @@
                             <input type="checkbox" id="manual-mode-check"> ปรับเอง (Manual)
                         </label>
                     </div>
-                    
                     <div id="manual-controls" style="opacity: 0.5; pointer-events: none;">
                         <label>ราคารับซื้อ</label>
-                        <input type="text" id="manual-buy-input" placeholder="เช่น 42,000">
+                        <input type="text" id="manual-buy-input">
                         <label>ราคาขายออก</label>
-                        <input type="text" id="manual-sell-input" placeholder="เช่น 42,100">
+                        <input type="text" id="manual-sell-input">
                     </div>
                 </div>
 
