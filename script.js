@@ -21,7 +21,7 @@ const btnBackDisplay = document.getElementById('btn-back-display');
 
 let isManualMode = false;
 
-// --- Main Init ---
+// --- Init ---
 checkMode();
 
 function checkMode() {
@@ -42,7 +42,7 @@ if(btnBackDisplay) {
     });
 }
 
-// --- Display Logic ---
+// --- Display ---
 function openDisplay() {
     displayRoot.style.display = 'flex';
     adminRoot.style.display = 'none';
@@ -58,19 +58,20 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // ✅ ปรับความเร็วตัววิ่ง (ถ้าไม่มีค่า ให้ใช้ 20s)
+        // Speed Control
         const speed = data.marqueeSpeed || 20;
         document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
 
-        // --- Video Logic ---
+        // Video Control
         const videoFrame = document.getElementById('video-frame');
         const vidId = getYoutubeID(data.videoUrl);
         if (vidId) {
-            const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1`;
+            // mute=0 for sound (user must interact once)
+            const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1&showinfo=0`;
             if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
         }
 
-        // --- Price Logic ---
+        // Price Control
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
         const updateInfo = document.getElementById('last-update');
@@ -91,7 +92,7 @@ function openDisplay() {
     }, 600000);
 }
 
-// --- Admin Logic ---
+// --- Admin ---
 function openAdmin() {
     displayRoot.style.display = 'none';
     adminRoot.style.display = 'block';
@@ -123,13 +124,11 @@ function openAdmin() {
 }
 
 function initAdminControls() {
-    // โหลดข้อมูลเดิมมาใส่ Input
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
         
-        // ถ้า User กำลังเลื่อน Slider หรือพิมพ์อยู่ จะไม่ไปขัดจังหวะ
         if(document.activeElement.tagName !== 'INPUT') {
             setVal('shop-name-input', data.shopName);
             setVal('marquee-input', data.marquee);
@@ -137,7 +136,6 @@ function initAdminControls() {
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
-            // ✅ ตั้งค่า Slider ความเร็ว
             const currentSpeed = data.marqueeSpeed || 20;
             document.getElementById('marquee-speed-input').value = currentSpeed;
             updateText('speed-value-display', currentSpeed);
@@ -148,7 +146,6 @@ function initAdminControls() {
         }
     });
 
-    // อัปเดตตัวเลขเมื่อเลื่อน Slider
     const speedInput = document.getElementById('marquee-speed-input');
     speedInput.addEventListener('input', (e) => {
         updateText('speed-value-display', e.target.value);
@@ -162,7 +159,7 @@ function initAdminControls() {
         set(ref(db, 'signage/status'), {
             shopName: getVal('shop-name-input'),
             marquee: getVal('marquee-input'),
-            marqueeSpeed: getVal('marquee-speed-input'), // ✅ บันทึกความเร็ว
+            marqueeSpeed: getVal('marquee-speed-input'),
             videoUrl: getVal('video-input'),
             manualMode: manualCheck.checked,
             manualBuy: getVal('manual-buy-input'),
@@ -178,7 +175,6 @@ function toggleManualInputs(isManual) {
     box.style.pointerEvents = isManual ? 'auto' : 'none';
 }
 
-// --- Helpers ---
 function updateText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
 function getVal(id) { return document.getElementById(id).value; }
 function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
@@ -196,7 +192,6 @@ function getYoutubeID(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-// --- Price Parsing & Fetching ---
 function parsePrice(val) {
     if (!val) return 0;
     const num = parseFloat(val.toString().replace(/,/g, ''));
@@ -211,7 +206,6 @@ async function fetchGoldAPI() {
         if (data && data.response && data.response.price && data.response.price.gold_bar) {
             const p = data.response.price.gold_bar;
             const r = data.response;
-            
             updateText('gold-buy', parsePrice(p.buy).toLocaleString());
             updateText('gold-sell', parsePrice(p.sell).toLocaleString());
             
