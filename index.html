@@ -14,7 +14,6 @@
         <div class="left-panel">
             <div class="header-group">
                 <img src="logo.jpg" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
-                
                 <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
                 <div class="sub-header">ราคาทองคำแท่ง</div>
             </div>
@@ -38,16 +37,16 @@
 
             <div class="clock-footer">
                 <div id="last-update" class="update-info">รออัปเดตราคา...</div>
-                
                 <div id="clock-time" class="time-text">--:--:--</div>
                 <div id="clock-date" class="date-text">กำลังโหลด...</div>
-                
                 <div id="mode-indicator" class="manual-tag" style="display: none;">⚠ Manual Mode</div>
             </div>
         </div>
 
         <div class="right-panel">
-            <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+            <div class="video-wrapper">
+                <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
+            </div>
         </div>
 
         <div class="marquee-wrapper">
@@ -85,9 +84,9 @@
                     
                     <label>ความเร็วตัววิ่ง: <span id="speed-value-display" style="color:#f9d878">20</span> วินาที</label>
                     <div class="slider-container">
-                        <span style="font-size:0.8rem">เร็ว (5s)</span>
+                        <span style="font-size:0.8rem">เร็ว</span>
                         <input type="range" id="marquee-speed-input" min="5" max="60" step="1" value="20">
-                        <span style="font-size:0.8rem">ช้า (60s)</span>
+                        <span style="font-size:0.8rem">ช้า</span>
                     </div>
                     
                     <label>ลิงก์ YouTube</label>
