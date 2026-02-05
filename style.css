@@ -44,19 +44,52 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .manual-tag { color: #ff4444; font-size: 0.9rem; margin-top: 5px; animation: blink 2s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
 
-/* Right Panel */
-.right-panel { width: 60%; background-color: #000; display: flex; align-items: center; justify-content: center; position: relative; }
-iframe { width: 100%; height: 100%; border: none; }
+/* ========================================= */
+/* 🟡 Right Panel (Video Full Fill) */
+/* ========================================= */
+.right-panel { 
+    width: 60%; 
+    background-color: #000; 
+    position: relative; 
+    overflow: hidden; /* ตัดส่วนเกินออก */
+}
+
+/* Wrapper สำหรับจัดกึ่งกลางและขยาย */
+.video-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* สูตรคำนวณ: 
+       เพื่อให้วิดีโอ 16:9 สูงเต็มจอ (100vh) 
+       ความกว้างจะต้องเท่ากับ 100vh * (16/9) = 177.777vh
+       ด้วยวิธีนี้ วิดีโอจะใหญ่กว่ากล่องเสมอ ทำให้ไม่มีขอบดำ
+    */
+    height: 100vh;
+    width: 177.77vh; 
+    
+    /* กรณีหน้าจอแนวตั้งมากๆ ให้สลับ logic (เผื่อไว้) */
+    min-width: 100%;
+    min-height: 100%;
+}
+
+iframe { 
+    width: 100%; 
+    height: 100%; 
+    border: none; 
+    pointer-events: none; /* ป้องกันการคลิกที่วิดีโอ (เพื่อให้คลิกจอตรงไหนก็ได้) */
+}
 
 /* Marquee */
 .marquee-wrapper {
     position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh;
-    background: #000; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    background: rgba(0,0,0,0.8); /* โปร่งแสงนิดนึงให้เห็นวิดีโอข้างหลังลางๆ */
+    overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
     border-top: 4px solid var(--gold-dark); box-sizing: border-box;
 }
 .marquee-content {
     color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%;
-    /* Default Speed: 20s (จะถูกทับด้วย JS) */
     animation: marquee 20s linear infinite; 
 }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
@@ -74,7 +107,5 @@ input:not([type="range"]) { width: 100%; padding: 12px; border-radius: 8px; bord
 .btn-save { width: 100%; padding: 15px; border-radius: 50px; background: linear-gradient(135deg, #cc0000, #990000); color: white; font-weight: bold; border: none; cursor: pointer; }
 .btn-secondary { width: 100%; padding: 12px; margin-top: 10px; border-radius: 50px; border: 1px solid #444; background: transparent; color: #aaa; cursor: pointer; }
 #login-error { color: red; display: none; margin-top: 10px; }
-
-/* ✅ Slider Style */
 .slider-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #2c2c2c; padding: 10px; border-radius: 8px; }
 input[type="range"] { flex-grow: 1; cursor: pointer; }
