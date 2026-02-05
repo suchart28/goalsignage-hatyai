@@ -34,38 +34,34 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
 .the-price { font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; color: var(--text-black); letter-spacing: -1px; }
 
-/* ✅ Contact Info Styles (ปรับใหม่) */
+/* ✅ Contact Info Styles */
 .contact-container {
     width: 90%;
-    margin-top: 5vh; /* 🔥 เพิ่มระยะห่างจากขอบราคารับซื้อ (เดิม 3vh) */
+    margin-top: 5vh; /* คงระยะห่างไว้ */
     display: flex;
     flex-direction: column;
-    gap: 1.5vh; /* ระยะห่างระหว่างบรรทัด */
-    padding-left: 20px; /* ขยับเข้ามานิดหน่อยเพื่อให้ดูสมดุล */
+    gap: 1.5vh;
+    padding-left: 20px;
 }
 
 .contact-item {
     display: flex;
     align-items: center;
+    color: var(--gold-label); /* คงสีทองไว้ */
     
-    /* 🔥 เปลี่ยนเป็นสีทองเหมือนชื่อร้าน */
-    color: var(--gold-label); 
-    
-    /* 🔥 ปรับฟอนต์ใหญ่ขึ้น 2 เท่า (เดิมเริ่มต้น 0.8rem เป็น 1.6rem) */
-    font-size: clamp(1.6rem, 2.2vw, 2.8rem); 
+    /* 🔻 ปรับขนาดตัวอักษรให้เล็กลง (กลับไปขนาดปกติ) */
+    font-size: clamp(0.9rem, 1.2vw, 1.5rem); 
     
     font-weight: 400;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); /* เพิ่มเงาให้อ่านง่ายขึ้นบนพื้นแดง */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
 .contact-icon {
-    font-size: 1.2em; /* ไอคอนจะใหญ่ตามตัวหนังสือ */
-    margin-right: 20px;
-    width: 40px;
+    font-size: 1.5em; /* ไอคอนจะปรับขนาดตามตัวหนังสือ */
+    margin-right: 15px;
+    width: 30px;
     text-align: center;
 }
-
-/* สีไอคอน (Facebook / Line คงสีเดิมไว้เพื่อให้จำง่าย หรือถ้าอยากได้สีทองบอกได้ครับ) */
 .fb-color { color: #1877F2; }
 .line-color { color: #06C755; }
 .tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); }
@@ -85,9 +81,13 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .video-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 iframe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.78vh; border: none; }
 
-/* Marquee */
+/* Marquee (ปรับความเร็ว) */
 .marquee-wrapper { position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh; background: rgba(0,0,0,0.8); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20; border-top: 4px solid var(--gold-dark); box-sizing: border-box; }
-.marquee-content { color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%; animation: marquee 20s linear infinite; }
+.marquee-content { 
+    color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%; 
+    /* 🔻 เปลี่ยนเป็น 40s เพื่อให้ช้าลง (เดิม 20s) */
+    animation: marquee 40s linear infinite; 
+}
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
 /* Admin */
