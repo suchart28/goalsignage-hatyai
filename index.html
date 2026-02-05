@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold Shop Display</title>
+    <title>Gold Shop System</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="main-layout">
+
+    <div id="display-root" class="main-layout">
         
         <div class="left-panel">
-            
             <div class="header-group">
                 <img src="logo.png" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
-                <h1 id="shop-name-text" class="shop-name">ห้างเพชรทองโกลด์ไซน์</h1>
+                <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
                 <div class="sub-header">ราคาทองคำแท่ง</div>
             </div>
 
             <div class="price-container">
-                
                 <div class="price-row">
                     <div class="price-label">รับซื้อ</div>
                     <div class="price-value-box">
                         <span id="gold-buy" class="the-price">-,---</span>
                     </div>
                 </div>
-
                 <div class="price-row">
                     <div class="price-label">ขายออก</div>
                     <div class="price-value-box">
                         <span id="gold-sell" class="the-price">-,---</span>
                     </div>
                 </div>
-
             </div>
 
             <div class="spacer"></div>
 
             <div class="clock-footer">
                 <div id="clock-time" class="time-text">--:--:--</div>
-                <div id="clock-date" class="date-text">กำลังโหลดวันที่...</div>
-                <div id="mode-indicator" class="manual-tag" style="display: none;">Manual Mode</div>
+                <div id="clock-date" class="date-text">กำลังโหลด...</div>
+                <div id="mode-indicator" class="manual-tag" style="display: none;">⚠ Manual Mode</div>
             </div>
         </div>
 
@@ -48,11 +46,66 @@
             <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
         </div>
 
+        <div class="marquee-wrapper">
+            <div id="marquee-text" class="marquee-content">...</div>
+        </div>
+        
+        <div id="admin-trigger" style="position:fixed; bottom:0; right:0; width:50px; height:50px; z-index:9999; cursor:pointer;"></div>
     </div>
 
-    <div class="marquee-wrapper">
-        <div id="marquee-text" class="marquee-content">
-            ยินดีต้อนรับเข้าสู่ห้างทอง...
+    <div id="admin-root" style="display: none;">
+        
+        <div id="login-modal">
+            <div class="admin-card login-box">
+                <h2>🔐 เข้าสู่ระบบจัดการ</h2>
+                <input type="password" id="password-input" placeholder="รหัสผ่าน (987654321)">
+                <button id="btn-login" class="btn-save">เข้าสู่ระบบ</button>
+                <p id="login-error" style="color:red; display:none; margin-top:10px;">รหัสผ่านไม่ถูกต้อง</p>
+            </div>
+        </div>
+
+        <div id="control-panel" class="control-panel">
+            <div class="admin-header">
+                <h2>⚙️ ตั้งค่าหน้าจอ</h2>
+                <button id="btn-logout" style="background:none; border:none; color:white; cursor:pointer;">ออกจากระบบ</button>
+            </div>
+
+            <form id="control-form">
+                
+                <div class="admin-card">
+                    <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
+                    <label>ชื่อร้าน</label>
+                    <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
+                    
+                    <label>ข้อความตัววิ่ง</label>
+                    <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
+
+                    <label>ลิงก์ YouTube (Video URL)</label>
+                    <input type="text" id="video-input" placeholder="เช่น https://www.youtube.com/watch?v=...">
+                    <small style="color:#aaa;">*รองรับทั้งลิงก์วิดีโอปกติและ Shorts</small>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-title">
+                        <i class="fas fa-coins"></i> ราคาทอง 
+                        <label style="float:right; font-size:0.9rem;">
+                            <input type="checkbox" id="manual-mode-check"> ปรับเอง (Manual)
+                        </label>
+                    </div>
+                    
+                    <div id="manual-controls" style="opacity: 0.5; pointer-events: none; transition: 0.3s;">
+                        <label>ราคารับซื้อ</label>
+                        <input type="text" id="manual-buy-input" placeholder="เช่น 42,000">
+                        
+                        <label>ราคาขายออก</label>
+                        <input type="text" id="manual-sell-input" placeholder="เช่น 42,100">
+                    </div>
+                    <small style="color:#aaa; display:block; margin-top:5px;">*หากไม่ติ๊ก "ปรับเอง" ระบบจะดึงราคาจากสมาคมฯ อัตโนมัติ</small>
+                </div>
+
+                <button type="submit" class="btn-save">💾 บันทึกการตั้งค่า</button>
+                <button type="button" id="btn-back-display" class="btn-secondary">📺 กลับไปหน้าจอแสดงผล</button>
+            </form>
         </div>
     </div>
 
