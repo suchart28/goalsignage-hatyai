@@ -15,56 +15,75 @@
 body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #000; height: 100vh; width: 100vw; overflow: hidden; }
 .main-layout { display: flex; width: 100vw; height: 100vh; }
 
-/* ================= LEFT PANEL ================= */
-.left-panel { width: 40%; background-color: var(--bg-red); display: flex; flex-direction: column; align-items: center; border-right: 2px solid #333; position: relative; z-index: 10; box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
-.header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 2vh; }
+/* ================= MAIN PANEL (ขยายเต็มจอ 100%) ================= */
+.main-panel { 
+    width: 100%; 
+    height: 100vh; 
+    background-color: var(--bg-red); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    position: relative; 
+    z-index: 10; 
+    /* เผื่อพื้นที่ด้านล่างไว้ 12vh ไม่ให้ Footer โดนตัววิ่งทับ */
+    padding-bottom: 12vh; 
+    box-sizing: border-box;
+}
+
+.header-group { width: 100%; padding-top: 5vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 3vh; }
 
 .shop-logo { 
-    height: 14vh; width: 14vh; object-fit: cover; margin-bottom: 10px; 
+    height: 16vh; width: 16vh; object-fit: cover; margin-bottom: 15px; 
     border-radius: 50%; border: 3px solid var(--gold-label); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.shop-name { color: var(--gold-label); font-size: clamp(1.5rem, 2.5vw, 3rem); margin: 0; font-weight: 300; text-transform: uppercase; }
-.sub-header { color: var(--gold-label); font-size: clamp(1.8rem, 3vw, 3.5rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
+.shop-name { color: var(--gold-label); font-size: clamp(2rem, 3vw, 4rem); margin: 0; font-weight: 300; text-transform: uppercase; }
+.sub-header { color: var(--gold-label); font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
 
-/* Price Pills */
-.price-container { width: 90%; display: flex; flex-direction: column; gap: 2.5vh; }
-.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(1.5rem, 2.2vw, 3rem); font-weight: 700; }
+/* Price Pills (ปรับขนาดความกว้างให้พอดีจอ ไม่กว้างจนยืด) */
+.price-container { 
+    width: 75%; 
+    max-width: 1200px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 3vh; 
+}
+.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 25px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+.price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(2rem, 3vw, 4rem); font-weight: 700; }
 .price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
-.the-price { font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; color: var(--text-black); letter-spacing: -1px; }
+.the-price { font-size: clamp(3rem, 5vw, 6rem); font-weight: 700; color: var(--text-black); letter-spacing: -1px; }
 
-/* ✅ Contact Info Styles */
+/* Contact Info Styles (จัดให้อยู่กึ่งกลาง) */
 .contact-container {
-    width: 90%;
-    margin-top: 5vh; /* เว้นระยะห่างจากราคารับซื้อ */
+    width: 75%;
+    max-width: 1200px;
+    margin-top: 5vh; 
     display: flex;
     flex-direction: column;
-    gap: 1.5vh;
-    padding-left: 20px;
+    align-items: center; /* จัดให้อยู่กึ่งกลางจอ */
+    gap: 2vh;
 }
 .contact-row-multi {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 3vw;
+    justify-content: center;
+    gap: 5vw; /* ระยะห่างระหว่าง TikTok กับ Line */
 }
 .contact-item {
     display: flex;
     align-items: center;
-    color: var(--gold-label); /* สีทอง */
-    font-size: clamp(0.9rem, 1.2vw, 1.5rem); /* ขนาดปกติ */
+    color: var(--gold-label); 
+    font-size: clamp(1.2rem, 1.8vw, 2rem); 
     font-weight: 400;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     white-space: nowrap;
 }
 .contact-icon {
     font-size: 1.5em;
-    margin-right: 10px;
-    width: 30px;
+    margin-right: 15px;
+    width: 35px;
     text-align: center;
 }
-/* สีไอคอน */
 .fb-color { color: #1877F2; }
 .line-color { color: #06C755; }
 .tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); }
@@ -73,39 +92,21 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 
 /* Footer */
 .clock-footer { width: 100%; background-color: #1a1a1a; padding: 2vh 0; display: flex; flex-direction: column; align-items: center; border-top: 4px solid var(--gold-dark); }
-.update-info { color: var(--gold-label); font-size: 1rem; margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
-.time-text { color: #fff; font-size: clamp(3rem, 6vw, 7rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.date-text { color: #ccc; font-size: 1rem; font-weight: 300; margin-top: 5px; }
-.manual-tag { color: #ff4444; font-size: 0.9rem; margin-top: 5px; animation: blink 2s infinite; }
+.update-info { color: var(--gold-label); font-size: 1.2rem; margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
+.time-text { color: #fff; font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.date-text { color: #ccc; font-size: 1.2rem; font-weight: 300; margin-top: 5px; }
+.manual-tag { color: #ff4444; font-size: 1.1rem; margin-top: 5px; animation: blink 2s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
 
-/* ================= RIGHT PANEL (Video Full Area) ================= */
-.right-panel { 
-    width: 60%; 
-    background-color: #000; 
-    position: relative; 
-    overflow: hidden; 
-}
-.video-wrapper {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; 
-}
-/* 🔥 สูตร Zoom Video ให้เต็มจอ ไม่มีขอบดำ */
-iframe {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 100vw; height: 56.25vw; 
-    min-height: 100vh; min-width: 177.78vh; 
-    border: none;
-}
-
-/* Marquee (ตัววิ่ง) */
+/* ================= Marquee (ตัววิ่งเต็มจอด้านล่าง) ================= */
 .marquee-wrapper {
-    position: absolute; bottom: 0; left: 40%; width: 60%; height: 12vh;
-    background: rgba(0,0,0,0.8); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 12vh;
+    background: rgba(0,0,0,0.85); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
     border-top: 4px solid var(--gold-dark); box-sizing: border-box;
 }
 .marquee-content {
-    color: #fff; font-size: clamp(2rem, 4vw, 4rem); font-weight: 600; padding-left: 100%;
-    animation: marquee 40s linear infinite; /* เริ่มต้นช้าๆ 40s */
+    color: #fff; font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 600; padding-left: 100%;
+    animation: marquee 40s linear infinite; 
 }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
