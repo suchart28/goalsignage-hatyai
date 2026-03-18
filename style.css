@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap');
 
 :root {
-    --bg-red: #5e1b23;
+    --bg-red: #5e1b23; /* สีแดงเลือดหมูแบบในภาพ */
     --gold-label: #f9d878;
     --gold-dark: #b8860b;
     --text-white: #ffffff;
@@ -32,11 +32,10 @@ body, html {
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    justify-content: flex-start; 
+    justify-content: center; /* ดันเนื้อหาให้อยู่กึ่งกลางจอ */
     position: relative; 
     z-index: 10; 
-    /* เผื่อพื้นที่ด้านล่าง: ตัววิ่ง 12vh + บาร์ติดต่อ 8vh = 20vh */
-    padding-bottom: 20vh; 
+    padding-bottom: 15vh; /* ดันขึ้นนิดหน่อยให้พ้นตัววิ่งและช่องติดต่อ */
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -63,71 +62,67 @@ body, html {
 .manual-tag { color: #ff4444; font-size: 1rem; margin-top: 5px; animation: blink 2s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
 
-/* ================= Header ================= */
-.header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 3vh; z-index: 10; }
+/* ================= Header (โลโก้ + ชื่อร้าน) ================= */
+.header-group { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 2vh; z-index: 10; }
 
 .shop-logo { 
-    height: 16vh; width: 16vh; object-fit: cover; margin-bottom: 15px; 
-    border-radius: 50%; border: 4px solid var(--gold-label); box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    height: 14vh; width: 14vh; object-fit: cover; margin-bottom: 10px; 
+    border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
-.shop-name { color: var(--gold-label); font-size: clamp(2.5rem, 4vw, 5rem); margin: 0; font-weight: 300; text-transform: uppercase; }
-.sub-header { color: var(--gold-label); font-size: clamp(3rem, 5vw, 6rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+.shop-name { color: var(--gold-label); font-size: clamp(2rem, 3.5vw, 4rem); margin: 0; font-weight: 300; letter-spacing: 1px; }
+.sub-header { color: var(--gold-label); font-size: clamp(3.5rem, 5vw, 6rem); font-weight: 700; margin-top: 0px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
 
-/* Price Pills */
+/* ================= Price Pills ================= */
 .price-container { 
-    width: 80%; 
-    max-width: 1400px; 
+    width: 75%; /* ปรับความกว้างให้พอดีเหมือนในภาพ */
+    max-width: 1200px; 
     display: flex; 
     flex-direction: column; 
-    gap: 3vh; 
+    gap: 2.5vh; 
 }
-.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
 .price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; }
 .price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
 .the-price { font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; color: var(--text-black); letter-spacing: -2px; }
 
-/* ================= แถบข้อมูลติดต่อแนวยาว (บรรทัดเดียว) ================= */
+/* ================= แถบข้อมูลติดต่อ (ไม่มีพื้นหลัง วางชิดตัววิ่ง) ================= */
 .contact-footer-bar {
     position: absolute;
-    bottom: 12vh; /* วางอยู่เหนือตัววิ่ง (12vh) พอดี */
+    bottom: 12vh; /* วางอยู่บนตัววิ่งพอดีเป๊ะ */
     left: 0;
     width: 100vw;
-    height: 8vh;
-    background: rgba(0, 0, 0, 0.4); 
-    border-top: 2px solid var(--gold-dark);
     display: flex;
-    flex-direction: row; /* บังคับให้อยู่แนวนอนบรรทัดเดียว */
-    justify-content: center; /* จัดให้อยู่กึ่งกลางหน้าจอ */
-    gap: 4vw; /* ระยะห่างระหว่าง FB, TikTok, Line */
+    flex-direction: row; 
+    justify-content: center; 
+    gap: 2vw; /* ระยะห่างช่องทางติดต่อให้ชิดกันเหมือนในภาพ */
     align-items: center;
     z-index: 20;
-    padding: 0 2vw;
+    padding-bottom: 1vh; /* ยกขึ้นจากเส้นสีทองเล็กน้อย */
     box-sizing: border-box;
-    overflow: hidden; /* กันล้นจอ */
+    overflow: hidden; 
 }
 
 .contact-item {
     display: flex;
     align-items: center;
-    color: var(--gold-label); 
-    /* ปรับขนาดฟอนต์ให้สมดุลและไม่ล้นจอเมื่ออยู่บรรทัดเดียวกัน */
-    font-size: clamp(1.1rem, 1.8vw, 2rem); 
+    color: var(--gold-label); /* สีตัวอักษรสีทอง */
+    font-size: clamp(1rem, 1.4vw, 1.6rem); /* ปรับขนาดให้พอดี ไม่ให้ล้น */
     font-weight: 400;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    white-space: nowrap; /* สำคัญมาก: บังคับไม่ให้ข้อความตกบรรทัด */
+    white-space: nowrap; 
 }
 
-.contact-item i { font-size: 1.5em; margin-right: 12px; }
-.fb-color { color: #1877F2; }
-.tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); }
-.line-color { color: #06C755; }
+.contact-item i { font-size: 1.3em; margin-right: 8px; }
+.fb-color { color: #1877F2; background-color: white; border-radius: 4px; /* ทำให้ไอคอนมีพื้นขาวคล้ายในภาพ */ }
+.tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 1px rgba(0,0,0,0.5)); }
+.line-color { color: #00B900; }
 
 /* ================= Marquee (ตัววิ่ง) ================= */
 .marquee-wrapper {
     position: absolute; bottom: 0; left: 0; width: 100vw; height: 12vh;
     background: #111; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
-    border-top: 4px solid var(--gold-dark); box-sizing: border-box;
+    border-top: 3px solid var(--gold-label); /* เส้นขอบสีทองสว่างขึ้น */
+    box-sizing: border-box;
 }
 .marquee-content {
     color: #fff; font-size: clamp(3rem, 5vw, 6rem); font-weight: 600; padding-left: 100%;
