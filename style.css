@@ -6,18 +6,28 @@
     --gold-dark: #b8860b;
     --text-white: #ffffff;
     --text-black: #000000;
-    --pill-height: 12vh;
+    --pill-height: 14vh; /* ปรับให้กล่องราคาสูงขึ้นสมส่วนกับจอเต็ม */
     --admin-bg: #121212;
     --admin-card: #1e1e1e;
     --input-bg: #2c2c2c;
 }
 
-body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background-color: #000; height: 100vh; width: 100vw; overflow: hidden; }
+/* ลบพื้นดำทั้งหมด บังคับให้เป็นสีแดงของร้าน */
+body, html { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Kanit', sans-serif; 
+    background-color: var(--bg-red); 
+    height: 100vh; 
+    width: 100vw; 
+    overflow: hidden; 
+}
+
 .main-layout { display: flex; width: 100vw; height: 100vh; }
 
 /* ================= MAIN PANEL (ขยายเต็มจอ 100%) ================= */
 .main-panel { 
-    width: 100%; 
+    width: 100vw; 
     height: 100vh; 
     background-color: var(--bg-red); 
     display: flex; 
@@ -25,65 +35,59 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
     align-items: center; 
     position: relative; 
     z-index: 10; 
-    /* เผื่อพื้นที่ด้านล่างไว้ 12vh ไม่ให้ Footer โดนตัววิ่งทับ */
-    padding-bottom: 12vh; 
+    padding-bottom: 12vh; /* เผื่อที่ให้ตัววิ่ง */
     box-sizing: border-box;
 }
 
-.header-group { width: 100%; padding-top: 5vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 3vh; }
+.header-group { width: 100%; padding-top: 5vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 4vh; }
 
 .shop-logo { 
-    height: 16vh; width: 16vh; object-fit: cover; margin-bottom: 15px; 
-    border-radius: 50%; border: 3px solid var(--gold-label); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    height: 18vh; width: 18vh; object-fit: cover; margin-bottom: 15px; 
+    border-radius: 50%; border: 4px solid var(--gold-label); box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
 
-.shop-name { color: var(--gold-label); font-size: clamp(2rem, 3vw, 4rem); margin: 0; font-weight: 300; text-transform: uppercase; }
-.sub-header { color: var(--gold-label); font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
+.shop-name { color: var(--gold-label); font-size: clamp(2.5rem, 4vw, 5rem); margin: 0; font-weight: 300; text-transform: uppercase; }
+.sub-header { color: var(--gold-label); font-size: clamp(3rem, 5vw, 6rem); font-weight: 700; margin-top: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
 
-/* Price Pills (ปรับขนาดความกว้างให้พอดีจอ ไม่กว้างจนยืด) */
+/* Price Pills */
 .price-container { 
-    width: 75%; 
-    max-width: 1200px; 
+    width: 80%; 
+    max-width: 1400px; 
     display: flex; 
     flex-direction: column; 
-    gap: 3vh; 
+    gap: 4vh; 
 }
-.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 25px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
-.price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(2rem, 3vw, 4rem); font-weight: 700; }
+.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; }
 .price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
-.the-price { font-size: clamp(3rem, 5vw, 6rem); font-weight: 700; color: var(--text-black); letter-spacing: -1px; }
+.the-price { font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; color: var(--text-black); letter-spacing: -2px; }
 
-/* Contact Info Styles (จัดให้อยู่กึ่งกลาง) */
+/* Contact Info Styles */
 .contact-container {
-    width: 75%;
-    max-width: 1200px;
-    margin-top: 5vh; 
+    width: 80%;
+    max-width: 1400px;
+    margin-top: 6vh; 
     display: flex;
     flex-direction: column;
-    align-items: center; /* จัดให้อยู่กึ่งกลางจอ */
-    gap: 2vh;
+    align-items: center; 
+    gap: 2.5vh;
 }
 .contact-row-multi {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 5vw; /* ระยะห่างระหว่าง TikTok กับ Line */
+    gap: 6vw;
 }
 .contact-item {
     display: flex;
     align-items: center;
     color: var(--gold-label); 
-    font-size: clamp(1.2rem, 1.8vw, 2rem); 
+    font-size: clamp(1.5rem, 2vw, 2.5rem); 
     font-weight: 400;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     white-space: nowrap;
 }
-.contact-icon {
-    font-size: 1.5em;
-    margin-right: 15px;
-    width: 35px;
-    text-align: center;
-}
+.contact-icon { font-size: 1.5em; margin-right: 15px; width: 40px; text-align: center; }
 .fb-color { color: #1877F2; }
 .line-color { color: #06C755; }
 .tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); }
@@ -91,27 +95,27 @@ body, html { margin: 0; padding: 0; font-family: 'Kanit', sans-serif; background
 .spacer { flex-grow: 1; }
 
 /* Footer */
-.clock-footer { width: 100%; background-color: #1a1a1a; padding: 2vh 0; display: flex; flex-direction: column; align-items: center; border-top: 4px solid var(--gold-dark); }
+.clock-footer { width: 100%; background-color: rgba(0,0,0,0.4); padding: 2vh 0; display: flex; flex-direction: column; align-items: center; border-top: 2px solid var(--gold-dark); box-shadow: 0 -5px 15px rgba(0,0,0,0.3); }
 .update-info { color: var(--gold-label); font-size: 1.2rem; margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
-.time-text { color: #fff; font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.date-text { color: #ccc; font-size: 1.2rem; font-weight: 300; margin-top: 5px; }
-.manual-tag { color: #ff4444; font-size: 1.1rem; margin-top: 5px; animation: blink 2s infinite; }
+.time-text { color: #fff; font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+.date-text { color: #ccc; font-size: 1.5rem; font-weight: 300; margin-top: 5px; }
+.manual-tag { color: #ff4444; font-size: 1.2rem; margin-top: 5px; animation: blink 2s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
 
-/* ================= Marquee (ตัววิ่งเต็มจอด้านล่าง) ================= */
+/* ================= Marquee (ตัววิ่ง) ================= */
 .marquee-wrapper {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: 12vh;
-    background: rgba(0,0,0,0.85); overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    position: absolute; bottom: 0; left: 0; width: 100vw; height: 12vh;
+    background: #111; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
     border-top: 4px solid var(--gold-dark); box-sizing: border-box;
 }
 .marquee-content {
-    color: #fff; font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 600; padding-left: 100%;
+    color: #fff; font-size: clamp(3rem, 5vw, 6rem); font-weight: 600; padding-left: 100%;
     animation: marquee 40s linear infinite; 
 }
 @keyframes marquee { 100% { transform: translate(-100%, 0); } }
 
 /* ================= ADMIN ================= */
-#admin-trigger { position:fixed; bottom:0; right:0; width:60px; height:60px; z-index:9999; cursor:pointer; }
+#admin-trigger { position:fixed; bottom:0; right:0; width:80px; height:80px; z-index:9999; cursor:pointer; }
 #admin-root { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--admin-bg); color: var(--text-white); overflow-y: auto; z-index: 9999; }
 #login-modal { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); position: absolute; top: 0; left: 0; z-index: 10000; }
 .control-panel { max-width: 600px; margin: 0 auto; padding: 20px; display: none; }
