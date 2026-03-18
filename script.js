@@ -99,9 +99,8 @@ function openAdmin() {
         initAdminControls();
     }
 
-    // ฟังก์ชันตรวจสอบการล็อกอิน
     const handleLogin = () => {
-        const password = passInput.value.trim(); // ลบช่องว่างหัวท้ายป้องกันการพิมพ์ผิด
+        const password = passInput.value.trim();
         if (password === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
             loginModal.style.display = 'none';
@@ -112,14 +111,10 @@ function openAdmin() {
         }
     };
 
-    // คลิกปุ่มเพื่อล็อกอิน
     btnLogin.addEventListener('click', handleLogin);
     
-    // กดปุ่ม Enter ในช่องกรอกรหัสผ่านเพื่อล็อกอิน
     passInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleLogin();
-        }
+        if (e.key === 'Enter') handleLogin();
     });
 
     document.getElementById('btn-logout').addEventListener('click', () => {
