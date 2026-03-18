@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// ใส่ Firebase Config ของคุณที่นี่ (อันนี้เป็นตัวอย่าง)
+// ใส่ Firebase Config ของคุณที่นี่
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -59,17 +59,11 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // ตั้งค่าความเร็วตัววิ่ง (ค่าเริ่มต้น 40s)
+        // ตั้งค่าความเร็วตัววิ่ง
         const speed = data.marqueeSpeed || 40;
         document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
 
-        const videoFrame = document.getElementById('video-frame');
-        const vidId = getYoutubeID(data.videoUrl);
-        if (vidId) {
-            const embedUrl = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&loop=1&playlist=${vidId}&controls=0&rel=0&modestbranding=1&showinfo=0`;
-            if (videoFrame.src !== embedUrl) videoFrame.src = embedUrl;
-        }
-
+        // สลับโหมดราคา อัตโนมัติ / จัดการเอง
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
         const updateInfo = document.getElementById('last-update');
@@ -130,7 +124,6 @@ function initAdminControls() {
         if(document.activeElement.tagName !== 'INPUT') {
             setVal('shop-name-input', data.shopName);
             setVal('marquee-input', data.marquee);
-            setVal('video-input', data.videoUrl);
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
@@ -158,7 +151,6 @@ function initAdminControls() {
             shopName: getVal('shop-name-input'),
             marquee: getVal('marquee-input'),
             marqueeSpeed: getVal('marquee-speed-input'),
-            videoUrl: getVal('video-input'),
             manualMode: manualCheck.checked,
             manualBuy: getVal('manual-buy-input'),
             manualSell: getVal('manual-sell-input'),
@@ -183,19 +175,13 @@ function updateClock() {
     updateText('clock-date', now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
 }
 
-function getYoutubeID(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
-
 function parsePrice(val) {
     if (!val) return 0;
     const num = parseFloat(val.toString().replace(/,/g, ''));
     return isNaN(num) ? 0 : num;
 }
 
+// Fetch API ทอง
 async function fetchGoldAPI() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest?v=' + Date.now());
