@@ -11,10 +11,9 @@
 
     <div id="display-root" class="main-layout">
         
-        <div class="left-panel">
+        <div class="main-panel">
             <div class="header-group">
                 <img src="logo.jpg" class="shop-logo" alt="Logo" onerror="this.style.display='none'">
-                
                 <h1 id="shop-name-text" class="shop-name">ชื่อร้านทอง</h1>
                 <div class="sub-header">ราคาทองคำแท่ง</div>
             </div>
@@ -58,17 +57,9 @@
 
             <div class="clock-footer">
                 <div id="last-update" class="update-info">รออัปเดตราคา...</div>
-                
                 <div id="clock-time" class="time-text">--:--:--</div>
                 <div id="clock-date" class="date-text">กำลังโหลด...</div>
-                
                 <div id="mode-indicator" class="manual-tag" style="display: none;">⚠ Manual Mode</div>
-            </div>
-        </div>
-
-        <div class="right-panel">
-            <div class="video-wrapper">
-                <iframe id="video-frame" src="" allow="autoplay; encrypted-media"></iframe>
             </div>
         </div>
 
@@ -111,9 +102,6 @@
                         <input type="range" id="marquee-speed-input" min="5" max="120" step="1" value="40">
                         <span style="font-size:0.8rem">ช้า</span>
                     </div>
-                    
-                    <label>ลิงก์ YouTube</label>
-                    <input type="text" id="video-input" placeholder="URL วิดีโอ...">
                 </div>
 
                 <div class="admin-card">
