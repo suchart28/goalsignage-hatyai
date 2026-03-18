@@ -6,13 +6,12 @@
     --gold-dark: #b8860b;
     --text-white: #ffffff;
     --text-black: #000000;
-    --pill-height: 14vh; /* ปรับให้กล่องราคาสูงขึ้นสมส่วนกับจอเต็ม */
+    --pill-height: 14vh; 
     --admin-bg: #121212;
     --admin-card: #1e1e1e;
     --input-bg: #2c2c2c;
 }
 
-/* ลบพื้นดำทั้งหมด บังคับให้เป็นสีแดงของร้าน */
 body, html { 
     margin: 0; 
     padding: 0; 
@@ -23,7 +22,7 @@ body, html {
     overflow: hidden; 
 }
 
-.main-layout { display: flex; width: 100vw; height: 100vh; }
+.main-layout { display: flex; width: 100vw; height: 100vh; position: relative; }
 
 /* ================= MAIN PANEL (ขยายเต็มจอ 100%) ================= */
 .main-panel { 
@@ -35,11 +34,34 @@ body, html {
     align-items: center; 
     position: relative; 
     z-index: 10; 
-    padding-bottom: 12vh; /* เผื่อที่ให้ตัววิ่ง */
+    padding-bottom: 12vh; /* เผื่อที่ให้ตัววิ่งด้านล่าง 12vh พอดีเป๊ะ */
     box-sizing: border-box;
 }
 
-.header-group { width: 100%; padding-top: 5vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 4vh; }
+/* ================= ป้ายนาฬิกา (มุมขวาบน) ================= */
+.clock-panel { 
+    position: absolute; 
+    top: 3vh; 
+    right: 3vw; 
+    background-color: rgba(0,0,0,0.5); 
+    padding: 1.5vh 2vw; 
+    border-radius: 20px;
+    border: 2px solid var(--gold-dark);
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-end; /* ชิดขวา */
+    text-align: right;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4); 
+    z-index: 50;
+}
+.update-info { color: var(--gold-label); font-size: clamp(0.9rem, 1.2vw, 1.2rem); margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
+.time-text { color: #fff; font-size: clamp(2.5rem, 3.5vw, 4.5rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+.date-text { color: #ccc; font-size: clamp(1rem, 1.5vw, 1.5rem); font-weight: 300; margin-top: 5px; }
+.manual-tag { color: #ff4444; font-size: 1rem; margin-top: 5px; animation: blink 2s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* ================= Header ================= */
+.header-group { width: 100%; padding-top: 4vh; display: flex; flex-direction: column; align-items: center; margin-bottom: 4vh; z-index: 10; }
 
 .shop-logo { 
     height: 18vh; width: 18vh; object-fit: cover; margin-bottom: 15px; 
@@ -66,7 +88,8 @@ body, html {
 .contact-container {
     width: 80%;
     max-width: 1400px;
-    margin-top: 6vh; 
+    margin-top: auto; /* ดันตัวเองลงไปด้านล่าง */
+    margin-bottom: 4vh; /* เว้นระยะจากขอบล่าง (ที่ชนกับตัววิ่ง) เล็กน้อย */
     display: flex;
     flex-direction: column;
     align-items: center; 
@@ -92,17 +115,7 @@ body, html {
 .line-color { color: #06C755; }
 .tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); }
 
-.spacer { flex-grow: 1; }
-
-/* Footer */
-.clock-footer { width: 100%; background-color: rgba(0,0,0,0.4); padding: 2vh 0; display: flex; flex-direction: column; align-items: center; border-top: 2px solid var(--gold-dark); box-shadow: 0 -5px 15px rgba(0,0,0,0.3); }
-.update-info { color: var(--gold-label); font-size: 1.2rem; margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
-.time-text { color: #fff; font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
-.date-text { color: #ccc; font-size: 1.5rem; font-weight: 300; margin-top: 5px; }
-.manual-tag { color: #ff4444; font-size: 1.2rem; margin-top: 5px; animation: blink 2s infinite; }
-@keyframes blink { 50% { opacity: 0.5; } }
-
-/* ================= Marquee (ตัววิ่ง) ================= */
+/* ================= Marquee (ตัววิ่ง ความสูง 12vh) ================= */
 .marquee-wrapper {
     position: absolute; bottom: 0; left: 0; width: 100vw; height: 12vh;
     background: #111; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
