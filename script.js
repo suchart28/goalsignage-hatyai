@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// ใส่ Firebase Config ของคุณที่นี่
+// ใส่ Firebase Config ของคุณ
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -59,11 +59,9 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        // ตั้งค่าความเร็วตัววิ่ง
         const speed = data.marqueeSpeed || 40;
         document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
 
-        // สลับโหมดราคา อัตโนมัติ / จัดการเอง
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
         const updateInfo = document.getElementById('last-update');
@@ -91,6 +89,9 @@ function openAdmin() {
 
     const loginModal = document.getElementById('login-modal');
     const controlPanel = document.getElementById('control-panel');
+    const passInput = document.getElementById('password-input');
+    const btnLogin = document.getElementById('btn-login');
+    const loginError = document.getElementById('login-error');
     
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         loginModal.style.display = 'none';
@@ -98,14 +99,26 @@ function openAdmin() {
         initAdminControls();
     }
 
-    document.getElementById('btn-login').addEventListener('click', () => {
-        if (document.getElementById('password-input').value === '987654321') {
+    // ฟังก์ชันตรวจสอบการล็อกอิน
+    const handleLogin = () => {
+        const password = passInput.value.trim(); // ลบช่องว่างหัวท้ายป้องกันการพิมพ์ผิด
+        if (password === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
             loginModal.style.display = 'none';
             controlPanel.style.display = 'block';
             initAdminControls();
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            loginError.style.display = 'block';
+        }
+    };
+
+    // คลิกปุ่มเพื่อล็อกอิน
+    btnLogin.addEventListener('click', handleLogin);
+    
+    // กดปุ่ม Enter ในช่องกรอกรหัสผ่านเพื่อล็อกอิน
+    passInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
         }
     });
 
@@ -181,7 +194,6 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// Fetch API ทอง
 async function fetchGoldAPI() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest?v=' + Date.now());
