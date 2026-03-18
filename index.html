@@ -42,21 +42,21 @@
                 </div>
             </div>
 
-            <div class="contact-container">
-                <div class="contact-item">
-                    <i class="fab fa-facebook-square contact-icon fb-color"></i>
+            <div class="contact-badges">
+                <div class="badge fb-badge">
+                    <i class="fab fa-facebook-square"></i>
                     <span>ห้างทองเอราวัณ หาดใหญ่ - Erawan gold</span>
                 </div>
-
-                <div class="contact-row-multi">
-                    <div class="contact-item">
-                        <i class="fab fa-tiktok contact-icon tiktok-color"></i>
-                        <span>erawangold_hatyai</span>
+                
+                <div class="contact-row-bottom">
+                    <div class="badge line-badge">
+                        <i class="fab fa-line"></i>
+                        <span>@erawangold</span>
                     </div>
                     
-                    <div class="contact-item">
-                        <i class="fab fa-line contact-icon line-color"></i>
-                        <span>@erawangold</span>
+                    <div class="badge tiktok-badge">
+                        <i class="fab fa-tiktok"></i>
+                        <span>erawangold_hatyai</span>
                     </div>
                 </div>
             </div>
@@ -89,13 +89,10 @@
             <form id="control-form">
                 <div class="admin-card">
                     <div class="card-title"><i class="fas fa-store"></i> ข้อมูลร้าน</div>
-                    
                     <label>ชื่อร้าน</label>
                     <input type="text" id="shop-name-input" placeholder="ใส่ชื่อร้าน...">
-                    
                     <label>ข้อความตัววิ่ง</label>
                     <input type="text" id="marquee-input" placeholder="ใส่ข้อความประชาสัมพันธ์...">
-                    
                     <label>ความเร็วตัววิ่ง: <span id="speed-value-display" style="color:#f9d878">40</span> วินาที</label>
                     <div class="slider-container">
                         <span style="font-size:0.8rem">เร็ว</span>
@@ -114,12 +111,10 @@
                     <div id="manual-controls" style="opacity: 0.5; pointer-events: none;">
                         <label>ราคาขายออก</label>
                         <input type="text" id="manual-sell-input">
-
                         <label>ราคารับซื้อ</label>
                         <input type="text" id="manual-buy-input">
                     </div>
                 </div>
-
                 <button type="submit" class="btn-save">💾 บันทึกการตั้งค่า</button>
                 <button type="button" id="btn-back-display" class="btn-secondary">📺 กลับไปหน้าจอแสดงผล</button>
             </form>
