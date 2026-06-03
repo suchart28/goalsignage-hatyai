@@ -5,31 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Signage Admin</title>
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body.admin-body {
+            background-color: #1a1a1a !important; 
+            color: #ffffff !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #admin-root {
+            display: block !important; 
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .card {
+            background: #333;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background: #444;
+            color: white;
+        }
+    </style>
 </head>
 <body class="admin-body">
 
     <div id="admin-root" class="control-panel">
-        <h1 style="text-align: center; margin: 10px 0 30px;">📱 ตั้งค่าร้านทอง</h1>
+        <h1 style="text-align: center; margin: 10px 0 30px; color: #ffd700;">📱 ตั้งค่าร้านทอง</h1>
         
         <form id="control-form">
             <div class="card">
-                <div class="card-title">🏠 ชื่อร้าน</div>
+                <div class="card-title" style="font-weight: bold; margin-bottom: 5px;">🏠 ชื่อร้าน</div>
                 <input type="text" id="shop-name-input" placeholder="เช่น ห้างทอง...">
             </div>
 
-            <div class="card" style="border: 2px solid var(--gold-color);">
-                <div class="card-title">
+            <div class="card" style="border: 1px solid #ffd700;">
+                <div class="card-title" style="font-weight: bold; margin-bottom: 10px;">
                     💰 ตั้งราคาทองเอง
-                    <label style="float: right; font-size: 0.9rem; margin-top: 5px;">
+                    <label style="float: right; font-size: 0.9rem; font-weight: normal;">
                         <input type="checkbox" id="manual-mode-check"> เปิดใช้ปรับเอง
                     </label>
                 </div>
 
                 <div id="manual-inputs">
-                    <label style="color:#33ff00;">ราคารับซื้อ (บาท)</label>
+                    <label style="color:#33ff00; font-size: 0.9rem;">ราคารับซื้อ (บาท)</label>
                     <input type="text" id="manual-buy-input" placeholder="เช่น 43000">
                     
-                    <label style="color:#ffd700; margin-top:10px; display:block;">ราคาขายออก (บาท)</label>
+                    <label style="color:#ffd700; margin-top:10px; display:block; font-size: 0.9rem;">ราคาขายออก (บาท)</label>
                     <input type="text" id="manual-sell-input" placeholder="เช่น 43100">
                     
                     <small style="display:block; margin-top:10px; color:#aaa;">* ถ้าไม่ติ๊ก "เปิดใช้ปรับเอง" ระบบจะดึงราคาจากฮั่วเซ่งเฮงอัตโนมัติ</small>
@@ -37,18 +72,20 @@
             </div>
 
             <div class="card">
-                <div class="card-title">📢 ข้อความตัววิ่ง</div>
+                <div class="card-title" style="font-weight: bold; margin-bottom: 5px;">📢 ข้อความตัววิ่ง</div>
                 <input type="text" id="marquee-input" placeholder="พิมพ์ข้อความโปรโมชั่น...">
-                <hr style="border:0; border-top:1px solid #444; margin: 20px 0;">
-                <label>ความเร็วตัววิ่ง: <span id="speed-value-display" style="color:var(--gold-color);">40</span> วินาที</label>
+                <hr style="border:0; border-top:1px solid #555; margin: 15px 0;">
+                <label style="font-size: 0.9rem;">ความเร็วตัววิ่ง: <span id="speed-value-display" style="color:#ffd700;">40</span> วินาที</label>
                 <input type="range" id="speed-input" min="5" max="120" step="1" value="40" style="width: 100%; margin-top: 10px;">
             </div>
 
-            <button type="submit" class="btn-save">💾 บันทึกการตั้งค่า</button>
-            <button type="button" id="btn-back-display" style="margin-top: 10px; background-color: #555; color: white; padding: 12px; border: none; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer;">📺 ไปหน้าจอแสดงผล</button>
+            <button type="submit" id="btn-save-settings" style="margin-top: 10px; background-color: #28a745; color: white; padding: 15px; border: none; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1.1rem;">💾 บันทึกการตั้งค่า</button>
+            
+            <button type="button" id="btn-back-display" style="margin-top: 10px; background-color: #555; color: white; padding: 15px; border: none; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1.1rem;">📺 ไปหน้าจอแสดงผล</button>
         </form>
     </div>
 
     <script type="module" src="script.js"></script>
+
 </body>
 </html>
