@@ -35,112 +35,104 @@ body, html {
     justify-content: center; /* ดันเนื้อหาให้อยู่กึ่งกลางจอ */
     position: relative; 
     z-index: 10; 
-    padding-bottom: 15vh; /* ดันขึ้นจากขอบล่างนิดหน่อย เผื่อที่ให้ตัววิ่ง */
+    padding-bottom: 15vh; /* ดันขึ้นนิดหน่อยให้พ้นตัววิ่งและช่องติดต่อ */
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-/* 1) ส่วนเวลาด้านบนซ้าย */
+/* ================= ป้ายนาฬิกา (มุมขวาบน) ================= */
 .clock-panel { 
     position: absolute; 
-    top: 3%; 
-    left: 4%; 
-    color: var(--text-white); 
-    font-size: 1.5vw; 
-    line-height: 1.2; 
-}
-.update-info { color: #aaaaaa; font-size: 1vw; }
-.time-text { font-size: 2vw; font-weight: 600; color: #f9d878; }
-.manual-tag { color: #ff4444; font-size: 0.9vw; border: 1px solid #ff4444; padding: 2px 5px; border-radius: 5px; display: inline-block; margin-top: 5px; }
-
-/* 2) โลโก้และชื่อร้าน (ตรงกลางบน) */
-.header-group { 
+    top: 3vh; 
+    right: 3vw; 
+    background-color: rgba(0,0,0,0.5); 
+    padding: 1.5vh 2vw; 
+    border-radius: 20px;
+    border: 2px solid var(--gold-dark);
     display: flex; 
     flex-direction: column; 
-    align-items: center; 
-    margin-bottom: 3vh; 
-}
-.shop-logo { width: 10vw; height: auto; margin-bottom: 1vh; }
-.shop-name { 
-    font-size: 4.5vw; 
-    font-weight: 700; 
-    color: var(--gold-label); 
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.7); 
-    margin: 0; 
-}
-.sub-header { 
-    font-size: 2.5vw; 
-    color: var(--text-white); 
-    font-weight: 400; 
-    background-color: rgba(0,0,0,0.3);
-    padding: 0.5vh 2vw;
-    border-radius: 50px;
-    margin-top: 1vh;
-}
-
-/* 3) กรอบแสดงราคา */
-.price-container { 
-    width: 80vw; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 3vh; 
-}
-.price-row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.15) 50%, transparent 100%);
-    padding: 2vh 0;
-    border-top: 1px solid rgba(255, 215, 0, 0.3);
-    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-}
-.price-label { 
-    font-size: 3.5vw; 
-    font-weight: 600; 
-    color: var(--text-white); 
-    width: 30%;
+    align-items: flex-end; 
     text-align: right;
-    padding-right: 5vw;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4); 
+    z-index: 50;
 }
-.price-value { 
-    font-size: 6vw; 
-    font-weight: 700; 
-    color: var(--gold-label); 
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
-    width: 70%;
-    text-align: left;
-    padding-left: 2vw;
-    letter-spacing: 2px;
+.update-info { color: var(--gold-label); font-size: clamp(0.9rem, 1.2vw, 1.2rem); margin-bottom: 5px; font-weight: 300; opacity: 0.9; }
+.time-text { color: #fff; font-size: clamp(2.5rem, 3.5vw, 4.5rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+.date-text { color: #ccc; font-size: clamp(1rem, 1.5vw, 1.5rem); font-weight: 300; margin-top: 5px; }
+.manual-tag { color: #ff4444; font-size: 1rem; margin-top: 5px; animation: blink 2s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* ================= Header (โลโก้ + ชื่อร้าน) ================= */
+.header-group { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 2vh; z-index: 10; }
+
+.shop-logo { 
+    height: 14vh; width: 14vh; object-fit: cover; margin-bottom: 10px; 
+    border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
-/* ================= MARQUEE (ตัววิ่งด้านล่าง) ================= */
-.marquee-container { 
-    position: absolute; 
-    bottom: 0; 
-    width: 100vw; 
-    height: 8vh; 
-    background-color: var(--gold-dark); 
+.shop-name { color: var(--gold-label); font-size: clamp(2rem, 3.5vw, 4rem); margin: 0; font-weight: 300; letter-spacing: 1px; }
+.sub-header { color: var(--gold-label); font-size: clamp(3.5rem, 5vw, 6rem); font-weight: 700; margin-top: 0px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+/* ================= Price Pills ================= */
+.price-container { 
+    width: 75%; /* ปรับความกว้างให้พอดีเหมือนในภาพ */
+    max-width: 1200px; 
     display: flex; 
-    align-items: center; 
+    flex-direction: column; 
+    gap: 2.5vh; 
+}
+.price-row { display: flex; width: 100%; height: var(--pill-height); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+.price-label { width: 35%; background: linear-gradient(to bottom, #ffeebb 0%, #f9d878 50%, #e0b040 100%); color: var(--text-black); display: flex; justify-content: center; align-items: center; font-size: clamp(2.5rem, 4vw, 5rem); font-weight: 700; }
+.price-value-box { width: 65%; background-color: #fff; display: flex; justify-content: center; align-items: center; }
+.the-price { font-size: clamp(4rem, 6vw, 8rem); font-weight: 700; color: var(--text-black); letter-spacing: -2px; }
+
+/* ================= แถบข้อมูลติดต่อ (ไม่มีพื้นหลัง วางชิดตัววิ่ง) ================= */
+.contact-footer-bar {
+    position: absolute;
+    bottom: 12vh; /* วางอยู่บนตัววิ่งพอดีเป๊ะ */
+    left: 0;
+    width: 100vw;
+    display: flex;
+    flex-direction: row; 
+    justify-content: center; 
+    gap: 2vw; /* ระยะห่างช่องทางติดต่อให้ชิดกันเหมือนในภาพ */
+    align-items: center;
+    z-index: 20;
+    padding-bottom: 1vh; /* ยกขึ้นจากเส้นสีทองเล็กน้อย */
+    box-sizing: border-box;
     overflow: hidden; 
-    z-index: 20; 
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
 }
-.marquee-text { 
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    color: var(--gold-label); /* สีตัวอักษรสีทอง */
+    font-size: clamp(1rem, 1.4vw, 1.6rem); /* ปรับขนาดให้พอดี ไม่ให้ล้น */
+    font-weight: 400;
     white-space: nowrap; 
-    font-size: 3.5vh; 
-    font-weight: 600; 
-    color: var(--text-black); 
-    animation: scrollLeft linear infinite; 
-}
-@keyframes scrollLeft { 
-    0% { transform: translateX(100vw); } 
-    100% { transform: translateX(-100%); } 
 }
 
-/* ================= UTILS ================= */
-.hidden { display: none !important; }
-#admin-trigger { position: absolute; bottom: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer; }
+.contact-item i { font-size: 1.3em; margin-right: 8px; }
+.fb-color { color: #1877F2; background-color: white; border-radius: 4px; /* ทำให้ไอคอนมีพื้นขาวคล้ายในภาพ */ }
+.tiktok-color { color: #ffffff; filter: drop-shadow(0px 0px 1px rgba(0,0,0,0.5)); }
+.line-color { color: #00B900; }
 
-/* ================= ADMIN PANEL ================= */
+/* ================= Marquee (ตัววิ่ง) ================= */
+.marquee-wrapper {
+    position: absolute; bottom: 0; left: 0; width: 100vw; height: 12vh;
+    background: #111; overflow: hidden; white-space: nowrap; display: flex; align-items: center; z-index: 20;
+    border-top: 3px solid var(--gold-label); /* เส้นขอบสีทองสว่างขึ้น */
+    box-sizing: border-box;
+}
+.marquee-content {
+    color: #fff; font-size: clamp(3rem, 5vw, 6rem); font-weight: 600; padding-left: 100%;
+    animation: marquee 40s linear infinite; 
+}
+@keyframes marquee { 100% { transform: translate(-100%, 0); } }
+
+/* ================= ADMIN ================= */
+#admin-trigger { position:fixed; bottom:0; right:0; width:80px; height:80px; z-index:9999; cursor:pointer; }
+#admin-root { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--admin-bg); color: var(--text-white); overflow-y: auto; z-index: 9999; }
 #login-modal { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); position: absolute; top: 0; left: 0; z-index: 10000; }
 .control-panel { max-width: 600px; margin: 0 auto; padding: 20px; display: none; }
 .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
@@ -148,155 +140,8 @@ body, html {
 .login-box { width: 300px; text-align: center; }
 .card-title { font-size: 1.1rem; color: #ff4444; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
 input:not([type="range"]) { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: var(--input-bg); color: white; margin-bottom: 15px; box-sizing: border-box; }
-.btn-save { width: 100%; padding: 15px; border-radius: 50px; background: linear-gradient(45deg, #ff4444, #cc0000); color: white; font-weight: bold; border: none; cursor: pointer; }
+.btn-save { width: 100%; padding: 15px; border-radius: 50px; background: linear-gradient(135deg, #cc0000, #990000); color: white; font-weight: bold; border: none; cursor: pointer; }
 .btn-secondary { width: 100%; padding: 12px; margin-top: 10px; border-radius: 50px; border: 1px solid #444; background: transparent; color: #aaa; cursor: pointer; }
 #login-error { color: red; display: none; margin-top: 10px; }
 .slider-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #2c2c2c; padding: 10px; border-radius: 8px; }
 input[type="range"] { flex-grow: 1; cursor: pointer; }
-
-/* ========================================================= */
-/* ADMIN / CONTROL PANEL (Mobile First Design)         */
-/* ========================================================= */
-
-/* 1. ปลดล็อคการเลื่อนหน้าจอเฉพาะหน้า Admin */
-body.admin-body {
-    background-color: var(--admin-bg, #121212);
-    color: white;
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto; /* อนุญาตให้ใช้นิ้วเลื่อนขึ้นลงได้ */
-    overflow-x: hidden;
-    padding: 0;
-    margin: 0;
-    font-size: 16px;
-}
-
-/* 2. จัดการ Layout หลักให้เต็มจอมือถือ */
-.admin-body #admin-root.control-panel {
-    width: 100%;
-    max-width: 100%;
-    padding: 15px;
-    box-sizing: border-box;
-    display: none; 
-}
-
-/* 3. สไตล์ Card ที่เหมาะกับมือถือ (มีมิติ แตะง่าย) */
-.admin-body .card, 
-.admin-body .admin-card {
-    background-color: var(--admin-card, #1e1e1e);
-    padding: 20px 15px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    border: 1px solid #333;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* 4. หัวข้อ Card */
-.admin-body .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #ffca28; /* สีเหลืองทองให้อ่านง่าย */
-    margin-bottom: 15px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
-    display: flex;
-    align-items: center;
-}
-
-/* 5. ช่องกรอกข้อมูล (font-size 16px สำคัญมาก! ช่วยป้องกัน iPhone ซูมหน้าจออัตโนมัติ) */
-.admin-body input[type="text"],
-.admin-body input[type="password"],
-.admin-body input[type="number"] {
-    width: 100%;
-    padding: 14px 12px;
-    font-size: 16px; 
-    border-radius: 8px;
-    border: 1px solid #555;
-    background-color: var(--input-bg, #2c2c2c);
-    color: white;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-    transition: border 0.3s ease;
-}
-
-.admin-body input:focus {
-    border-color: #ffca28;
-    outline: none;
-}
-
-/* 6. ปุ่มกด (ขนาดใหญ่ แตะง่ายเต็มนิ้ว) */
-.admin-body button {
-    width: 100%;
-    padding: 16px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: opacity 0.2s;
-}
-
-.admin-body button:active {
-    opacity: 0.8;
-}
-
-.admin-body .btn-save {
-    background-color: #28a745;
-    color: white;
-    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
-    margin-top: 10px;
-}
-
-.admin-body .btn-login {
-    background-color: #007bff;
-    color: white;
-    margin-top: 15px;
-}
-
-.admin-body .btn-logout {
-    background-color: #dc3545;
-    color: white;
-    margin-top: 20px;
-}
-
-/* 7. หน้าต่าง Login แบบ Mobile */
-.admin-body #login-modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--admin-bg, #121212);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.admin-body #login-modal h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-
-/* 8. จัด Layout สำหรับจอใหญ่ (Tablet / Desktop) */
-@media (min-width: 768px) {
-    .admin-body #admin-root.control-panel {
-        max-width: 600px; /* จำกัดความกว้างไม่ให้ยืดเต็มจอคอม */
-        margin: 40px auto; /* จัดให้อยู่ตรงกลาง */
-    }
-    
-    .admin-body #login-modal {
-        background-color: rgba(0,0,0,0.9);
-    }
-    
-    .admin-body #password-input {
-        max-width: 300px;
-    }
-    
-    .admin-body .btn-login {
-        max-width: 300px;
-    }
-}
