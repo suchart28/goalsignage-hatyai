@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// ใส่ Firebase Config ของคุณ
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -26,8 +26,14 @@ let isManualMode = false;
 checkMode();
 
 function checkMode() {
-    if(window.location.hash === '#admin') openAdmin();
-    else openDisplay();
+    // เช็คว่าหน้าเว็บปัจจุบันมี login-modal หรือไม่ (ถ้ามีแสดงว่าเป็นหน้า admin.html)
+    const isStandaloneAdmin = document.getElementById('login-modal') !== null;
+    
+    if(isStandaloneAdmin || window.location.hash === '#admin') {
+        openAdmin();
+    } else {
+        openDisplay();
+    }
 }
 
 if(adminTrigger) {
@@ -45,8 +51,9 @@ if(btnBackDisplay) {
 
 // --- Display Mode ---
 function openDisplay() {
-    displayRoot.style.display = 'flex';
-    adminRoot.style.display = 'none';
+    // ใส่ if ป้องกัน Error ในกรณีที่เปิดบนหน้า admin.html แล้วหา id นี้ไม่เจอ
+    if(displayRoot) displayRoot.style.display = 'flex';
+    if(adminRoot) adminRoot.style.display = 'none';
 
     updateClock();
     setInterval(updateClock, 1000);
@@ -60,7 +67,8 @@ function openDisplay() {
         updateText('marquee-text', data.marquee);
 
         const speed = data.marqueeSpeed || 40;
-        document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
+        const marqueeEl = document.getElementById('marquee-text');
+        if (marqueeEl) marqueeEl.style.animationDuration = `${speed}s`;
 
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
@@ -79,22 +87,21 @@ function openDisplay() {
 
     setInterval(() => {
         if(!isManualMode) fetchGoldAPI();
-    }, 600000);
+    }, 600000); // อัปเดตทุก 10 นาที
 }
 
 // --- Admin Mode ---
 function openAdmin() {
-    displayRoot.style.display = 'none';
+    // ใส่ if ป้องกัน Error ในกรณีที่เปิดบนหน้า admin.html แล้วหา id นี้ไม่เจอ
+    if(displayRoot) displayRoot.style.display = 'none';
 
     const loginModal = document.getElementById('login-modal');
-    // แก้ไขที่ 1: เปลี่ยนจาก 'control-panel' เป็น 'admin-root' เพื่อให้ตรงกับใน HTML
-    const controlPanel = document.getElementById('admin-root'); 
+    const controlPanel = document.getElementById('admin-root');
     const passInput = document.getElementById('password-input');
     const btnLogin = document.getElementById('btn-login');
     const loginError = document.getElementById('login-error');
     
-    // บังคับซ่อนหน้าจัดการไว้ก่อนจนกว่าจะล็อกอินผ่าน
-    if (controlPanel) controlPanel.style.display = 'none';
+    if(controlPanel) controlPanel.style.display = 'none';
     
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         if (loginModal) loginModal.style.display = 'none';
@@ -105,8 +112,9 @@ function openAdmin() {
     }
 
     const handleLogin = () => {
+        if(!passInput) return;
         const password = passInput.value.trim();
-        if (password === '987654321') { // รหัสผ่านคือ 987654321
+        if (password === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
             if (loginModal) loginModal.style.display = 'none';
             if (controlPanel) {
@@ -126,7 +134,6 @@ function openAdmin() {
         });
     }
 
-    // แก้ไขที่ 2: เช็คก่อนว่ามีปุ่ม btn-logout อยู่ใน HTML ไหม เพื่อป้องกัน Error
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
@@ -149,46 +156,79 @@ function initAdminControls() {
             setVal('manual-sell-input', data.manualSell);
             
             const currentSpeed = data.marqueeSpeed || 40;
-            document.getElementById('marquee-speed-input').value = currentSpeed;
+            const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+            if (speedInput) speedInput.value = currentSpeed;
+            
             updateText('speed-value-display', currentSpeed);
+            updateText('speed-display', currentSpeed);
 
             const isMan = data.manualMode === true;
-            document.getElementById('manual-mode-check').checked = isMan;
+            const manualCheck = document.getElementById('manual-mode-check');
+            if (manualCheck) manualCheck.checked = isMan;
+            
             toggleManualInputs(isMan);
         }
     });
 
-    const speedInput = document.getElementById('marquee-speed-input');
-    speedInput.addEventListener('input', (e) => {
-        updateText('speed-value-display', e.target.value);
-    });
+    const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+    if (speedInput && !speedInput.hasAttribute('data-bound')) {
+        speedInput.addEventListener('input', (e) => {
+            updateText('speed-value-display', e.target.value);
+            updateText('speed-display', e.target.value);
+        });
+        speedInput.setAttribute('data-bound', 'true');
+    }
 
     const manualCheck = document.getElementById('manual-mode-check');
-    manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
+    if (manualCheck && !manualCheck.hasAttribute('data-bound')) {
+        manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
+        manualCheck.setAttribute('data-bound', 'true');
+    }
 
-    document.getElementById('control-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        set(ref(db, 'signage/status'), {
-            shopName: getVal('shop-name-input'),
-            marquee: getVal('marquee-input'),
-            marqueeSpeed: getVal('marquee-speed-input'),
-            manualMode: manualCheck.checked,
-            manualBuy: getVal('manual-buy-input'),
-            manualSell: getVal('manual-sell-input'),
-            timestamp: Date.now()
-        }).then(() => alert('✅ บันทึกเรียบร้อย!'));
-    });
+    const ctrlForm = document.getElementById('control-form');
+    if (ctrlForm && !ctrlForm.hasAttribute('data-bound')) {
+        ctrlForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const sInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+            const mSpeed = sInput ? sInput.value : 40;
+            const mCheck = document.getElementById('manual-mode-check');
+            
+            set(ref(db, 'signage/status'), {
+                shopName: getVal('shop-name-input'),
+                marquee: getVal('marquee-input'),
+                marqueeSpeed: mSpeed,
+                manualMode: mCheck ? mCheck.checked : false,
+                manualBuy: getVal('manual-buy-input'),
+                manualSell: getVal('manual-sell-input'),
+                timestamp: Date.now()
+            }).then(() => alert('✅ บันทึกเรียบร้อย!'));
+        });
+        ctrlForm.setAttribute('data-bound', 'true');
+    }
 }
 
 function toggleManualInputs(isManual) {
-    const box = document.getElementById('manual-controls');
-    box.style.opacity = isManual ? '1' : '0.5';
-    box.style.pointerEvents = isManual ? 'auto' : 'none';
+    const box = document.getElementById('manual-controls') || document.getElementById('manual-inputs');
+    if (box) {
+        box.style.opacity = isManual ? '1' : '0.5';
+        box.style.pointerEvents = isManual ? 'auto' : 'none';
+    }
 }
 
-function updateText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
-function getVal(id) { return document.getElementById(id).value; }
-function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
+function updateText(id, text) { 
+    const el = document.getElementById(id); 
+    if(el && text !== undefined) el.textContent = text; 
+}
+
+function getVal(id) { 
+    const el = document.getElementById(id);
+    return el ? el.value : ''; 
+}
+
+function setVal(id, val) { 
+    const el = document.getElementById(id);
+    if(el) el.value = val || ''; 
+}
 
 function updateClock() {
     const now = new Date();
@@ -202,27 +242,21 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
+// API ใหม่ของฮั่วเซ่งเฮง
 async function fetchGoldAPI() {
     try {
-        // เปลี่ยน URL ไปที่ API ของฮั่วเซ่งเฮง และใส่พารามิเตอร์ป้องกัน Browser Cache
         const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice?v=' + Date.now());
         const data = await response.json();
         
-        // โครงสร้างข้อมูลของฮั่วเซ่งเฮงจะส่งกลับมาในรูปแบบ Array
-        // โดยปกติตำแหน่งแรก (Index 0) จะเป็นข้อมูลราคาทองคำแท่งมาตรฐาน
         if (data && data.length > 0) {
             const goldData = data[0];
-            
-            // นำค่า Buy (รับซื้อ) และ Sell (ขายออก) มาแสดงผล
-            // ฟังก์ชัน parsePrice เดิมจะช่วยเคลียร์ตัวอักษรหรือลูกน้ำออก และ toLocaleString() จะจัดฟอร์แมตตัวเลขใหม่ให้
             updateText('gold-buy', parsePrice(goldData.Buy).toLocaleString());
             updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
             
-            // API ของฮั่วเซ่งเฮงมีฟิลด์ StrTimeUpdate ที่จัดรูปประโยคมาให้แล้ว (เช่น "อัพเดตล่าสุด วันที่ ... เวลา ...")
             const updateStr = goldData.StrTimeUpdate || goldData.TimeUpdate || "-";
             updateText('last-update', updateStr);
         }
-    } catch (err) {
+    } catch (err) { 
         console.error("API Error", err);
         updateText('last-update', 'เชื่อมต่อระบบเช็คราคาไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
     }
