@@ -85,42 +85,55 @@ function openDisplay() {
 // --- Admin Mode ---
 function openAdmin() {
     displayRoot.style.display = 'none';
-    adminRoot.style.display = 'block';
 
     const loginModal = document.getElementById('login-modal');
-    const controlPanel = document.getElementById('control-panel');
+    // แก้ไขที่ 1: เปลี่ยนจาก 'control-panel' เป็น 'admin-root' เพื่อให้ตรงกับใน HTML
+    const controlPanel = document.getElementById('admin-root'); 
     const passInput = document.getElementById('password-input');
     const btnLogin = document.getElementById('btn-login');
     const loginError = document.getElementById('login-error');
     
+    // บังคับซ่อนหน้าจัดการไว้ก่อนจนกว่าจะล็อกอินผ่าน
+    if (controlPanel) controlPanel.style.display = 'none';
+    
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        loginModal.style.display = 'none';
-        controlPanel.style.display = 'block';
-        initAdminControls();
+        if (loginModal) loginModal.style.display = 'none';
+        if (controlPanel) {
+            controlPanel.style.display = 'block';
+            initAdminControls();
+        }
     }
 
     const handleLogin = () => {
         const password = passInput.value.trim();
-        if (password === '987654321') {
+        if (password === '987654321') { // รหัสผ่านคือ 987654321
             sessionStorage.setItem('isLoggedIn', 'true');
-            loginModal.style.display = 'none';
-            controlPanel.style.display = 'block';
-            initAdminControls();
+            if (loginModal) loginModal.style.display = 'none';
+            if (controlPanel) {
+                controlPanel.style.display = 'block';
+                initAdminControls();
+            }
         } else {
-            loginError.style.display = 'block';
+            if (loginError) loginError.style.display = 'block';
         }
     };
 
-    btnLogin.addEventListener('click', handleLogin);
+    if (btnLogin) btnLogin.addEventListener('click', handleLogin);
     
-    passInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-    });
+    if (passInput) {
+        passInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+    }
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        sessionStorage.removeItem('isLoggedIn');
-        location.reload();
-    });
+    // แก้ไขที่ 2: เช็คก่อนว่ามีปุ่ม btn-logout อยู่ใน HTML ไหม เพื่อป้องกัน Error
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('isLoggedIn');
+            location.reload();
+        });
+    }
 }
 
 function initAdminControls() {
