@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// Firebase Config
+// Firebase Config ของคุณ
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -15,33 +15,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// ดึง Element สำคัญ
 const displayRoot = document.getElementById('display-root');
 const adminRoot = document.getElementById('admin-root');
-const adminTrigger = document.getElementById('admin-trigger');
-const btnBackDisplay = document.getElementById('btn-back-display');
+const controlPanel = document.getElementById('control-panel') || document.getElementById('admin-root'); 
+const loginModal = document.getElementById('login-modal');
 
 let isManualMode = false;
 
-// --- Init ---
-checkMode();
+// --- ระบบเช็คหน้าเว็บ (แก้ไขจุดที่ทำให้จอดำ) ---
+// ถ้าหา display-root ไม่เจอแปลว่าเปิดไฟล์ admin.html แบบแยกต่างหาก
+const isStandaloneAdmin = (displayRoot === null);
 
-function checkMode() {
-    // เช็คว่าหน้าเว็บปัจจุบันมี login-modal หรือไม่ (ถ้ามีแสดงว่าเป็นหน้า admin.html)
-    const isStandaloneAdmin = document.getElementById('login-modal') !== null;
-    
-    if(isStandaloneAdmin || window.location.hash === '#admin') {
-        openAdmin();
-    } else {
-        openDisplay();
-    }
+if (isStandaloneAdmin || window.location.hash === '#admin') {
+    openAdmin();
+} else {
+    openDisplay();
 }
 
+// --- Event Listeners สลับหน้า ---
+const adminTrigger = document.getElementById('admin-trigger');
 if(adminTrigger) {
     adminTrigger.addEventListener('dblclick', () => {
         window.location.hash = 'admin';
         location.reload();
     });
 }
+
+const btnBackDisplay = document.getElementById('btn-back-display');
 if(btnBackDisplay) {
     btnBackDisplay.addEventListener('click', () => {
         window.location.hash = ''; 
@@ -49,9 +50,8 @@ if(btnBackDisplay) {
     });
 }
 
-// --- Display Mode ---
+// --- Display Mode (หน้าจอแสดงผล) ---
 function openDisplay() {
-    // ใส่ if ป้องกัน Error ในกรณีที่เปิดบนหน้า admin.html แล้วหา id นี้ไม่เจอ
     if(displayRoot) displayRoot.style.display = 'flex';
     if(adminRoot) adminRoot.style.display = 'none';
 
@@ -90,19 +90,13 @@ function openDisplay() {
     }, 600000); // อัปเดตทุก 10 นาที
 }
 
-// --- Admin Mode ---
+// --- Admin Mode (หน้าล็อกอินและตั้งค่า) ---
 function openAdmin() {
-    // ใส่ if ป้องกัน Error ในกรณีที่เปิดบนหน้า admin.html แล้วหา id นี้ไม่เจอ
     if(displayRoot) displayRoot.style.display = 'none';
+    
+    if(controlPanel) controlPanel.style.display = 'none'; 
+    if(loginModal) loginModal.style.display = 'flex'; 
 
-    const loginModal = document.getElementById('login-modal');
-    const controlPanel = document.getElementById('admin-root');
-    const passInput = document.getElementById('password-input');
-    const btnLogin = document.getElementById('btn-login');
-    const loginError = document.getElementById('login-error');
-    
-    if(controlPanel) controlPanel.style.display = 'none';
-    
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
         if (loginModal) loginModal.style.display = 'none';
         if (controlPanel) {
@@ -110,6 +104,10 @@ function openAdmin() {
             initAdminControls();
         }
     }
+
+    const passInput = document.getElementById('password-input');
+    const btnLogin = document.getElementById('btn-login');
+    const loginError = document.getElementById('login-error');
 
     const handleLogin = () => {
         if(!passInput) return;
@@ -126,23 +124,29 @@ function openAdmin() {
         }
     };
 
-    if (btnLogin) btnLogin.addEventListener('click', handleLogin);
+    if (btnLogin && !btnLogin.hasAttribute('data-bound')) {
+        btnLogin.addEventListener('click', handleLogin);
+        btnLogin.setAttribute('data-bound', 'true');
+    }
     
-    if (passInput) {
+    if (passInput && !passInput.hasAttribute('data-bound')) {
         passInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleLogin();
         });
+        passInput.setAttribute('data-bound', 'true');
     }
 
     const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
+    if (btnLogout && !btnLogout.hasAttribute('data-bound')) {
         btnLogout.addEventListener('click', () => {
             sessionStorage.removeItem('isLoggedIn');
             location.reload();
         });
+        btnLogout.setAttribute('data-bound', 'true');
     }
 }
 
+// --- ฟังก์ชันควบคุมฟอร์ม ---
 function initAdminControls() {
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
@@ -171,22 +175,22 @@ function initAdminControls() {
     });
 
     const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
-    if (speedInput && !speedInput.hasAttribute('data-bound')) {
+    if (speedInput && !speedInput.hasAttribute('data-bound-speed')) {
         speedInput.addEventListener('input', (e) => {
             updateText('speed-value-display', e.target.value);
             updateText('speed-display', e.target.value);
         });
-        speedInput.setAttribute('data-bound', 'true');
+        speedInput.setAttribute('data-bound-speed', 'true');
     }
 
     const manualCheck = document.getElementById('manual-mode-check');
-    if (manualCheck && !manualCheck.hasAttribute('data-bound')) {
+    if (manualCheck && !manualCheck.hasAttribute('data-bound-check')) {
         manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
-        manualCheck.setAttribute('data-bound', 'true');
+        manualCheck.setAttribute('data-bound-check', 'true');
     }
 
     const ctrlForm = document.getElementById('control-form');
-    if (ctrlForm && !ctrlForm.hasAttribute('data-bound')) {
+    if (ctrlForm && !ctrlForm.hasAttribute('data-bound-form')) {
         ctrlForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const sInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
@@ -201,9 +205,9 @@ function initAdminControls() {
                 manualBuy: getVal('manual-buy-input'),
                 manualSell: getVal('manual-sell-input'),
                 timestamp: Date.now()
-            }).then(() => alert('✅ บันทึกเรียบร้อย!'));
+            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย!'));
         });
-        ctrlForm.setAttribute('data-bound', 'true');
+        ctrlForm.setAttribute('data-bound-form', 'true');
     }
 }
 
@@ -215,34 +219,31 @@ function toggleManualInputs(isManual) {
     }
 }
 
+// --- ฟังก์ชันช่วยเหลือ (Utilities) ---
 function updateText(id, text) { 
     const el = document.getElementById(id); 
     if(el && text !== undefined) el.textContent = text; 
 }
-
 function getVal(id) { 
     const el = document.getElementById(id);
     return el ? el.value : ''; 
 }
-
 function setVal(id, val) { 
     const el = document.getElementById(id);
     if(el) el.value = val || ''; 
 }
-
 function updateClock() {
     const now = new Date();
     updateText('clock-time', now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     updateText('clock-date', now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
 }
-
 function parsePrice(val) {
     if (!val) return 0;
     const num = parseFloat(val.toString().replace(/,/g, ''));
     return isNaN(num) ? 0 : num;
 }
 
-// API ใหม่ของฮั่วเซ่งเฮง
+// --- ดึงข้อมูลจาก API ฮั่วเซ่งเฮง ---
 async function fetchGoldAPI() {
     try {
         const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice?v=' + Date.now());
