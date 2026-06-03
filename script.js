@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// ใส่ Firebase Config ของคุณ
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -26,8 +25,13 @@ let isManualMode = false;
 checkMode();
 
 function checkMode() {
-    if(window.location.hash === '#admin') openAdmin();
-    else openDisplay();
+    // ตรวจสอบว่าผู้ใช้เปิดหน้า admin.html แยกอยู่หรือไม่
+    const isAdminFile = window.location.pathname.includes('admin.html');
+    if(window.location.hash === '#admin' || isAdminFile) {
+        openAdmin();
+    } else {
+        openDisplay();
+    }
 }
 
 if(adminTrigger) {
@@ -39,14 +43,18 @@ if(adminTrigger) {
 if(btnBackDisplay) {
     btnBackDisplay.addEventListener('click', () => {
         window.location.hash = ''; 
-        location.reload();
+        if(window.location.pathname.includes('admin.html')) {
+            window.location.href = 'index.html'; // ส่งกลับหน้าแรกถ้ามาจาก admin.html
+        } else {
+            location.reload();
+        }
     });
 }
 
 // --- Display Mode ---
 function openDisplay() {
-    displayRoot.style.display = 'flex';
-    adminRoot.style.display = 'none';
+    if(displayRoot) displayRoot.style.display = 'flex';
+    if(adminRoot) adminRoot.style.display = 'none';
 
     updateClock();
     setInterval(updateClock, 1000);
@@ -60,7 +68,8 @@ function openDisplay() {
         updateText('marquee-text', data.marquee);
 
         const speed = data.marqueeSpeed || 40;
-        document.getElementById('marquee-text').style.animationDuration = `${speed}s`;
+        const marqueeEl = document.getElementById('marquee-text');
+        if(marqueeEl) marqueeEl.style.animationDuration = `${speed}s`;
 
         isManualMode = data.manualMode === true;
         const modeIndicator = document.getElementById('mode-indicator');
@@ -79,48 +88,63 @@ function openDisplay() {
 
     setInterval(() => {
         if(!isManualMode) fetchGoldAPI();
-    }, 600000); // อัปเดตทุก 10 นาที
+    }, 600000);
 }
 
 // --- Admin Mode ---
 function openAdmin() {
-    displayRoot.style.display = 'none';
-    adminRoot.style.display = 'block';
-
+    // ป้องกัน Error โดยการเช็คก่อนว่ามีกล่องนี้ในหน้าเว็บหรือไม่
+    if(displayRoot) displayRoot.style.display = 'none';
+    
     const loginModal = document.getElementById('login-modal');
-    const controlPanel = document.getElementById('control-panel');
+    const controlPanel = document.getElementById('control-panel') || document.getElementById('admin-root');
+    
+    if (adminRoot && adminRoot !== controlPanel) {
+        adminRoot.style.display = 'block';
+    }
+
     const passInput = document.getElementById('password-input');
     const btnLogin = document.getElementById('btn-login');
     const loginError = document.getElementById('login-error');
     
+    // ตั้งค่าเริ่มต้น ซ่อนพาเนลจัดการ โชว์หน้าล็อกอิน
+    if(controlPanel) controlPanel.style.display = 'none';
+    if(loginModal) loginModal.style.display = 'block';
+    
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        loginModal.style.display = 'none';
-        controlPanel.style.display = 'block';
+        if(loginModal) loginModal.style.display = 'none';
+        if(controlPanel) controlPanel.style.display = 'block';
         initAdminControls();
     }
 
     const handleLogin = () => {
+        if(!passInput) return;
         const password = passInput.value.trim();
         if (password === '987654321') {
             sessionStorage.setItem('isLoggedIn', 'true');
-            loginModal.style.display = 'none';
-            controlPanel.style.display = 'block';
+            if(loginModal) loginModal.style.display = 'none';
+            if(controlPanel) controlPanel.style.display = 'block';
             initAdminControls();
         } else {
-            loginError.style.display = 'block';
+            if(loginError) loginError.style.display = 'block';
         }
     };
 
-    btnLogin.addEventListener('click', handleLogin);
+    if(btnLogin) btnLogin.addEventListener('click', handleLogin);
     
-    passInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-    });
+    if(passInput) {
+        passInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+    }
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        sessionStorage.removeItem('isLoggedIn');
-        location.reload();
-    });
+    const btnLogout = document.getElementById('btn-logout');
+    if(btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('isLoggedIn');
+            location.reload();
+        });
+    }
 }
 
 function initAdminControls() {
@@ -129,53 +153,64 @@ function initAdminControls() {
         const data = snapshot.val();
         if (!data) return;
         
-        if(document.activeElement.tagName !== 'INPUT') {
+        if(document.activeElement && document.activeElement.tagName !== 'INPUT') {
             setVal('shop-name-input', data.shopName);
             setVal('marquee-input', data.marquee);
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
             const currentSpeed = data.marqueeSpeed || 40;
-            document.getElementById('marquee-speed-input').value = currentSpeed;
+            const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+            if(speedInput) speedInput.value = currentSpeed;
             updateText('speed-value-display', currentSpeed);
 
             const isMan = data.manualMode === true;
-            document.getElementById('manual-mode-check').checked = isMan;
+            const manualCheck = document.getElementById('manual-mode-check');
+            if(manualCheck) manualCheck.checked = isMan;
             toggleManualInputs(isMan);
         }
     });
 
-    const speedInput = document.getElementById('marquee-speed-input');
-    speedInput.addEventListener('input', (e) => {
-        updateText('speed-value-display', e.target.value);
-    });
+    const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+    if(speedInput) {
+        speedInput.addEventListener('input', (e) => {
+            updateText('speed-value-display', e.target.value);
+        });
+    }
 
     const manualCheck = document.getElementById('manual-mode-check');
-    manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
+    if(manualCheck) {
+        manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
+    }
 
-    document.getElementById('control-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        set(ref(db, 'signage/status'), {
-            shopName: getVal('shop-name-input'),
-            marquee: getVal('marquee-input'),
-            marqueeSpeed: getVal('marquee-speed-input'),
-            manualMode: manualCheck.checked,
-            manualBuy: getVal('manual-buy-input'),
-            manualSell: getVal('manual-sell-input'),
-            timestamp: Date.now()
-        }).then(() => alert('✅ บันทึกเรียบร้อย!'));
-    });
+    const controlForm = document.getElementById('control-form');
+    if(controlForm) {
+        controlForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            set(ref(db, 'signage/status'), {
+                shopName: getVal('shop-name-input'),
+                marquee: getVal('marquee-input'),
+                marqueeSpeed: speedInput ? speedInput.value : 40,
+                manualMode: manualCheck ? manualCheck.checked : false,
+                manualBuy: getVal('manual-buy-input'),
+                manualSell: getVal('manual-sell-input'),
+                timestamp: Date.now()
+            }).then(() => alert('✅ บันทึกเรียบร้อย!'));
+        });
+    }
 }
 
 function toggleManualInputs(isManual) {
-    const box = document.getElementById('manual-controls');
-    box.style.opacity = isManual ? '1' : '0.5';
-    box.style.pointerEvents = isManual ? 'auto' : 'none';
+    const box = document.getElementById('manual-controls') || document.getElementById('manual-inputs');
+    if(box) {
+        box.style.opacity = isManual ? '1' : '0.5';
+        box.style.pointerEvents = isManual ? 'auto' : 'none';
+    }
 }
 
 function updateText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
-function getVal(id) { return document.getElementById(id).value; }
-function setVal(id, val) { if(document.getElementById(id)) document.getElementById(id).value = val || ''; }
+function getVal(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function setVal(id, val) { const el = document.getElementById(id); if(el) el.value = val || ''; }
 
 function updateClock() {
     const now = new Date();
@@ -189,23 +224,20 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ฟังก์ชันดึงราคาจาก API ฮั่วเซ่งเฮงที่อัปเดตแล้ว ---
+// ระบบดึงราคาจาก API ฮั่วเซ่งเฮง
 async function fetchGoldAPI() {
     try {
-        // ดึงข้อมูลจาก API ฮั่วเซ่งเฮง
         const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice');
         const data = await response.json();
         
         if (!data || (Array.isArray(data) && data.length === 0)) throw new Error("No data");
 
-        // รูปแบบข้อมูลปกติจะเป็น Array เลือกข้อมูลชุดแรก (ทอง 96.5%)
         const goldData = Array.isArray(data) ? data[0] : data;
 
         if (goldData && goldData.Buy && goldData.Sell) {
             updateText('gold-buy', parsePrice(goldData.Buy).toLocaleString());
             updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
             
-            // ดึงข้อความเวลาอัปเดตที่ส่งมาจาก API ถ้าไม่มีให้ใช้เวลาของเครื่อง
             let updateTimeStr = goldData.StrTimeUpdate;
             if (!updateTimeStr) {
                 const now = new Date();
