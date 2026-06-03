@@ -79,7 +79,7 @@ function openDisplay() {
 
     setInterval(() => {
         if(!isManualMode) fetchGoldAPI();
-    }, 600000);
+    }, 600000); // อัปเดตทุก 10 นาที
 }
 
 // --- Admin Mode ---
@@ -189,23 +189,34 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
+// --- ฟังก์ชันดึงราคาจาก API ฮั่วเซ่งเฮงที่อัปเดตแล้ว ---
 async function fetchGoldAPI() {
     try {
-        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest?v=' + Date.now());
+        // ดึงข้อมูลจาก API ฮั่วเซ่งเฮง
+        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice');
         const data = await response.json();
         
-        if (data && data.response && data.response.price && data.response.price.gold_bar) {
-            const p = data.response.price.gold_bar;
-            const r = data.response;
-            updateText('gold-buy', parsePrice(p.buy).toLocaleString());
-            updateText('gold-sell', parsePrice(p.sell).toLocaleString());
+        if (!data || (Array.isArray(data) && data.length === 0)) throw new Error("No data");
+
+        // รูปแบบข้อมูลปกติจะเป็น Array เลือกข้อมูลชุดแรก (ทอง 96.5%)
+        const goldData = Array.isArray(data) ? data[0] : data;
+
+        if (goldData && goldData.Buy && goldData.Sell) {
+            updateText('gold-buy', parsePrice(goldData.Buy).toLocaleString());
+            updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
             
-            const dateStr = r.update_date || r.date || "-";
-            const timeStr = r.update_time || r.time || "-";
-            updateText('last-update', `ราคาอัปเดตล่าสุด: ${dateStr} ${timeStr}`);
+            // ดึงข้อความเวลาอัปเดตที่ส่งมาจาก API ถ้าไม่มีให้ใช้เวลาของเครื่อง
+            let updateTimeStr = goldData.StrTimeUpdate;
+            if (!updateTimeStr) {
+                const now = new Date();
+                updateTimeStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) + ' ' + 
+                                now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            updateText('last-update', `ราคาอัปเดตล่าสุด: ${updateTimeStr}`);
         }
     } catch (err) { 
         console.error("API Error", err);
-        updateText('last-update', 'เชื่อมต่อสมาคมฯ ไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
+        updateText('last-update', 'เชื่อมต่อระบบราคาไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
     }
 }
