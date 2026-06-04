@@ -5,18 +5,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Signage Admin</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* =========================================
+           MOBILE FIRST CSS FOUNDATION
+           ========================================= */
+        :root {
+            --gold-color: #ffd700;
+            --accent-color: #ff3333;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --buy-color: #33ff00;
+        }
+
+        body.admin-body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Prompt', sans-serif, system-ui;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Typography & Elements --- */
+        h1, h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        /* ป้องกัน iOS Auto-zoom โดยกำหนด font-size ให้ input อย่างน้อย 16px */
+        input[type="text"], 
+        input[type="password"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 15px;
+            font-size: 16px; 
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+            color: white;
+            margin-top: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, 
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--gold-color);
+        }
+
+        /* Touch Targets ที่ใหญ่ขึ้นสำหรับปุ่ม */
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        .btn-save {
+            background-color: var(--gold-color);
+            color: #000;
+            margin-top: 10px;
+        }
+
+        /* --- Layout: Login Modal --- */
+        #login-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 30px 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 340px; /* จำกัดความกว้างบนจอใหญ่ */
+            box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        #login-error {
+            color: var(--accent-color);
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* --- Layout: Admin Panel --- */
+        .control-panel {
+            padding: 20px 15px 40px; /* เพิ่ม padding ล่างสำหรับมือถือเวลาเลื่อน */
+            max-width: 600px; /* ขยายบนจอ Desktop จะไม่เกิน 600px และอยู่ตรงกลาง */
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--gold-color);
+        }
+
+        .card-gold {
+            border: 2px solid var(--gold-color);
+        }
+
+        /* --- Manual Mode UI --- */
+        .manual-toggle-box {
+            background: #2a2a2a;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .manual-toggle-box label {
+            margin: 0; 
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        #manual-mode-check {
+            width: 24px;
+            height: 24px;
+            accent-color: var(--accent-color);
+        }
+
+        .price-label-buy { color: var(--buy-color); display: block; margin-top: 10px; }
+        .price-label-sell { color: var(--gold-color); display: block; margin-top: 15px; }
+        
+        .helper-text {
+            display: block;
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* --- Range Slider --- */
+        input[type="range"] {
+            width: 100%;
+            margin-top: 15px;
+            accent-color: var(--gold-color);
+        }
+
+        hr.divider {
+            border: 0;
+            border-top: 1px solid #333;
+            margin: 25px 0 15px;
+        }
+
+        /* =========================================
+           DESKTOP ENHANCEMENTS (Media Queries)
+           ========================================= */
+        @media (min-width: 768px) {
+            .control-panel {
+                padding: 40px 20px;
+            }
+            /* จัดเรียงช่องราคาแบบ 2 คอลัมน์บนจอใหญ่ */
+            .price-inputs-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            .price-label-sell { margin-top: 10px; } /* Reset margin สำหรับ grid */
+        }
+    </style>
 </head>
 <body class="admin-body">
 
     <div id="login-modal">
-        <h2 style="color:white; margin-bottom:20px;">🔒 ยืนยันตัวตน</h2>
-        <input type="password" id="password-input" placeholder="กรอกรหัสผ่าน" style="width: 80%; max-width:300px; text-align:center;">
-        <button id="btn-login" class="btn-save btn-login">เข้าสู่ระบบ</button>
-        <p id="login-error" style="color:red; display:none; margin-top:10px;">รหัสผ่านไม่ถูกต้อง</p>
+        <div class="login-box">
+            <h2 style="color: white; margin-bottom: 25px;">🔒 ยืนยันตัวตน</h2>
+            <input type="password" id="password-input" placeholder="กรอกรหัสผ่าน">
+            <button id="btn-login" class="btn-save btn-login" style="margin-top: 20px;">เข้าสู่ระบบ</button>
+            <p id="login-error">รหัสผ่านไม่ถูกต้อง</p>
+        </div>
     </div>
 
     <div id="admin-root" class="control-panel">
-        <h1 style="text-align: center; margin: 10px 0 30px;">📱 ตั้งค่าร้านทอง</h1>
+        <h1 style="margin: 10px 0 30px;">📱 ตั้งค่าร้านทอง</h1>
         
         <form id="control-form">
             <div class="card">
@@ -24,22 +219,26 @@
                 <input type="text" id="shop-name-input" placeholder="เช่น ห้างทอง...">
             </div>
 
-            <div class="card" style="border: 2px solid var(--gold-color);">
+            <div class="card card-gold">
                 <div class="card-title">💰 ราคาทองคำแท่ง</div>
                 
-                <div style="background:#333; padding:15px; border-radius:10px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
-                    <label style="margin:0; color:white; font-size:1.1rem;">โหมดกำหนดราคาเอง (Manual)</label>
-                    <input type="checkbox" id="manual-mode-check" style="width:25px; height:25px; accent-color:var(--accent-color);">
+                <div class="manual-toggle-box">
+                    <label>โหมดกำหนดราคาเอง (Manual)</label>
+                    <input type="checkbox" id="manual-mode-check">
                 </div>
 
                 <div id="manual-inputs">
-                    <label style="color:#33ff00;">ราคารับซื้อ (บาท)</label>
-                    <input type="text" id="manual-buy-input" placeholder="เช่น 43,000">
-                    
-                    <label style="color:#ffd700; margin-top:10px; display:block;">ราคาขายออก (บาท)</label>
-                    <input type="text" id="manual-sell-input" placeholder="เช่น 43,100">
-                    
-                    <small style="display:block; margin-top:10px; color:#aaa;">* ถ้าไม่ติ๊ก "Manual" ระบบจะดึงราคาจากสมาคมฯ ให้อัตโนมัติ</small>
+                    <div class="price-inputs-grid">
+                        <div>
+                            <label class="price-label-buy">ราคารับซื้อ (บาท)</label>
+                            <input type="text" id="manual-buy-input" placeholder="เช่น 43,000">
+                        </div>
+                        <div>
+                            <label class="price-label-sell">ราคาขายออก (บาท)</label>
+                            <input type="text" id="manual-sell-input" placeholder="เช่น 43,100">
+                        </div>
+                    </div>
+                    <small class="helper-text">* ถ้าไม่ติ๊ก "Manual" ระบบจะดึงราคาจากสมาคมฯ ให้อัตโนมัติ</small>
                 </div>
             </div>
 
@@ -51,14 +250,17 @@
             <div class="card">
                 <div class="card-title">📢 ข้อความตัววิ่ง</div>
                 <input type="text" id="marquee-input" placeholder="พิมพ์ข้อความ...">
-                <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
-                <label>ความเร็วตัววิ่ง: <span id="speed-display" style="color:var(--gold-color);">ปกติ</span></label>
+                
+                <hr class="divider">
+                
+                <label>ความเร็วตัววิ่ง: <span id="speed-display" style="color:var(--gold-color); font-weight:bold;">ปกติ</span></label>
                 <input type="range" id="speed-input" min="1" max="100" value="50">
             </div>
 
             <button type="submit" class="btn-save">🚀 อัปเดตข้อมูล</button>
         </form>
     </div>
+    
     <script type="module" src="script.js"></script>
 </body>
 </html>
