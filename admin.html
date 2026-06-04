@@ -7,21 +7,24 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* =========================================
-           MOBILE FIRST CSS FOUNDATION
+           BULLETPROOF MOBILE FIRST & DESKTOP RESET
            ========================================= */
         
-        /* 1. รีเซ็ตให้ขอบและ Padding อยู่ด้านในเสมอ */
+        /* บังคับให้ทุก Element คำนวณความกว้างรวม Padding เสมอ ป้องกันกล่องล้น */
         *, *::before, *::after {
-            box-sizing: border-box;
+            box-sizing: border-box !important;
         }
 
-        /* 2. แก้ปัญหา Scrollbar แนวนอนบนจอคอม (ใช้ 100% แทน 100vw) */
+        /* รีเซ็ตหน้าเว็บ ป้องกันสกอร์บาร์แนวนอน และให้สกอร์บาร์แนวตั้งขึ้นเฉพาะเมื่อจำเป็น */
         html, body.admin-body {
-            width: 100%;
-            max-width: 100%; /* เปลี่ยนตรงนี้เพื่อแก้ scrollbar บน Desktop */
-            overflow-x: hidden; 
-            margin: 0;
-            padding: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #121212 !important;
+            overflow-x: hidden !important; 
+            overflow-y: auto !important; /* สกอร์บาร์แนวตั้งจะขึ้นเฉพาะเวลาเนื้อหายาวเกินจอ */
+            min-height: 100vh;
         }
 
         :root {
@@ -35,7 +38,6 @@
         }
 
         body.admin-body {
-            background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Prompt', sans-serif, system-ui;
             -webkit-font-smoothing: antialiased;
@@ -50,7 +52,9 @@
 
         input[type="text"], 
         input[type="password"] {
-            width: 100%;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
             padding: 12px 15px;
             font-size: 16px; 
             border: 1px solid #444;
@@ -59,6 +63,7 @@
             color: white;
             margin-top: 8px;
             transition: border-color 0.3s;
+            display: block;
         }
 
         input[type="text"]:focus, 
@@ -68,7 +73,7 @@
         }
 
         button {
-            width: 100%;
+            width: 100% !important;
             padding: 14px;
             font-size: 16px;
             font-weight: bold;
@@ -89,17 +94,18 @@
         }
 
         /* --- Layout: Login Modal --- */
-        #login-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+        body.admin-body #login-modal {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.9) !important;
             backdrop-filter: blur(5px);
-            display: flex;
+            display: flex; /* ห้ามใส่ !important ตรงนี้ เพื่อให้ script.js สั่งซ่อนตอนล็อกอินผ่านได้ */
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            z-index: 1000;
+            z-index: 9999 !important;
+            box-sizing: border-box;
         }
 
         .login-box {
@@ -119,21 +125,28 @@
             display: none;
         }
 
-        /* --- Layout: Admin Panel --- */
-        .control-panel {
-            padding: 20px 15px 40px;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+        /* --- Layout: Admin Panel (แก้ปัญหาชิดซ้ายที่นี่) --- */
+        body.admin-body #admin-root.control-panel {
+            display: block !important;
+            float: none !important;
+            position: relative !important;
+            left: auto !important;
+            right: auto !important;
+            margin: 0 auto !important; /* บังคับจัดกึ่งกลางหน้าจอคอมพิวเตอร์ */
+            padding: 30px 16px 60px 16px !important;
+            width: 100% !important;
+            max-width: 550px !important; /* ขนาดกล่องควบคุมที่กระชับพอดีสายตา */
+            box-sizing: border-box !important;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 100%;
+        body.admin-body .card {
+            background-color: var(--card-bg) !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            margin-bottom: 20px !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         .card-title {
@@ -143,8 +156,8 @@
             color: var(--gold-color);
         }
 
-        .card-gold {
-            border: 2px solid var(--gold-color);
+        body.admin-body .card-gold {
+            border: 2px solid var(--gold-color) !important;
         }
 
         /* --- Manual Mode UI --- */
@@ -198,12 +211,9 @@
         }
 
         /* =========================================
-           DESKTOP ENHANCEMENTS
+           DESKTOP ENHANCEMENTS (ปรับปรุงเมื่อเปิดจอคอม)
            ========================================= */
         @media (min-width: 768px) {
-            .control-panel {
-                padding: 40px 20px;
-            }
             .price-inputs-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
