@@ -9,6 +9,21 @@
         /* =========================================
            MOBILE FIRST CSS FOUNDATION
            ========================================= */
+        
+        /* 1. รีเซ็ตให้ขอบและ Padding อยู่ด้านในเสมอ (ป้องกันกล่องล้น) */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* 2. บังคับไม่ให้มี Scrollbar แนวนอน 100% */
+        html, body.admin-body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden; 
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
             --gold-color: #ffd700;
             --accent-color: #ff3333;
@@ -23,8 +38,6 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Prompt', sans-serif, system-ui;
-            margin: 0;
-            padding: 0;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -32,13 +45,12 @@
         h1, h2 {
             text-align: center;
             margin-top: 0;
+            word-wrap: break-word;
         }
 
-        /* ป้องกัน iOS Auto-zoom โดยกำหนด font-size ให้ input อย่างน้อย 16px */
         input[type="text"], 
         input[type="password"] {
             width: 100%;
-            box-sizing: border-box;
             padding: 12px 15px;
             font-size: 16px; 
             border: 1px solid #444;
@@ -55,7 +67,6 @@
             border-color: var(--gold-color);
         }
 
-        /* Touch Targets ที่ใหญ่ขึ้นสำหรับปุ่ม */
         button {
             width: 100%;
             padding: 14px;
@@ -96,8 +107,7 @@
             padding: 30px 20px;
             border-radius: 12px;
             width: 100%;
-            max-width: 340px; /* จำกัดความกว้างบนจอใหญ่ */
-            box-sizing: border-box;
+            max-width: 340px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
@@ -111,8 +121,9 @@
 
         /* --- Layout: Admin Panel --- */
         .control-panel {
-            padding: 20px 15px 40px; /* เพิ่ม padding ล่างสำหรับมือถือเวลาเลื่อน */
-            max-width: 600px; /* ขยายบนจอ Desktop จะไม่เกิน 600px และอยู่ตรงกลาง */
+            padding: 20px 15px 40px;
+            width: 100%;
+            max-width: 600px;
             margin: 0 auto;
         }
 
@@ -122,6 +133,7 @@
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%; /* ป้องกันการล้น */
         }
 
         .card-title {
@@ -144,6 +156,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px; /* เผื่อจอเล็กมากๆ จะได้ไม่เบียดกัน */
+            flex-wrap: wrap; /* ถ้าจอแคบไปให้ปัดตกลงมา */
         }
 
         .manual-toggle-box label {
@@ -156,6 +170,7 @@
             width: 24px;
             height: 24px;
             accent-color: var(--accent-color);
+            flex-shrink: 0;
         }
 
         .price-label-buy { color: var(--buy-color); display: block; margin-top: 10px; }
@@ -183,19 +198,18 @@
         }
 
         /* =========================================
-           DESKTOP ENHANCEMENTS (Media Queries)
+           DESKTOP ENHANCEMENTS
            ========================================= */
         @media (min-width: 768px) {
             .control-panel {
                 padding: 40px 20px;
             }
-            /* จัดเรียงช่องราคาแบบ 2 คอลัมน์บนจอใหญ่ */
             .price-inputs-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 15px;
             }
-            .price-label-sell { margin-top: 10px; } /* Reset margin สำหรับ grid */
+            .price-label-sell { margin-top: 10px; }
         }
     </style>
 </head>
