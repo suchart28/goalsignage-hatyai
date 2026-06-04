@@ -7,15 +7,29 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* =========================================
+           🚀 ปิดการแสดงผล SCROLLBAR ทุกชนิด (แต่ยังเลื่อนได้)
+           ========================================= */
+        /* สำหรับ Chrome, Safari และ Opera */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            background: transparent !important;
+        }
+        
+        /* สำหรับ Firefox, IE และ Edge */
+        html, body.admin-body {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+        }
+
+        /* =========================================
            BULLETPROOF MOBILE FIRST & DESKTOP RESET
            ========================================= */
         
-        /* บังคับให้ทุก Element คำนวณความกว้างรวม Padding เสมอ ป้องกันกล่องล้น */
         *, *::before, *::after {
             box-sizing: border-box !important;
         }
 
-        /* รีเซ็ตหน้าเว็บ ป้องกันสกอร์บาร์แนวนอน และให้สกอร์บาร์แนวตั้งขึ้นเฉพาะเมื่อจำเป็น */
         html, body.admin-body {
             width: 100% !important;
             max-width: 100% !important;
@@ -23,7 +37,6 @@
             padding: 0 !important;
             background-color: #121212 !important;
             overflow-x: hidden !important; 
-            overflow-y: auto !important; /* สกอร์บาร์แนวตั้งจะขึ้นเฉพาะเวลาเนื้อหายาวเกินจอ */
             min-height: 100vh;
         }
 
@@ -99,7 +112,7 @@
             top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
             background: rgba(0, 0, 0, 0.9) !important;
             backdrop-filter: blur(5px);
-            display: flex; /* ห้ามใส่ !important ตรงนี้ เพื่อให้ script.js สั่งซ่อนตอนล็อกอินผ่านได้ */
+            display: flex; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -125,17 +138,17 @@
             display: none;
         }
 
-        /* --- Layout: Admin Panel (แก้ปัญหาชิดซ้ายที่นี่) --- */
+        /* --- Layout: Admin Panel --- */
         body.admin-body #admin-root.control-panel {
             display: block !important;
             float: none !important;
             position: relative !important;
             left: auto !important;
             right: auto !important;
-            margin: 0 auto !important; /* บังคับจัดกึ่งกลางหน้าจอคอมพิวเตอร์ */
+            margin: 0 auto !important; 
             padding: 30px 16px 60px 16px !important;
             width: 100% !important;
-            max-width: 550px !important; /* ขนาดกล่องควบคุมที่กระชับพอดีสายตา */
+            max-width: 550px !important; 
             box-sizing: border-box !important;
         }
 
@@ -211,7 +224,7 @@
         }
 
         /* =========================================
-           DESKTOP ENHANCEMENTS (ปรับปรุงเมื่อเปิดจอคอม)
+           DESKTOP ENHANCEMENTS 
            ========================================= */
         @media (min-width: 768px) {
             .price-inputs-grid {
