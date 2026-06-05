@@ -23,8 +23,7 @@ const loginModal = document.getElementById('login-modal');
 
 let isManualMode = false;
 
-// --- ระบบเช็คหน้าเว็บ (แก้ไขจุดที่ทำให้จอดำ) ---
-// ถ้าหา display-root ไม่เจอแปลว่าเปิดไฟล์ admin.html แบบแยกต่างหาก
+// --- ระบบเช็คหน้าเว็บ ---
 const isStandaloneAdmin = (displayRoot === null);
 
 if (isStandaloneAdmin || window.location.hash === '#admin') {
@@ -81,6 +80,11 @@ function openDisplay() {
             if(updateInfo) updateInfo.textContent = "ราคาปรับโดยทางร้าน (Manual)";
         } else {
             if(modeIndicator) modeIndicator.style.display = 'none';
+            // รีเซ็ตหน้าจอเป็นกำลังโหลดชั่วคราว เพื่อล้างตัวเลขแมนวลออกทันที
+            updateText('gold-buy', "กำลังโหลด...");
+            updateText('gold-sell', "กำลังโหลด...");
+            if(updateInfo) updateInfo.textContent = "กำลังเชื่อมต่อระบบอัตโนมัติ...";
+            
             fetchGoldAPI(); 
         }
     });
@@ -146,7 +150,7 @@ function openAdmin() {
     }
 }
 
-// --- ฟังก์ชันควบคุมฟอร์ม ---
+// --- ฟังก์ชันควบคุมฟอร์ม Admin ---
 function initAdminControls() {
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
@@ -159,7 +163,7 @@ function initAdminControls() {
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
-            const currentSpeed = data.marqueeSpeed || 40;
+            const currentSpeed = data.marqueeSpeed || 50;
             const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
             if (speedInput) speedInput.value = currentSpeed;
             
@@ -194,18 +198,20 @@ function initAdminControls() {
         ctrlForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const sInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
-            const mSpeed = sInput ? sInput.value : 40;
+            const mSpeed = sInput ? sInput.value : 50;
             const mCheck = document.getElementById('manual-mode-check');
+            const isMan = mCheck ? mCheck.checked : false; // เช็คสถานะปัจจุบัน
             
             set(ref(db, 'signage/status'), {
                 shopName: getVal('shop-name-input'),
                 marquee: getVal('marquee-input'),
                 marqueeSpeed: mSpeed,
-                manualMode: mCheck ? mCheck.checked : false,
-                manualBuy: getVal('manual-buy-input'),
-                manualSell: getVal('manual-sell-input'),
+                manualMode: isMan,
+                // จุดสำคัญ: ถ้าไม่ได้ติ๊ก Manual ให้บังคับล้างค่าเป็นความว่างเปล่า ทันที
+                manualBuy: isMan ? getVal('manual-buy-input') : '',
+                manualSell: isMan ? getVal('manual-sell-input') : '',
                 timestamp: Date.now()
-            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย!'));
+            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย! โหมด: ' + (isMan ? 'กำหนดเอง' : 'อัตโนมัติ')));
         });
         ctrlForm.setAttribute('data-bound-form', 'true');
     }
@@ -213,10 +219,15 @@ function initAdminControls() {
 
 function toggleManualInputs(isManual) {
     const box = document.getElementById('manual-controls') || document.getElementById('manual-inputs');
+    const buyInput = document.getElementById('manual-buy-input');
+    const sellInput = document.getElementById('manual-sell-input');
+    
     if (box) {
-        box.style.opacity = isManual ? '1' : '0.5';
-        box.style.pointerEvents = isManual ? 'auto' : 'none';
+        box.style.opacity = isManual ? '1' : '0.4';
     }
+    // ปิดการคลิก/พิมพ์ ในกล่องข้อความถ้าเป็นโหมดออโต้
+    if (buyInput) buyInput.disabled = !isManual;
+    if (sellInput) sellInput.disabled = !isManual;
 }
 
 // --- ฟังก์ชันช่วยเหลือ (Utilities) ---
@@ -255,10 +266,13 @@ async function fetchGoldAPI() {
             updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
             
             const updateStr = goldData.StrTimeUpdate || goldData.TimeUpdate || "-";
-            updateText('last-update', updateStr);
+            updateText('last-update', "อัปเดตออโต้ล่าสุด: " + updateStr);
         }
     } catch (err) { 
         console.error("API Error", err);
-        updateText('last-update', 'เชื่อมต่อระบบเช็คราคาไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
+        updateText('last-update', 'ระบบอัตโนมัติขัดข้อง (กรุณาใช้โหมด Manual ชั่วคราว)');
+        // กันไม่ให้เอาเลข Manual โผล่มาหลอกตา ถ้า API พังให้โชว์เป็น - แทน
+        updateText('gold-buy', '-');
+        updateText('gold-sell', '-');
     }
 }
