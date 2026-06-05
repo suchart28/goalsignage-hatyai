@@ -23,7 +23,8 @@ const loginModal = document.getElementById('login-modal');
 
 let isManualMode = false;
 
-// --- ระบบเช็คหน้าเว็บ ---
+// --- ระบบเช็คหน้าเว็บ (แก้ไขจุดที่ทำให้จอดำ) ---
+// ถ้าหา display-root ไม่เจอแปลว่าเปิดไฟล์ admin.html แบบแยกต่างหาก
 const isStandaloneAdmin = (displayRoot === null);
 
 if (isStandaloneAdmin || window.location.hash === '#admin') {
@@ -65,7 +66,7 @@ function openDisplay() {
         updateText('shop-name-text', data.shopName);
         updateText('marquee-text', data.marquee);
 
-        const speed = data.marqueeSpeed || 50;
+        const speed = data.marqueeSpeed || 40;
         const marqueeEl = document.getElementById('marquee-text');
         if (marqueeEl) marqueeEl.style.animationDuration = `${speed}s`;
 
@@ -80,17 +81,13 @@ function openDisplay() {
             if(updateInfo) updateInfo.textContent = "ราคาปรับโดยทางร้าน (Manual)";
         } else {
             if(modeIndicator) modeIndicator.style.display = 'none';
-            // เคลียร์หน้าจอให้เป็น "กำลังโหลด" ทันทีที่สลับโหมด ป้องกันตัวเลขเก่าค้าง
-            updateText('gold-buy', "กำลังโหลด...");
-            updateText('gold-sell', "กำลังโหลด...");
-            if(updateInfo) updateInfo.textContent = "กำลังดึงราคาอัตโนมัติ...";
             fetchGoldAPI(); 
         }
     });
 
     setInterval(() => {
         if(!isManualMode) fetchGoldAPI();
-    }, 600000); // ดึงข้อมูลใหม่ทุก 10 นาที
+    }, 600000); // อัปเดตทุก 10 นาที
 }
 
 // --- Admin Mode (หน้าล็อกอินและตั้งค่า) ---
@@ -149,7 +146,7 @@ function openAdmin() {
     }
 }
 
-// --- ฟังก์ชันควบคุมฟอร์ม Admin ---
+// --- ฟังก์ชันควบคุมฟอร์ม ---
 function initAdminControls() {
     const dbRef = ref(db, 'signage/status');
     onValue(dbRef, (snapshot) => {
@@ -162,9 +159,11 @@ function initAdminControls() {
             setVal('manual-buy-input', data.manualBuy);
             setVal('manual-sell-input', data.manualSell);
             
-            const currentSpeed = data.marqueeSpeed || 50;
-            const speedInput = document.getElementById('speed-input');
+            const currentSpeed = data.marqueeSpeed || 40;
+            const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
             if (speedInput) speedInput.value = currentSpeed;
+            
+            updateText('speed-value-display', currentSpeed);
             updateText('speed-display', currentSpeed);
 
             const isMan = data.manualMode === true;
@@ -175,9 +174,10 @@ function initAdminControls() {
         }
     });
 
-    const speedInput = document.getElementById('speed-input');
+    const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
     if (speedInput && !speedInput.hasAttribute('data-bound-speed')) {
         speedInput.addEventListener('input', (e) => {
+            updateText('speed-value-display', e.target.value);
             updateText('speed-display', e.target.value);
         });
         speedInput.setAttribute('data-bound-speed', 'true');
@@ -193,47 +193,29 @@ function initAdminControls() {
     if (ctrlForm && !ctrlForm.hasAttribute('data-bound-form')) {
         ctrlForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const sInput = document.getElementById('speed-input');
-            const mSpeed = sInput ? sInput.value : 50;
+            const sInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
+            const mSpeed = sInput ? sInput.value : 40;
             const mCheck = document.getElementById('manual-mode-check');
-            const isMan = mCheck ? mCheck.checked : false;
-
-            // บังคับเคลียร์ค่าเป็นความว่างเปล่าทันที หากผู้ใช้ติ๊กออกเป็นโหมด Auto
-            const finalBuy = isMan ? getVal('manual-buy-input') : "";
-            const finalSell = isMan ? getVal('manual-sell-input') : "";
             
             set(ref(db, 'signage/status'), {
                 shopName: getVal('shop-name-input'),
                 marquee: getVal('marquee-input'),
                 marqueeSpeed: mSpeed,
-                manualMode: isMan,
-                manualBuy: finalBuy,
-                manualSell: finalSell,
+                manualMode: mCheck ? mCheck.checked : false,
+                manualBuy: getVal('manual-buy-input'),
+                manualSell: getVal('manual-sell-input'),
                 timestamp: Date.now()
-            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย!\n(โหมดปัจจุบัน: ' + (isMan ? 'กำหนดเอง' : 'อัตโนมัติ') + ')'));
+            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย!'));
         });
         ctrlForm.setAttribute('data-bound-form', 'true');
     }
 }
 
-// ฟังก์ชันเปิด-ปิด ช่องกรอกราคา
 function toggleManualInputs(isManual) {
-    const box = document.getElementById('manual-inputs');
-    const buyInput = document.getElementById('manual-buy-input');
-    const sellInput = document.getElementById('manual-sell-input');
-    
+    const box = document.getElementById('manual-controls') || document.getElementById('manual-inputs');
     if (box) {
-        box.style.opacity = isManual ? '1' : '0.4';
+        box.style.opacity = isManual ? '1' : '0.5';
         box.style.pointerEvents = isManual ? 'auto' : 'none';
-    }
-    
-    if (buyInput) {
-        buyInput.disabled = !isManual;
-        if (!isManual) buyInput.value = ''; // เคลียร์ช่องพิมพ์ทันที
-    }
-    if (sellInput) {
-        sellInput.disabled = !isManual;
-        if (!isManual) sellInput.value = ''; // เคลียร์ช่องพิมพ์ทันที
     }
 }
 
@@ -273,12 +255,10 @@ async function fetchGoldAPI() {
             updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
             
             const updateStr = goldData.StrTimeUpdate || goldData.TimeUpdate || "-";
-            updateText('last-update', "อัปเดตอัตโนมัติล่าสุด: " + updateStr);
+            updateText('last-update', updateStr);
         }
     } catch (err) { 
         console.error("API Error", err);
-        updateText('last-update', 'ระบบอัตโนมัติขัดข้อง (กรุณาใช้โหมด Manual ชั่วคราว)');
-        updateText('gold-buy', '-');
-        updateText('gold-sell', '-');
+        updateText('last-update', 'เชื่อมต่อระบบเช็คราคาไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
     }
 }
