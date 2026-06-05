@@ -6,31 +6,15 @@
     <title>Signage Admin</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* =========================================
-           🚀 ปิดการแสดงผล SCROLLBAR ทุกชนิด (แต่ยังเลื่อนได้)
-           ========================================= */
-        /* สำหรับ Chrome, Safari และ Opera */
+        /* ปิด SCROLLBAR ทุกชนิด */
         ::-webkit-scrollbar {
             display: none !important;
             width: 0 !important;
             background: transparent !important;
         }
-        
-        /* สำหรับ Firefox, IE และ Edge */
         html, body.admin-body {
-            -ms-overflow-style: none !important;  /* IE and Edge */
-            scrollbar-width: none !important;  /* Firefox */
-        }
-
-        /* =========================================
-           BULLETPROOF MOBILE FIRST & DESKTOP RESET
-           ========================================= */
-        
-        *, *::before, *::after {
-            box-sizing: border-box !important;
-        }
-
-        html, body.admin-body {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
@@ -39,6 +23,7 @@
             overflow-x: hidden !important; 
             min-height: 100vh;
         }
+        *, *::before, *::after { box-sizing: border-box !important; }
 
         :root {
             --gold-color: #ffd700;
@@ -56,182 +41,65 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Typography & Elements --- */
-        h1, h2 {
-            text-align: center;
-            margin-top: 0;
-            word-wrap: break-word;
-        }
+        h1, h2 { text-align: center; margin-top: 0; word-wrap: break-word; }
 
-        input[type="text"], 
-        input[type="password"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            box-sizing: border-box !important;
-            padding: 12px 15px;
-            font-size: 16px; 
-            border: 1px solid #444;
-            border-radius: 8px;
-            background-color: #2a2a2a;
-            color: white;
-            margin-top: 8px;
-            transition: border-color 0.3s;
-            display: block;
+        input[type="text"], input[type="password"] {
+            width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
+            padding: 12px 15px; font-size: 16px; border: 1px solid #444; border-radius: 8px;
+            background-color: #2a2a2a; color: white; margin-top: 8px; transition: all 0.3s; display: block;
         }
-
-        input[type="text"]:focus, 
-        input[type="password"]:focus {
-            outline: none;
-            border-color: var(--gold-color);
+        input[type="text"]:focus, input[type="password"]:focus { outline: none; border-color: var(--gold-color); }
+        
+        /* สไตล์ตอนที่ช่องกรอกโดน Disable (โหมด Auto) */
+        input[type="text"]:disabled {
+            background-color: #1a1a1a;
+            color: #555;
+            border-color: #333;
+            cursor: not-allowed;
         }
 
         button {
-            width: 100% !important;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            width: 100% !important; padding: 14px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;
         }
+        button:active { opacity: 0.8; }
+        .btn-save { background-color: var(--gold-color); color: #000; margin-top: 10px; }
 
-        button:active {
-            opacity: 0.8;
-        }
-
-        .btn-save {
-            background-color: var(--gold-color);
-            color: #000;
-            margin-top: 10px;
-        }
-
-        /* --- Layout: Login Modal --- */
         body.admin-body #login-modal {
-            position: fixed !important;
-            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(5px);
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 9999 !important;
-            box-sizing: border-box;
+            position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.9) !important; backdrop-filter: blur(5px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; z-index: 9999 !important; box-sizing: border-box;
         }
+        .login-box { background: var(--card-bg); padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 340px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #login-error { color: var(--accent-color); text-align: center; font-size: 14px; margin-top: 15px; display: none; }
 
-        .login-box {
-            background: var(--card-bg);
-            padding: 30px 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 340px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        #login-error {
-            color: var(--accent-color);
-            text-align: center;
-            font-size: 14px;
-            margin-top: 15px;
-            display: none;
-        }
-
-        /* --- Layout: Admin Panel --- */
         body.admin-body #admin-root.control-panel {
-            display: block !important;
-            float: none !important;
-            position: relative !important;
-            left: auto !important;
-            right: auto !important;
-            margin: 0 auto !important; 
-            padding: 30px 16px 60px 16px !important;
-            width: 100% !important;
-            max-width: 550px !important; 
-            box-sizing: border-box !important;
+            display: block !important; float: none !important; position: relative !important;
+            margin: 0 auto !important; padding: 30px 16px 60px 16px !important;
+            width: 100% !important; max-width: 550px !important; box-sizing: border-box !important;
         }
-
         body.admin-body .card {
-            background-color: var(--card-bg) !important;
-            padding: 20px !important;
-            border-radius: 12px !important;
-            margin-bottom: 20px !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
+            background-color: var(--card-bg) !important; padding: 20px !important; border-radius: 12px !important;
+            margin-bottom: 20px !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important; width: 100% !important; box-sizing: border-box !important;
         }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: var(--gold-color); }
+        body.admin-body .card-gold { border: 2px solid var(--gold-color) !important; }
 
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--gold-color);
-        }
-
-        body.admin-body .card-gold {
-            border: 2px solid var(--gold-color) !important;
-        }
-
-        /* --- Manual Mode UI --- */
-        .manual-toggle-box {
-            background: #2a2a2a;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .manual-toggle-box label {
-            margin: 0; 
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        #manual-mode-check {
-            width: 24px;
-            height: 24px;
-            accent-color: var(--accent-color);
-            flex-shrink: 0;
-        }
-
+        .manual-toggle-box { background: #2a2a2a; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .manual-toggle-box label { margin: 0; font-size: 1rem; font-weight: 500; }
+        #manual-mode-check { width: 24px; height: 24px; accent-color: var(--accent-color); flex-shrink: 0; }
+        
+        #manual-inputs { transition: opacity 0.3s; }
         .price-label-buy { color: var(--buy-color); display: block; margin-top: 10px; }
         .price-label-sell { color: var(--gold-color); display: block; margin-top: 15px; }
-        
-        .helper-text {
-            display: block;
-            margin-top: 12px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
+        .helper-text { display: block; margin-top: 12px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
 
-        /* --- Range Slider --- */
-        input[type="range"] {
-            width: 100%;
-            margin-top: 15px;
-            accent-color: var(--gold-color);
-        }
+        input[type="range"] { width: 100%; margin-top: 15px; accent-color: var(--gold-color); }
+        hr.divider { border: 0; border-top: 1px solid #333; margin: 25px 0 15px; }
 
-        hr.divider {
-            border: 0;
-            border-top: 1px solid #333;
-            margin: 25px 0 15px;
-        }
-
-        /* =========================================
-           DESKTOP ENHANCEMENTS 
-           ========================================= */
         @media (min-width: 768px) {
-            .price-inputs-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-            }
+            .price-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
             .price-label-sell { margin-top: 10px; }
         }
     </style>
@@ -275,7 +143,7 @@
                             <input type="text" id="manual-sell-input" placeholder="เช่น 43,100">
                         </div>
                     </div>
-                    <small class="helper-text">* ถ้าไม่ติ๊ก "Manual" ระบบจะดึงราคาจากสมาคมฯ ให้อัตโนมัติ</small>
+                    <small class="helper-text">* ถ้าไม่ติ๊ก "Manual" ระบบจะปิดช่องนี้ และดึงราคาจากสมาคมฯ ให้อัตโนมัติ</small>
                 </div>
             </div>
 
@@ -297,6 +165,39 @@
             <button type="submit" class="btn-save">🚀 อัปเดตข้อมูล</button>
         </form>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const manualCheck = document.getElementById('manual-mode-check');
+            const manualInputsDiv = document.getElementById('manual-inputs');
+            const buyInput = document.getElementById('manual-buy-input');
+            const sellInput = document.getElementById('manual-sell-input');
+
+            function updateUI() {
+                if (manualCheck.checked) {
+                    // โหมด Manual: เปิดให้แก้ไขได้
+                    manualInputsDiv.style.opacity = '1';
+                    buyInput.disabled = false;
+                    sellInput.disabled = false;
+                } else {
+                    // โหมด Auto: ล็อกช่องกรอกข้อความและทำให้อ่อนลง
+                    manualInputsDiv.style.opacity = '0.4';
+                    buyInput.disabled = true;
+                    sellInput.disabled = true;
+                    
+                    // ป้องกันการส่งค่าตกค้าง ด้วยการล้างข้อมูลทิ้งชั่วคราวเวลาสลับมา Auto
+                    buyInput.value = '';
+                    sellInput.value = '';
+                }
+            }
+
+            // จับเหตุการณ์เวลาคลิกสวิตช์
+            manualCheck.addEventListener('change', updateUI);
+            
+            // รอให้ script.js หลักของคุณโหลดข้อมูลเสร็จก่อน แล้วค่อยอัปเดตสถานะ UI (หน่วงเวลา 1 วินาที)
+            setTimeout(updateUI, 1000); 
+        });
+    </script>
     
     <script type="module" src="script.js"></script>
 </body>
