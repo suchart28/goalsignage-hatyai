@@ -166,39 +166,6 @@
         </form>
     </div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const manualCheck = document.getElementById('manual-mode-check');
-            const manualInputsDiv = document.getElementById('manual-inputs');
-            const buyInput = document.getElementById('manual-buy-input');
-            const sellInput = document.getElementById('manual-sell-input');
-
-            function updateUI() {
-                if (manualCheck.checked) {
-                    // โหมด Manual: เปิดให้แก้ไขได้
-                    manualInputsDiv.style.opacity = '1';
-                    buyInput.disabled = false;
-                    sellInput.disabled = false;
-                } else {
-                    // โหมด Auto: ล็อกช่องกรอกข้อความและทำให้อ่อนลง
-                    manualInputsDiv.style.opacity = '0.4';
-                    buyInput.disabled = true;
-                    sellInput.disabled = true;
-                    
-                    // ป้องกันการส่งค่าตกค้าง ด้วยการล้างข้อมูลทิ้งชั่วคราวเวลาสลับมา Auto
-                    buyInput.value = '';
-                    sellInput.value = '';
-                }
-            }
-
-            // จับเหตุการณ์เวลาคลิกสวิตช์
-            manualCheck.addEventListener('change', updateUI);
-            
-            // รอให้ script.js หลักของคุณโหลดข้อมูลเสร็จก่อน แล้วค่อยอัปเดตสถานะ UI (หน่วงเวลา 1 วินาที)
-            setTimeout(updateUI, 1000); 
-        });
-    </script>
-    
     <script type="module" src="script.js"></script>
 </body>
 </html>
