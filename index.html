@@ -90,20 +90,16 @@
         }
 
         async function fetchApiPrices() {
-            // ใช้ลิงก์ API ของฮั่วเซ่งเฮง
             const apiUrl = 'https://apicheckpricev3.huasengheng.com/api/Values/GetPrice';
-            // นำลิงก์ไปผ่านระบบ Proxy ป้องกันการบล็อก CORS ของเบราว์เซอร์
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
 
             try {
-                // พยายามดึงผ่าน Proxy ก่อนเพื่อความเสถียรบน GitHub Pages
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 processHuasenghengData(data);
             } catch (error) {
                 console.warn("ดึงข้อมูลจาก Proxy ไม่สำเร็จ กำลังลองดึงตรง...", error);
                 try {
-                    // หาก Proxy มีปัญหา ให้ดึงตรงจากลิงก์ API 
                     const directResponse = await fetch(apiUrl);
                     const directData = await directResponse.json();
                     processHuasenghengData(directData);
@@ -115,27 +111,24 @@
         }
 
         function processHuasenghengData(data) {
-            // ตรวจสอบว่า API ส่งข้อมูลกลับมาเป็น Array หรือไม่
-            if (Array.isArray(data) && data.length > 0) {
+            // เช็คว่าเป็น Array และมีข้อมูลอย่างน้อย 2 ตัว (เพื่อให้เรียก data[1] ได้อย่างปลอดภัย)
+            if (Array.isArray(data) && data.length > 1) {
                 
-                // ดึงเฉพาะราคาทองคำแท่งมาตรฐาน ซึ่งในระบบของฮั่วเซ่งเฮงมักจะอยู่บรรทัดแรก (index 0)
-                const goldBarData = data[0]; 
+                // ดึงข้อมูลตัวที่ 2 (index 1) ตามโครงสร้าง <GoldPriceStruct>
+                const goldBarData = data[1]; 
 
-                // เช็คว่ามีค่าส่งมาหรือไม่ (รองรับทั้ง key ชื่อ Buy, Sell และ Bid, Ask)
                 let buyPrice = goldBarData.Buy || goldBarData.Bid || 0;
                 let sellPrice = goldBarData.Sell || goldBarData.Ask || 0;
                 
-                // API ของฮั่วเซ่งเฮงบางทีส่งตัวเลขมาเป็นตัวหนังสือที่มีเครื่องหมายลูกน้ำ (เช่น "40,000") เราต้องเอาออกก่อน
                 if (typeof buyPrice === 'string') buyPrice = buyPrice.replace(/,/g, '');
                 if (typeof sellPrice === 'string') sellPrice = sellPrice.replace(/,/g, '');
 
-                // แสดงผลบนหน้าจอ
                 buyPriceEl.innerText = formatNumber(buyPrice);
                 sellPriceEl.innerText = formatNumber(sellPrice);
                 
-                // อัปเดตเวลาตามที่ API ส่งมา
                 updateTimeEl.innerText = goldBarData.StrTimeUpdate || new Date().toLocaleString('th-TH');
             } else {
+                console.error("รูปแบบข้อมูล API ไม่ถูกต้อง หรือส่งข้อมูลมาไม่ครบ", data);
                 showErrorState();
             }
         }
@@ -157,7 +150,6 @@
                 modeStatusEl.innerText = "อัตโนมัติ (ฮั่วเซ่งเฮง)";
                 fetchApiPrices();
                 if(!window.apiInterval) {
-                    // อัปเดตราคาจากฮั่วเซ่งเฮงทุกๆ 3 นาที (180000 มิลลิวินาที)
                     window.apiInterval = setInterval(fetchApiPrices, 180000); 
                 }
             } else {
