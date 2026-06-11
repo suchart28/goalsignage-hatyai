@@ -8,14 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Prompt', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
         body {
-            /* โทนสีแดงเข้มไล่ระดับ */
             background: radial-gradient(circle, #a10000 0%, #4a0000 100%);
             color: #fff;
             display: flex;
@@ -26,65 +20,21 @@
             width: 100vw;
             overflow: hidden;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .logo {
-            /* ใส่ไฟล์โลโก้จริงของคุณที่นี่ */
-            width: 150px; 
-            height: 150px;
-            object-fit: contain;
-            margin-bottom: 20px;
-            filter: drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.5));
-        }
+        .header { text-align: center; margin-bottom: 50px; }
+        .logo { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.5)); }
         .shop-name {
-            font-size: 5rem;
-            font-weight: 700;
+            font-size: 5rem; font-weight: 700;
             background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        .title {
-            font-size: 3.5rem;
-            color: #fff;
-            margin-top: 10px;
-        }
-        .price-container {
-            display: flex;
-            gap: 50px;
-            width: 80%;
-            justify-content: center;
-        }
-        .price-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 4px solid #D4AF37;
-            border-radius: 20px;
-            padding: 40px;
-            width: 45%;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-        }
-        .price-label {
-            font-size: 3rem;
-            color: #D4AF37;
-            margin-bottom: 20px;
-        }
-        .price-value {
-            font-size: 6rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
-        }
-        .footer {
-            margin-top: 50px;
-            font-size: 1.5rem;
-            color: #ccc;
-        }
-        #update-time {
-            color: #D4AF37;
-        }
+        .title { font-size: 3.5rem; color: #fff; margin-top: 10px; }
+        .price-container { display: flex; gap: 50px; width: 80%; justify-content: center; }
+        .price-box { background: rgba(0, 0, 0, 0.4); border: 4px solid #D4AF37; border-radius: 20px; padding: 40px; width: 45%; text-align: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
+        .price-label { font-size: 3rem; color: #D4AF37; margin-bottom: 20px; }
+        .price-value { font-size: 6rem; font-weight: 700; color: #fff; text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5); }
+        .footer { margin-top: 50px; font-size: 1.5rem; color: #ccc; }
+        #update-time { color: #D4AF37; }
     </style>
 </head>
 <body>
@@ -98,11 +48,11 @@
     <div class="price-container">
         <div class="price-box">
             <div class="price-label">รับซื้อ (บาท)</div>
-            <div class="price-value" id="buy-price">...</div>
+            <div class="price-value" id="buy-price">กำลังโหลด...</div>
         </div>
         <div class="price-box">
             <div class="price-label">ขายออก (บาท)</div>
-            <div class="price-value" id="sell-price">...</div>
+            <div class="price-value" id="sell-price">กำลังโหลด...</div>
         </div>
     </div>
 
@@ -133,6 +83,7 @@
         const modeStatusEl = document.getElementById('mode-status');
 
         function formatNumber(num) {
+            if(!num || isNaN(num)) return "0";
             return Number(num).toLocaleString('th-TH');
         }
 
@@ -140,11 +91,14 @@
             try {
                 const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
                 const data = await response.json();
-                if (data.status === 'success') {
+                if (data.status === 'success' && data.response && data.response.price) {
                     const goldBar = data.response.price.gold_bar;
                     buyPriceEl.innerText = formatNumber(goldBar.buy);
                     sellPriceEl.innerText = formatNumber(goldBar.sell);
                     updateTimeEl.innerText = `${data.response.date} ${data.response.update_time}`;
+                } else {
+                    buyPriceEl.innerText = "Error API";
+                    sellPriceEl.innerText = "Error API";
                 }
             } catch (error) {
                 console.error("Error fetching API:", error);
@@ -152,24 +106,27 @@
             }
         }
 
-        // ดึงการตั้งค่าจาก Firebase Realtime Database
         const settingsRef = ref(db, 'gold_settings');
         onValue(settingsRef, (snapshot) => {
             const data = snapshot.val();
             
-            // ค่าเริ่มต้นถ้ายังไม่มีข้อมูลใน DB
-            const mode = data?.mode || 'auto'; 
-            const manualBuy = data?.manualPrices?.buy || 0;
-            const manualSell = data?.manualPrices?.sell || 0;
+            // หากยังไม่มีข้อมูลในฐานข้อมูล ให้บังคับเป็นโหมด auto ไว้ก่อนแทนที่จะเป็น 0
+            const mode = data ? data.mode : 'auto'; 
+            const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
+            const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
 
             if (mode === 'auto') {
                 modeStatusEl.innerText = "อัตโนมัติ (API)";
                 fetchApiPrices();
-                // ตั้งเวลาดึง API ใหม่ทุกๆ 5 นาทีถ้าอยู่ในโหมด auto
-                window.apiInterval = setInterval(fetchApiPrices, 300000); 
+                if(!window.apiInterval) {
+                    window.apiInterval = setInterval(fetchApiPrices, 300000); 
+                }
             } else {
                 modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
-                clearInterval(window.apiInterval);
+                if(window.apiInterval) {
+                    clearInterval(window.apiInterval);
+                    window.apiInterval = null;
+                }
                 buyPriceEl.innerText = formatNumber(manualBuy);
                 sellPriceEl.innerText = formatNumber(manualSell);
                 const now = new Date();
