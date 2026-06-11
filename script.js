@@ -243,48 +243,50 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจากเว็บสมาคมค้าทองคำโดยตรง (Web Scraping ผ่าน Proxy) ---
+// --- ดึงข้อมูลจากเว็บสมาคมค้าทองคำโดยตรง (แก้ไขปัญหา Proxy ล่ม / CORS) ---
 async function fetchGoldAPI() {
     try {
-        // 1. ระบุ URL หน้าเว็บของสมาคมฯ (+ แนบเวลาปัจจุบันไปเพื่อไม่ให้เบราว์เซอร์จำข้อมูลเก่า)
+        // 1. ระบุ URL สมาคมฯ (+ แนบเวลาเพื่อป้องกันเบราว์เซอร์จำค่าเก่า)
         const targetUrl = 'https://goldtraders.or.th/default.aspx?v=' + Date.now();
         
-        // 2. ใช้ Proxy ฟรี (AllOrigins) เป็นสะพานเชื่อมเพื่อหลบเลี่ยงปัญหาความปลอดภัย CORS ของเบราว์เซอร์
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+        // 2. เปลี่ยนมาใช้ Proxy ของ CodeTabs ซึ่งเสถียรกว่า
+        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
         
         const response = await fetch(proxyUrl);
-        const data = await response.json();
         
-        if (data && data.contents) {
-            // 3. จำลอง HTML ที่ดึงมาได้ให้เป็นเสมือนหน้าเว็บ เพื่อให้ค้นหาตำแหน่งราคาได้ง่าย
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data.contents, 'text/html');
+        if (!response.ok) {
+            throw new Error(`Proxy ขัดข้อง (Status: ${response.status})`);
+        }
+        
+        // 3. Proxy ตัวใหม่นี้คืนค่าเป็น HTML ตรงๆ (ไม่ต้องผ่าน JSON)
+        const htmlText = await response.text();
+        
+        // 4. แปลง Text ให้เป็น HTML จำลองเพื่อหาข้อมูล
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        
+        // 5. ดึงตัวเลขจาก ID หน้าเว็บสมาคมฯ
+        const sellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLSell'); 
+        const buyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLBuy');   
+        const timeEl = doc.getElementById('DetailPlace_uc_goldprices1_lblAsTime'); 
+        
+        if (sellEl && buyEl) {
+            const buyPrice = buyEl.innerText.trim();
+            const sellPrice = sellEl.innerText.trim();
             
-            // 4. ดึงตัวเลขจาก ID ตรงตำแหน่ง "ราคาทองคำแท่ง" บนหน้าเว็บสมาคมค้าทองคำเป๊ะๆ
-            const sellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLSell'); // ราคาขายออก
-            const buyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLBuy');   // ราคารับซื้อ
-            const timeEl = doc.getElementById('DetailPlace_uc_goldprices1_lblAsTime'); // เวลาอัปเดตหน้าเว็บ
+            // อัปเดตราคา
+            updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
+            updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
             
-            if (sellEl && buyEl) {
-                const buyPrice = buyEl.innerText.trim();
-                const sellPrice = sellEl.innerText.trim();
-                
-                // 5. อัปเดตราคาขึ้นบนหน้าจอของคุณ
-                updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
-                updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
-                
-                // 6. ดึงเวลาอัปเดตมาแสดงผล
-                const updateTime = timeEl ? timeEl.innerText.trim() : "";
-                updateText('last-update', `อัปเดตล่าสุด: ${updateTime}`);
-            } else {
-                console.error("❌ หาตำแหน่งราคาบนหน้าเว็บไม่พบ");
-                updateText('last-update', 'โครงสร้างหน้าเว็บสมาคมฯ มีการเปลี่ยนแปลง');
-            }
+            // อัปเดตเวลา
+            const updateTime = timeEl ? timeEl.innerText.trim() : "";
+            updateText('last-update', `อัปเดตล่าสุด: ${updateTime}`);
         } else {
-            throw new Error("Proxy ไม่สามารถเข้าถึงหน้าเว็บสมาคมฯ ได้");
+            console.error("❌ หาตำแหน่งราคาหน้าเว็บไม่พบ");
+            updateText('last-update', 'รอสมาคมฯ อัปเดตโครงสร้างราคา');
         }
     } catch (err) { 
         console.error("🔴 ดึงราคาล้มเหลว:", err);
-        updateText('last-update', 'ระบบดึงราคาขัดข้อง (แสดงข้อมูลล่าสุดที่มี)');
+        updateText('last-update', 'กำลังพยายามเชื่อมต่อเซิร์ฟเวอร์สมาคมฯ...');
     }
 }
