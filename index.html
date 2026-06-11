@@ -147,7 +147,7 @@
             const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
 
             if (mode === 'auto') {
-                modeStatusEl.innerText = "อัตโนมัติ";
+                modeStatusEl.innerText = "อัตโนมัติ (สมาคมค้าทองคำ)";
                 fetchApiPrices();
                 if(!window.apiInterval) {
                     window.apiInterval = setInterval(fetchApiPrices, 180000); 
