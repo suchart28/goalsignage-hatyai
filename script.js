@@ -247,7 +247,7 @@ function parsePrice(val) {
 async function fetchGoldAPI() {
     try {
         // ใช้ API อ้างอิงที่ไปดึงข้อมูลจากเว็บสมาคมฯ มาแปลงเป็น JSON ให้ใช้งานได้
-        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice');
         const data = await response.json();
         
         if (data && data.status === "success") {
