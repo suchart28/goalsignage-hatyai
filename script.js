@@ -243,19 +243,31 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจาก API ฮั่วเซ่งเฮง ---
+// --- ดึงข้อมูลจาก API สมาคมค้าทองคำ (อิงข้อมูลจาก goldtraders.or.th) ---
 async function fetchGoldAPI() {
     try {
-        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice?v=' + Date.now());
+        // ใช้ API อ้างอิงที่ไปดึงข้อมูลจากเว็บสมาคมฯ มาแปลงเป็น JSON ให้ใช้งานได้
+        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
         const data = await response.json();
         
-        if (data && data.length > 0) {
-            const goldData = data[0];
-            updateText('gold-buy', parsePrice(goldData.Buy).toLocaleString());
-            updateText('gold-sell', parsePrice(goldData.Sell).toLocaleString());
+        if (data && data.status === "success") {
+            const goldData = data.response;
             
-            const updateStr = goldData.StrTimeUpdate || goldData.TimeUpdate || "-";
-            updateText('last-update', updateStr);
+            // ดึงราคาทองคำแท่ง (ตามหัวข้อที่แสดงผลบนจอคือ "ราคาทองคำแท่ง")
+            // หมายเหตุ: หากต้องการราคาทองรูปพรรณ ให้เปลี่ยน gold_bar เป็น gold
+            const buyPrice = goldData.price.gold_bar.buy;
+            const sellPrice = goldData.price.gold_bar.sell;
+            
+            // อัปเดตราคาบนหน้าจอ (ใช้ parsePrice ที่มีอยู่แล้วเพื่อเคลียร์คอมม่าออก แล้วใส่ลูกน้ำใหม่ให้สวยงาม)
+            updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
+            updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
+            
+            // นำวันที่และเวลาที่ประกาศมาแสดง (เช่น "02/02/2569 เวลา 17:23 น.")
+            const updateDate = goldData.update_date || "";
+            const updateTime = goldData.update_time || "";
+            updateText('last-update', `อัปเดตล่าสุด: ${updateDate} ${updateTime}`.trim());
+        } else {
+            throw new Error("ข้อมูลจาก API ไม่ถูกต้อง");
         }
     } catch (err) { 
         console.error("API Error", err);
