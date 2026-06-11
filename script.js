@@ -33,13 +33,20 @@ async function fetchGoldAPI() {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
         const data = await response.json();
         
+        // Debug: ดูโครงสร้างข้อมูลทั้งหมดใน Console (F12)
+        console.log("API Data:", data); 
+
         if (data && data.status === "success") {
             const goldData = data.response;
             const goldBar = goldData.price.gold_bar; 
             
+            // ดึงค่าวันที่และเวลา โดยเช็คชื่อ Key ให้ยืดหยุ่นขึ้น
+            const dateStr = goldData.update_date || goldData.date || "ไม่ระบุวันที่";
+            const timeStr = goldData.update_time || "";
+            
             updateText('gold-buy', parsePrice(goldBar.buy).toLocaleString());
             updateText('gold-sell', parsePrice(goldBar.sell).toLocaleString());
-            updateText('last-update', `อัปเดตล่าสุด: ${goldData.date} ${goldData.update_time}`);
+            updateText('last-update', `อัปเดตล่าสุด: ${dateStr} ${timeStr}`);
         }
     } catch (err) {
         console.error("ดึงราคาไม่ได้:", err);
@@ -47,13 +54,12 @@ async function fetchGoldAPI() {
     }
 }
 
-// --- การตั้งค่า Firebase Listener ---
+// --- Firebase Listener ---
 const dbRef = ref(db, 'gold_data');
 
 onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     
-    // โหมด Manual
     if (data && data.isManual) {
         updateText('gold-buy', parsePrice(data.buy).toLocaleString());
         updateText('gold-sell', parsePrice(data.sell).toLocaleString());
@@ -61,11 +67,10 @@ onValue(dbRef, (snapshot) => {
         const indicator = document.getElementById('mode-indicator');
         if(indicator) indicator.style.display = 'block';
     } 
-    // โหมด Auto
     else {
         const indicator = document.getElementById('mode-indicator');
         if(indicator) indicator.style.display = 'none';
-        fetchGoldAPI(); // เรียกใช้ที่นี่
+        fetchGoldAPI(); 
     }
 });
 
