@@ -1,4 +1,67 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้างทองเอราวัณ หาดใหญ่ - ราคาทอง</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        body {
+            background: radial-gradient(circle, #a10000 0%, #4a0000 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        .header { text-align: center; margin-bottom: 50px; }
+        .logo { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.5)); }
+        .shop-name {
+            font-size: 5rem; font-weight: 700;
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .title { font-size: 3.5rem; color: #fff; margin-top: 10px; }
+        .price-container { display: flex; gap: 50px; width: 80%; justify-content: center; }
+        .price-box { background: rgba(0, 0, 0, 0.4); border: 4px solid #D4AF37; border-radius: 20px; padding: 40px; width: 45%; text-align: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
+        .price-label { font-size: 3rem; color: #D4AF37; margin-bottom: 20px; }
+        .price-value { font-size: 6rem; font-weight: 700; color: #fff; text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5); }
+        .footer { margin-top: 50px; font-size: 1.5rem; color: #ccc; }
+        #update-time { color: #D4AF37; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'"> 
+        <h1 class="shop-name">ห้างทองเอราวัณ หาดใหญ่</h1>
+        <h2 class="title">ราคาทองคำแท่ง</h2>
+    </div>
+
+    <div class="price-container">
+        <div class="price-box">
+            <div class="price-label">รับซื้อ (บาท)</div>
+            <div class="price-value" id="buy-price">กำลังโหลด...</div>
+        </div>
+        <div class="price-box">
+            <div class="price-label">ขายออก (บาท)</div>
+            <div class="price-value" id="sell-price">กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        อัปเดตล่าสุด: <span id="update-time">...</span> | ระบบ: <span id="mode-status">...</span>
+    </div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -91,3 +154,5 @@
         sellPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
     });
 </script>
+</body>
+</html>
