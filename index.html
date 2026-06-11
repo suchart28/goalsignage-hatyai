@@ -61,98 +61,121 @@
         อัปเดตล่าสุด: <span id="update-time">...</span> | ระบบ: <span id="mode-status">...</span>
     </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
-        authDomain: "goldshop-d5860.firebaseapp.com",
-        databaseURL: "https://goldshop-d5860-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "goldshop-d5860",
-        storageBucket: "goldshop-d5860.firebasestorage.app",
-        messagingSenderId: "15818908224",
-        appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
-        measurementId: "G-QT7YZPHHXG"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
+            authDomain: "goldshop-d5860.firebaseapp.com",
+            databaseURL: "https://goldshop-d5860-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "goldshop-d5860",
+            storageBucket: "goldshop-d5860.firebasestorage.app",
+            messagingSenderId: "15818908224",
+            appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
+            measurementId: "G-QT7YZPHHXG"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    const buyPriceEl = document.getElementById('buy-price');
-    const sellPriceEl = document.getElementById('sell-price');
-    const updateTimeEl = document.getElementById('update-time');
-    const modeStatusEl = document.getElementById('mode-status');
+        const buyPriceEl = document.getElementById('buy-price');
+        const sellPriceEl = document.getElementById('sell-price');
+        const updateTimeEl = document.getElementById('update-time');
+        const modeStatusEl = document.getElementById('mode-status');
 
-    function formatNumber(num) {
-        if(!num || isNaN(num)) return "รอข้อมูล";
-        return Number(num).toLocaleString('th-TH');
-    }
+        function formatNumber(num) {
+            if(!num || isNaN(num)) return "รอข้อมูล";
+            return Number(num).toLocaleString('th-TH');
+        }
 
-    // ฟังก์ชันดึงข้อมูลแบบมีลิงก์สำรองอัตโนมัติ
-    async function fetchApiPrices() {
-        // ลิงก์หลัก (chnwt.dev) และ ลิงก์สำรอง (CORS Proxy ผ่านสมาคมฯ)
-        const apiUrls = [
-            'https://api.chnwt.dev/thai-gold-api/latest',
-            'https://api.allorigins.win/raw?url=https://api.chnwt.dev/thai-gold-api/latest' // วิ่งผ่าน Proxy แก้ปัญหา CORS
-        ];
+        async function fetchApiPrices() {
+            // ใช้ลิงก์ API ของฮั่วเซ่งเฮง
+            const apiUrl = 'https://apicheckpricev3.huasengheng.com/api/Values/GetPrice';
+            // นำลิงก์ไปผ่านระบบ Proxy ป้องกันการบล็อก CORS ของเบราว์เซอร์
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
 
-        let success = false;
-
-        for (let url of apiUrls) {
             try {
-                const response = await fetch(url);
+                // พยายามดึงผ่าน Proxy ก่อนเพื่อความเสถียรบน GitHub Pages
+                const response = await fetch(proxyUrl);
                 const data = await response.json();
-                
-                if (data.status === 'success' && data.response && data.response.price) {
-                    const goldBar = data.response.price.gold_bar;
-                    buyPriceEl.innerText = formatNumber(goldBar.buy);
-                    sellPriceEl.innerText = formatNumber(goldBar.sell);
-                    updateTimeEl.innerText = `${data.response.date} ${data.response.update_time}`;
-                    success = true;
-                    break; // ดึงสำเร็จแล้ว ให้หยุดการทำงานลูปทันที
-                }
+                processHuasenghengData(data);
             } catch (error) {
-                console.warn(`ลิงก์ดึงราคามีปัญหา กำลังสลับไปใช้ลิงก์สำรอง...`, error);
+                console.warn("ดึงข้อมูลจาก Proxy ไม่สำเร็จ กำลังลองดึงตรง...", error);
+                try {
+                    // หาก Proxy มีปัญหา ให้ดึงตรงจากลิงก์ API 
+                    const directResponse = await fetch(apiUrl);
+                    const directData = await directResponse.json();
+                    processHuasenghengData(directData);
+                } catch (err) {
+                    console.error("ดึงข้อมูลจากฮั่วเซ่งเฮงไม่ได้เลย:", err);
+                    showErrorState();
+                }
             }
         }
 
-        if (!success) {
+        function processHuasenghengData(data) {
+            // ตรวจสอบว่า API ส่งข้อมูลกลับมาเป็น Array หรือไม่
+            if (Array.isArray(data) && data.length > 0) {
+                
+                // ดึงเฉพาะราคาทองคำแท่งมาตรฐาน ซึ่งในระบบของฮั่วเซ่งเฮงมักจะอยู่บรรทัดแรก (index 0)
+                const goldBarData = data[0]; 
+
+                // เช็คว่ามีค่าส่งมาหรือไม่ (รองรับทั้ง key ชื่อ Buy, Sell และ Bid, Ask)
+                let buyPrice = goldBarData.Buy || goldBarData.Bid || 0;
+                let sellPrice = goldBarData.Sell || goldBarData.Ask || 0;
+                
+                // API ของฮั่วเซ่งเฮงบางทีส่งตัวเลขมาเป็นตัวหนังสือที่มีเครื่องหมายลูกน้ำ (เช่น "40,000") เราต้องเอาออกก่อน
+                if (typeof buyPrice === 'string') buyPrice = buyPrice.replace(/,/g, '');
+                if (typeof sellPrice === 'string') sellPrice = sellPrice.replace(/,/g, '');
+
+                // แสดงผลบนหน้าจอ
+                buyPriceEl.innerText = formatNumber(buyPrice);
+                sellPriceEl.innerText = formatNumber(sellPrice);
+                
+                // อัปเดตเวลาตามที่ API ส่งมา
+                updateTimeEl.innerText = goldBarData.StrTimeUpdate || new Date().toLocaleString('th-TH');
+            } else {
+                showErrorState();
+            }
+        }
+
+        function showErrorState() {
             buyPriceEl.innerText = "เปิดโหมดแมนนวล";
             sellPriceEl.innerText = "เปิดโหมดแมนนวล";
-            updateTimeEl.innerText = "ระบบ API หลักขัดข้องชั่วคราว";
+            updateTimeEl.innerText = "ระบบ API ฮั่วเซ่งเฮงขัดข้องชั่วคราว";
         }
-    }
 
-    const settingsRef = ref(db, 'gold_settings');
-    onValue(settingsRef, (snapshot) => {
-        const data = snapshot.val();
-        const mode = data ? data.mode : 'auto'; 
-        const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
-        const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
+        const settingsRef = ref(db, 'gold_settings');
+        onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val();
+            const mode = data ? data.mode : 'auto'; 
+            const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
+            const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
 
-        if (mode === 'auto') {
-            modeStatusEl.innerText = "อัตโนมัติ (API)";
-            fetchApiPrices();
-            if(!window.apiInterval) {
-                window.apiInterval = setInterval(fetchApiPrices, 300000); // อัปเดตทุก 5 นาที
+            if (mode === 'auto') {
+                modeStatusEl.innerText = "อัตโนมัติ (ฮั่วเซ่งเฮง)";
+                fetchApiPrices();
+                if(!window.apiInterval) {
+                    // อัปเดตราคาจากฮั่วเซ่งเฮงทุกๆ 3 นาที (180000 มิลลิวินาที)
+                    window.apiInterval = setInterval(fetchApiPrices, 180000); 
+                }
+            } else {
+                modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
+                if(window.apiInterval) {
+                    clearInterval(window.apiInterval);
+                    window.apiInterval = null;
+                }
+                buyPriceEl.innerText = formatNumber(manualBuy);
+                sellPriceEl.innerText = formatNumber(manualSell);
+                const now = new Date();
+                updateTimeEl.innerText = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
             }
-        } else {
-            modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
-            if(window.apiInterval) {
-                clearInterval(window.apiInterval);
-                window.apiInterval = null;
-            }
-            buyPriceEl.innerText = formatNumber(manualBuy);
-            sellPriceEl.innerText = formatNumber(manualSell);
-            const now = new Date();
-            updateTimeEl.innerText = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
-        }
-    }, (error) => {
-        console.error("Firebase Connect Error:", error);
-        buyPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
-        sellPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
-    });
-</script>
+        }, (error) => {
+            console.error("Firebase Connect Error:", error);
+            buyPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
+            sellPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
+        });
+    </script>
 </body>
 </html>
