@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -15,10 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- DOM Elements ---
-const lastUpdateEl = document.getElementById('last-update');
-
-// --- Helper Functions ---
+// --- ฟังก์ชันช่วยเหลือ ---
 function updateText(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
@@ -30,7 +27,7 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจาก API สมาคมค้าทองคำ (Thai Gold API) ---
+// --- ฟังก์ชันดึงราคาทองจาก Thai Gold API ---
 async function fetchGoldAPI() {
     try {
         const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
@@ -38,44 +35,41 @@ async function fetchGoldAPI() {
         
         if (data && data.status === "success") {
             const goldData = data.response;
-            const goldBar = goldData.price.gold_bar; // ราคาทองคำแท่ง
+            const goldBar = goldData.price.gold_bar; 
             
-            // อัปเดตราคา
             updateText('gold-buy', parsePrice(goldBar.buy).toLocaleString());
             updateText('gold-sell', parsePrice(goldBar.sell).toLocaleString());
-            
-            // อัปเดตเวลา
             updateText('last-update', `อัปเดตล่าสุด: ${goldData.date} ${goldData.update_time}`);
-        } else {
-            throw new Error("API ไม่ส่งข้อมูลสถานะ success");
         }
     } catch (err) {
-        console.error("🔴 ดึงราคาทองไม่ได้:", err);
-        updateText('last-update', 'กำลังเชื่อมต่อราคา...');
+        console.error("ดึงราคาไม่ได้:", err);
+        updateText('last-update', 'กำลังเชื่อมต่อ...');
     }
 }
 
-// --- Main Logic (Firebase Integration) ---
-const dbRef = ref(db, 'gold_data'); // สมมติว่าโครงสร้างใน Firebase ชื่อ gold_data
+// --- การตั้งค่า Firebase Listener ---
+const dbRef = ref(db, 'gold_data');
 
 onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     
-    // ตรวจสอบว่าเป็นโหมด Manual หรือ Auto
+    // โหมด Manual
     if (data && data.isManual) {
-        // โหมด Manual: ดึงจาก Firebase
         updateText('gold-buy', parsePrice(data.buy).toLocaleString());
         updateText('gold-sell', parsePrice(data.sell).toLocaleString());
         updateText('last-update', 'Manual Mode');
-        document.getElementById('mode-indicator').style.display = 'block';
-    } else {
-        // โหมด Auto: ดึงจาก API
-        document.getElementById('mode-indicator').style.display = 'none';
-        fetchGoldAPI();
+        const indicator = document.getElementById('mode-indicator');
+        if(indicator) indicator.style.display = 'block';
+    } 
+    // โหมด Auto
+    else {
+        const indicator = document.getElementById('mode-indicator');
+        if(indicator) indicator.style.display = 'none';
+        fetchGoldAPI(); // เรียกใช้ที่นี่
     }
 });
 
-// --- Clock Update ---
+// --- นาฬิกา ---
 function updateClock() {
     const now = new Date();
     updateText('clock-time', now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
@@ -84,5 +78,5 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// อัปเดตราคาจาก API ทุก 5 นาที (เพื่อไม่ให้ API โดนบล็อก)
+// อัปเดตราคาจาก API ทุก 5 นาที
 setInterval(fetchGoldAPI, 300000);
