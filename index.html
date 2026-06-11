@@ -64,14 +64,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // อัปเดต Firebase Config เป็นตัวใหม่เรียบร้อยครับ
         const firebaseConfig = {
-            apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
-            authDomain: "guidekhonkaen.firebaseapp.com",
-            databaseURL: "https://guidekhonkaen.firebaseio.com",
-            projectId: "guidekhonkaen",
-            storageBucket: "guidekhonkaen.firebasestorage.app",
-            messagingSenderId: "827592654626",
-            appId: "1:827592654626:web:5f1e9858dbc04e636daf7b"
+            apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
+            authDomain: "goldshop-d5860.firebaseapp.com",
+            projectId: "goldshop-d5860",
+            storageBucket: "goldshop-d5860.firebasestorage.app",
+            messagingSenderId: "15818908224",
+            appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
+            measurementId: "G-QT7YZPHHXG"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -99,6 +100,7 @@
                 } else {
                     buyPriceEl.innerText = "Error API";
                     sellPriceEl.innerText = "Error API";
+                    console.error("API response error:", data);
                 }
             } catch (error) {
                 console.error("Error fetching API:", error);
@@ -110,7 +112,7 @@
         onValue(settingsRef, (snapshot) => {
             const data = snapshot.val();
             
-            // หากยังไม่มีข้อมูลในฐานข้อมูล ให้บังคับเป็นโหมด auto ไว้ก่อนแทนที่จะเป็น 0
+            // ป้องกันราคาขึ้นเป็น 0 หากยังไม่มีข้อมูลใน database ใหม่ ให้ Default ไปที่ Auto ก่อน
             const mode = data ? data.mode : 'auto'; 
             const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
             const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
@@ -119,7 +121,7 @@
                 modeStatusEl.innerText = "อัตโนมัติ (API)";
                 fetchApiPrices();
                 if(!window.apiInterval) {
-                    window.apiInterval = setInterval(fetchApiPrices, 300000); 
+                    window.apiInterval = setInterval(fetchApiPrices, 300000); // อัปเดตทุกๆ 5 นาที
                 }
             } else {
                 modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
@@ -132,6 +134,10 @@
                 const now = new Date();
                 updateTimeEl.innerText = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
             }
+        }, (error) => {
+            console.error("Firebase Database Error: อาจจะยังไม่ได้ตั้งค่า Rules ให้เปิดสิทธิ์การเข้าถึง", error);
+            buyPriceEl.innerText = "Error DB";
+            sellPriceEl.innerText = "Error DB";
         });
     </script>
 </body>
