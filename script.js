@@ -246,31 +246,40 @@ function parsePrice(val) {
 // --- ดึงข้อมูลจาก API สมาคมค้าทองคำ (อิงข้อมูลจาก goldtraders.or.th) ---
 async function fetchGoldAPI() {
     try {
-        // ใช้ API อ้างอิงที่ไปดึงข้อมูลจากเว็บสมาคมฯ มาแปลงเป็น JSON ให้ใช้งานได้
-        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice');
+        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
         const data = await response.json();
+        
+        // แนะนำให้เปิด Console (F12) ดูว่าข้อมูลเข้ามาหน้าตาเป็นอย่างไร
+        console.log("📦 ข้อมูลที่ได้จาก API:", data); 
         
         if (data && data.status === "success") {
             const goldData = data.response;
+            const priceObj = goldData.price || {};
             
-            // ดึงราคาทองคำแท่ง (ตามหัวข้อที่แสดงผลบนจอคือ "ราคาทองคำแท่ง")
-            // หมายเหตุ: หากต้องการราคาทองรูปพรรณ ให้เปลี่ยน gold_bar เป็น gold
-            const buyPrice = goldData.price.gold_bar.buy;
-            const sellPrice = goldData.price.gold_bar.sell;
+            // ดักจับเผื่อ API เปลี่ยนชื่อ Key เป็นแบบอื่น
+            const goldBar = priceObj.gold_bar || priceObj.goldbar || priceObj.gold;
             
-            // อัปเดตราคาบนหน้าจอ (ใช้ parsePrice ที่มีอยู่แล้วเพื่อเคลียร์คอมม่าออก แล้วใส่ลูกน้ำใหม่ให้สวยงาม)
-            updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
-            updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
-            
-            // นำวันที่และเวลาที่ประกาศมาแสดง (เช่น "02/02/2569 เวลา 17:23 น.")
-            const updateDate = goldData.update_date || "";
-            const updateTime = goldData.update_time || "";
-            updateText('last-update', `อัปเดตล่าสุด: ${updateDate} ${updateTime}`.trim());
+            if (goldBar && goldBar.buy && goldBar.sell) {
+                const buyPrice = goldBar.buy;
+                const sellPrice = goldBar.sell;
+                
+                // อัปเดตราคาบนหน้าจอ
+                updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
+                updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
+                
+                // อัปเดตเวลา (ใช้ key ชื่อ 'date' ตามโครงสร้างจริงของ API)
+                const updateDate = goldData.date || ""; 
+                const updateTime = goldData.update_time || "";
+                updateText('last-update', `อัปเดตล่าสุด: ${updateDate} ${updateTime}`.trim());
+            } else {
+                console.error("❌ หาตัวเลขราคาไม่พบในข้อมูลที่ส่งมา:", data);
+                updateText('last-update', 'รูปแบบข้อมูลราคาจาก API เปลี่ยนแปลง');
+            }
         } else {
-            throw new Error("ข้อมูลจาก API ไม่ถูกต้อง");
+            throw new Error("API แจ้งสถานะขัดข้องหรือไม่พบข้อมูล");
         }
     } catch (err) { 
-        console.error("API Error", err);
-        updateText('last-update', 'เชื่อมต่อระบบเช็คราคาไม่ได้ (แสดงข้อมูลล่าสุดที่มี)');
+        console.error("🔴 เกิดข้อผิดพลาดจาก API:", err);
+        updateText('last-update', 'ระบบดึงราคาขัดข้อง (กรุณารอสักครู่)');
     }
 }
