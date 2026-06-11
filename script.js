@@ -243,43 +243,48 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจาก API สมาคมค้าทองคำ (อิงข้อมูลจาก goldtraders.or.th) ---
+// --- ดึงข้อมูลจากเว็บสมาคมค้าทองคำโดยตรง (Web Scraping ผ่าน Proxy) ---
 async function fetchGoldAPI() {
     try {
-        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+        // 1. ระบุ URL หน้าเว็บของสมาคมฯ (+ แนบเวลาปัจจุบันไปเพื่อไม่ให้เบราว์เซอร์จำข้อมูลเก่า)
+        const targetUrl = 'https://goldtraders.or.th/default.aspx?v=' + Date.now();
+        
+        // 2. ใช้ Proxy ฟรี (AllOrigins) เป็นสะพานเชื่อมเพื่อหลบเลี่ยงปัญหาความปลอดภัย CORS ของเบราว์เซอร์
+        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+        
+        const response = await fetch(proxyUrl);
         const data = await response.json();
         
-        // แนะนำให้เปิด Console (F12) ดูว่าข้อมูลเข้ามาหน้าตาเป็นอย่างไร
-        console.log("📦 ข้อมูลที่ได้จาก API:", data); 
-        
-        if (data && data.status === "success") {
-            const goldData = data.response;
-            const priceObj = goldData.price || {};
+        if (data && data.contents) {
+            // 3. จำลอง HTML ที่ดึงมาได้ให้เป็นเสมือนหน้าเว็บ เพื่อให้ค้นหาตำแหน่งราคาได้ง่าย
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
             
-            // ดักจับเผื่อ API เปลี่ยนชื่อ Key เป็นแบบอื่น
-            const goldBar = priceObj.gold_bar || priceObj.goldbar || priceObj.gold;
+            // 4. ดึงตัวเลขจาก ID ตรงตำแหน่ง "ราคาทองคำแท่ง" บนหน้าเว็บสมาคมค้าทองคำเป๊ะๆ
+            const sellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLSell'); // ราคาขายออก
+            const buyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLBuy');   // ราคารับซื้อ
+            const timeEl = doc.getElementById('DetailPlace_uc_goldprices1_lblAsTime'); // เวลาอัปเดตหน้าเว็บ
             
-            if (goldBar && goldBar.buy && goldBar.sell) {
-                const buyPrice = goldBar.buy;
-                const sellPrice = goldBar.sell;
+            if (sellEl && buyEl) {
+                const buyPrice = buyEl.innerText.trim();
+                const sellPrice = sellEl.innerText.trim();
                 
-                // อัปเดตราคาบนหน้าจอ
+                // 5. อัปเดตราคาขึ้นบนหน้าจอของคุณ
                 updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
                 updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
                 
-                // อัปเดตเวลา (ใช้ key ชื่อ 'date' ตามโครงสร้างจริงของ API)
-                const updateDate = goldData.date || ""; 
-                const updateTime = goldData.update_time || "";
-                updateText('last-update', `อัปเดตล่าสุด: ${updateDate} ${updateTime}`.trim());
+                // 6. ดึงเวลาอัปเดตมาแสดงผล
+                const updateTime = timeEl ? timeEl.innerText.trim() : "";
+                updateText('last-update', `อัปเดตล่าสุด: ${updateTime}`);
             } else {
-                console.error("❌ หาตัวเลขราคาไม่พบในข้อมูลที่ส่งมา:", data);
-                updateText('last-update', 'รูปแบบข้อมูลราคาจาก API เปลี่ยนแปลง');
+                console.error("❌ หาตำแหน่งราคาบนหน้าเว็บไม่พบ");
+                updateText('last-update', 'โครงสร้างหน้าเว็บสมาคมฯ มีการเปลี่ยนแปลง');
             }
         } else {
-            throw new Error("API แจ้งสถานะขัดข้องหรือไม่พบข้อมูล");
+            throw new Error("Proxy ไม่สามารถเข้าถึงหน้าเว็บสมาคมฯ ได้");
         }
     } catch (err) { 
-        console.error("🔴 เกิดข้อผิดพลาดจาก API:", err);
-        updateText('last-update', 'ระบบดึงราคาขัดข้อง (กรุณารอสักครู่)');
+        console.error("🔴 ดึงราคาล้มเหลว:", err);
+        updateText('last-update', 'ระบบดึงราคาขัดข้อง (แสดงข้อมูลล่าสุดที่มี)');
     }
 }
