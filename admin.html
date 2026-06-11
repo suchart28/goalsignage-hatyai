@@ -12,21 +12,34 @@
         h1 { color: #a10000; text-align: center; margin-bottom: 20px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; font-weight: 600; margin-bottom: 8px; }
-        input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        input[type="number"], input[type="password"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; }
         .btn { background: #a10000; color: #fff; padding: 12px 20px; border: none; border-radius: 5px; width: 100%; font-size: 1.2rem; cursor: pointer; font-family: 'Prompt'; transition: background 0.3s;}
         .btn:hover { background: #800000; }
         .status { margin-top: 15px; text-align: center; font-weight: 600; color: green; }
+        
+        /* ซ่อนหน้าจัดการหลักไว้ก่อน จนกว่าจะเข้าสู่ระบบสำเร็จ */
+        #admin-content { display: none; }
+        #login-form { display: block; max-width: 400px; margin: 100px auto; text-align: center; }
+        .login-title { color: #333; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="login-form" class="container">
+        <h2 class="login-title">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</h2>
+        <div class="form-group">
+            <input type="password" id="password-input" placeholder="กรอกรหัสผ่าน 9 หลัก" autofocus>
+        </div>
+        <button class="btn" id="login-btn">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="admin-content" class="container">
         <h1>ระบบควบคุมราคาทอง</h1>
         
         <div class="form-group">
             <label>เลือกโหมดการแสดงผล</label>
             <select id="mode-select">
-                <option value="auto">ดึงข้อมูลอัตโนมัติ (API สมาคมค้าทองคำ)</option>
+                <option value="auto">ดึงข้อมูลอัตโนมัติ (API ฮั่วเซ่งเฮง)</option>
                 <option value="manual">กำหนดราคาเอง (Manual)</option>
             </select>
         </div>
@@ -43,6 +56,7 @@
         </div>
 
         <button class="btn" id="save-btn">บันทึกการตั้งค่า</button>
+        <button class="btn" id="logout-btn" style="background: #555; margin-top: 10px; font-size: 1rem; padding: 8px;">ออกจากระบบ</button>
         <div id="save-status" class="status"></div>
     </div>
 
@@ -50,7 +64,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // อัปเดต Firebase Config เป็นตัวใหม่เรียบร้อยครับ
         const firebaseConfig = {
             apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
             authDomain: "goldshop-d5860.firebaseapp.com",
@@ -66,6 +79,48 @@
         const db = getDatabase(app);
         const settingsRef = ref(db, 'gold_settings');
 
+        // ส่วนของการตรวจสอบรหัสผ่าน
+        const loginForm = document.getElementById('login-form');
+        const adminContent = document.getElementById('admin-content');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // ตรวจสอบสถานะว่าเคยล็อกอินค้างไว้ในเซสชันนี้ไหม
+        if (sessionStorage.getItem('isGoldAdminLoggedIn') === 'true') {
+            showAdminPage();
+        }
+
+        function checkPassword() {
+            const securePass = "987654321"; // รหัสผ่านที่คุณกำหนด
+            if (passwordInput.value === securePass) {
+                sessionStorage.setItem('isGoldAdminLoggedIn', 'true');
+                showAdminPage();
+            } else {
+                alert("รหัสผ่านไม่ถูกต้อง! กรุณาลองใหม่อีกครั้ง");
+                passwordInput.value = "";
+                passwordInput.focus();
+            }
+        }
+
+        function showAdminPage() {
+            loginForm.style.display = 'none';
+            adminContent.style.display = 'block';
+            loadDatabaseSettings(); // โหลดข้อมูลราคาทองคำหลังล็อกอินผ่าน
+        }
+
+        loginBtn.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('isGoldAdminLoggedIn');
+            window.location.reload();
+        });
+
+
+        // ส่วนของการจัดการราคาและ Firebase (โค้ดเดิมที่ทำงานถูกต้อง)
         const modeSelect = document.getElementById('mode-select');
         const manualInputs = document.getElementById('manual-inputs');
         const buyInput = document.getElementById('buy-input');
@@ -77,20 +132,20 @@
             manualInputs.style.display = e.target.value === 'manual' ? 'block' : 'none';
         });
 
-        // ดึงข้อมูลเดิมมาแสดงตอนโหลดหน้าเว็บ
-        get(settingsRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                modeSelect.value = data.mode || 'auto';
-                if (data.mode === 'manual') manualInputs.style.display = 'block';
-                buyInput.value = data.manualPrices?.buy || '';
-                sellInput.value = data.manualPrices?.sell || '';
-            }
-        }).catch((err) => {
-            console.error("Error fetching initial database setup:", err);
-        });
+        function loadDatabaseSettings() {
+            get(settingsRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    modeSelect.value = data.mode || 'auto';
+                    if (data.mode === 'manual') manualInputs.style.display = 'block';
+                    buyInput.value = data.manualPrices?.buy || '';
+                    sellInput.value = data.manualPrices?.sell || '';
+                }
+            }).catch((err) => {
+                console.error("Error fetching initial database setup:", err);
+            });
+        }
 
-        // บันทึกข้อมูล
         saveBtn.addEventListener('click', () => {
             const mode = modeSelect.value;
             const buy = parseFloat(buyInput.value);
