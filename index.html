@@ -104,7 +104,7 @@
                     const directData = await directResponse.json();
                     processHuasenghengData(directData);
                 } catch (err) {
-                    console.error("ดึงข้อมูลจากฮั่วเซ่งเฮงไม่ได้เลย:", err);
+                    console.error("ดึงข้อมูลไม่ได้เลย:", err);
                     showErrorState();
                 }
             }
@@ -136,7 +136,7 @@
         function showErrorState() {
             buyPriceEl.innerText = "เปิดโหมดแมนนวล";
             sellPriceEl.innerText = "เปิดโหมดแมนนวล";
-            updateTimeEl.innerText = "ระบบ API ฮั่วเซ่งเฮงขัดข้องชั่วคราว";
+            updateTimeEl.innerText = "ระบบ API ขัดข้องชั่วคราว";
         }
 
         const settingsRef = ref(db, 'gold_settings');
@@ -147,7 +147,7 @@
             const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
 
             if (mode === 'auto') {
-                modeStatusEl.innerText = "อัตโนมัติ (ฮั่วเซ่งเฮง)";
+                modeStatusEl.innerText = "อัตโนมัติ";
                 fetchApiPrices();
                 if(!window.apiInterval) {
                     window.apiInterval = setInterval(fetchApiPrices, 180000); 
