@@ -33,11 +33,11 @@
         <div id="manual-inputs" style="display: none;">
             <div class="form-group">
                 <label>ราคารับซื้อ (บาท)</label>
-                <input type="number" id="buy-input" step="any" placeholder="เช่น 40000">
+                <input type="number" id="buy-input" step="any" placeholder="เช่น 44000">
             </div>
             <div class="form-group">
                 <label>ราคาขายออก (บาท)</label>
-                <input type="number" id="sell-input" step="any" placeholder="เช่น 40100">
+                <input type="number" id="sell-input" step="any" placeholder="เช่น 44100">
             </div>
         </div>
 
@@ -49,14 +49,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+        // อัปเดต Firebase Config เป็นตัวใหม่เรียบร้อยครับ
         const firebaseConfig = {
-            apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
-            authDomain: "guidekhonkaen.firebaseapp.com",
-            databaseURL: "https://guidekhonkaen.firebaseio.com",
-            projectId: "guidekhonkaen",
-            storageBucket: "guidekhonkaen.firebasestorage.app",
-            messagingSenderId: "827592654626",
-            appId: "1:827592654626:web:5f1e9858dbc04e636daf7b"
+            apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
+            authDomain: "goldshop-d5860.firebaseapp.com",
+            projectId: "goldshop-d5860",
+            storageBucket: "goldshop-d5860.firebasestorage.app",
+            messagingSenderId: "15818908224",
+            appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
+            measurementId: "G-QT7YZPHHXG"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -83,6 +84,8 @@
                 buyInput.value = data.manualPrices?.buy || '';
                 sellInput.value = data.manualPrices?.sell || '';
             }
+        }).catch((err) => {
+            console.error("Error fetching initial database setup:", err);
         });
 
         // บันทึกข้อมูล
@@ -110,6 +113,7 @@
                 setTimeout(() => statusEl.innerText = "", 3000);
             }).catch((error) => {
                 alert("เกิดข้อผิดพลาด: " + error);
+                console.error("Save failed:", error);
             }).finally(() => {
                 saveBtn.disabled = false;
                 saveBtn.innerText = 'บันทึกการตั้งค่า';
