@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-// Firebase Config ของคุณ
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBx3Ir9vlcr9H8X8cfUinIB-RogsL9-OKU",
   authDomain: "guidekhonkaen.firebaseapp.com",
@@ -15,241 +15,74 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ดึง Element สำคัญ
-const displayRoot = document.getElementById('display-root');
-const adminRoot = document.getElementById('admin-root');
-const controlPanel = document.getElementById('control-panel') || document.getElementById('admin-root'); 
-const loginModal = document.getElementById('login-modal');
+// --- DOM Elements ---
+const lastUpdateEl = document.getElementById('last-update');
 
-let isManualMode = false;
-
-// --- ระบบเช็คหน้าเว็บ (แก้ไขจุดที่ทำให้จอดำ) ---
-// ถ้าหา display-root ไม่เจอแปลว่าเปิดไฟล์ admin.html แบบแยกต่างหาก
-const isStandaloneAdmin = (displayRoot === null);
-
-if (isStandaloneAdmin || window.location.hash === '#admin') {
-    openAdmin();
-} else {
-    openDisplay();
-}
-
-// --- Event Listeners สลับหน้า ---
-const adminTrigger = document.getElementById('admin-trigger');
-if(adminTrigger) {
-    adminTrigger.addEventListener('dblclick', () => {
-        window.location.hash = 'admin';
-        location.reload();
-    });
-}
-
-const btnBackDisplay = document.getElementById('btn-back-display');
-if(btnBackDisplay) {
-    btnBackDisplay.addEventListener('click', () => {
-        window.location.hash = ''; 
-        location.reload();
-    });
-}
-
-// --- Display Mode (หน้าจอแสดงผล) ---
-function openDisplay() {
-    if(displayRoot) displayRoot.style.display = 'flex';
-    if(adminRoot) adminRoot.style.display = 'none';
-
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    const dbRef = ref(db, 'signage/status');
-    onValue(dbRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        updateText('shop-name-text', data.shopName);
-        updateText('marquee-text', data.marquee);
-
-        const speed = data.marqueeSpeed || 40;
-        const marqueeEl = document.getElementById('marquee-text');
-        if (marqueeEl) marqueeEl.style.animationDuration = `${speed}s`;
-
-        isManualMode = data.manualMode === true;
-        const modeIndicator = document.getElementById('mode-indicator');
-        const updateInfo = document.getElementById('last-update');
-        
-        if (isManualMode) {
-            updateText('gold-buy', data.manualBuy || "-");
-            updateText('gold-sell', data.manualSell || "-");
-            if(modeIndicator) modeIndicator.style.display = 'block';
-            if(updateInfo) updateInfo.textContent = "ราคาปรับโดยทางร้าน (Manual)";
-        } else {
-            if(modeIndicator) modeIndicator.style.display = 'none';
-            fetchGoldAPI(); 
-        }
-    });
-
-    setInterval(() => {
-        if(!isManualMode) fetchGoldAPI();
-    }, 600000); // อัปเดตทุก 10 นาที
-}
-
-// --- Admin Mode (หน้าล็อกอินและตั้งค่า) ---
-function openAdmin() {
-    if(displayRoot) displayRoot.style.display = 'none';
-    
-    if(controlPanel) controlPanel.style.display = 'none'; 
-    if(loginModal) loginModal.style.display = 'flex'; 
-
-    if (sessionStorage.getItem('isLoggedIn') === 'true') {
-        if (loginModal) loginModal.style.display = 'none';
-        if (controlPanel) {
-            controlPanel.style.display = 'block';
-            initAdminControls();
-        }
-    }
-
-    const passInput = document.getElementById('password-input');
-    const btnLogin = document.getElementById('btn-login');
-    const loginError = document.getElementById('login-error');
-
-    const handleLogin = () => {
-        if(!passInput) return;
-        const password = passInput.value.trim();
-        if (password === '987654321') {
-            sessionStorage.setItem('isLoggedIn', 'true');
-            if (loginModal) loginModal.style.display = 'none';
-            if (controlPanel) {
-                controlPanel.style.display = 'block';
-                initAdminControls();
-            }
-        } else {
-            if (loginError) loginError.style.display = 'block';
-        }
-    };
-
-    if (btnLogin && !btnLogin.hasAttribute('data-bound')) {
-        btnLogin.addEventListener('click', handleLogin);
-        btnLogin.setAttribute('data-bound', 'true');
-    }
-    
-    if (passInput && !passInput.hasAttribute('data-bound')) {
-        passInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
-        passInput.setAttribute('data-bound', 'true');
-    }
-
-    const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout && !btnLogout.hasAttribute('data-bound')) {
-        btnLogout.addEventListener('click', () => {
-            sessionStorage.removeItem('isLoggedIn');
-            location.reload();
-        });
-        btnLogout.setAttribute('data-bound', 'true');
-    }
-}
-
-// --- ฟังก์ชันควบคุมฟอร์ม ---
-function initAdminControls() {
-    const dbRef = ref(db, 'signage/status');
-    onValue(dbRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        
-        if(document.activeElement.tagName !== 'INPUT') {
-            setVal('shop-name-input', data.shopName);
-            setVal('marquee-input', data.marquee);
-            setVal('manual-buy-input', data.manualBuy);
-            setVal('manual-sell-input', data.manualSell);
-            
-            const currentSpeed = data.marqueeSpeed || 40;
-            const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
-            if (speedInput) speedInput.value = currentSpeed;
-            
-            updateText('speed-value-display', currentSpeed);
-            updateText('speed-display', currentSpeed);
-
-            const isMan = data.manualMode === true;
-            const manualCheck = document.getElementById('manual-mode-check');
-            if (manualCheck) manualCheck.checked = isMan;
-            
-            toggleManualInputs(isMan);
-        }
-    });
-
-    const speedInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
-    if (speedInput && !speedInput.hasAttribute('data-bound-speed')) {
-        speedInput.addEventListener('input', (e) => {
-            updateText('speed-value-display', e.target.value);
-            updateText('speed-display', e.target.value);
-        });
-        speedInput.setAttribute('data-bound-speed', 'true');
-    }
-
-    const manualCheck = document.getElementById('manual-mode-check');
-    if (manualCheck && !manualCheck.hasAttribute('data-bound-check')) {
-        manualCheck.addEventListener('change', (e) => toggleManualInputs(e.target.checked));
-        manualCheck.setAttribute('data-bound-check', 'true');
-    }
-
-    const ctrlForm = document.getElementById('control-form');
-    if (ctrlForm && !ctrlForm.hasAttribute('data-bound-form')) {
-        ctrlForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const sInput = document.getElementById('marquee-speed-input') || document.getElementById('speed-input');
-            const mSpeed = sInput ? sInput.value : 40;
-            const mCheck = document.getElementById('manual-mode-check');
-            
-            set(ref(db, 'signage/status'), {
-                shopName: getVal('shop-name-input'),
-                marquee: getVal('marquee-input'),
-                marqueeSpeed: mSpeed,
-                manualMode: mCheck ? mCheck.checked : false,
-                manualBuy: getVal('manual-buy-input'),
-                manualSell: getVal('manual-sell-input'),
-                timestamp: Date.now()
-            }).then(() => alert('✅ บันทึกข้อมูลเรียบร้อย!'));
-        });
-        ctrlForm.setAttribute('data-bound-form', 'true');
-    }
-}
-
-function toggleManualInputs(isManual) {
-    const box = document.getElementById('manual-controls') || document.getElementById('manual-inputs');
-    if (box) {
-        box.style.opacity = isManual ? '1' : '0.5';
-        box.style.pointerEvents = isManual ? 'auto' : 'none';
-    }
-}
-
-// --- ฟังก์ชันช่วยเหลือ (Utilities) ---
-function updateText(id, text) { 
-    const el = document.getElementById(id); 
-    if(el && text !== undefined) el.textContent = text; 
-}
-function getVal(id) { 
+// --- Helper Functions ---
+function updateText(id, text) {
     const el = document.getElementById(id);
-    return el ? el.value : ''; 
+    if (el) el.textContent = text;
 }
-function setVal(id, val) { 
-    const el = document.getElementById(id);
-    if(el) el.value = val || ''; 
-}
-function updateClock() {
-    const now = new Date();
-    updateText('clock-time', now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    updateText('clock-date', now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
-}
+
 function parsePrice(val) {
     if (!val) return 0;
     const num = parseFloat(val.toString().replace(/,/g, ''));
     return isNaN(num) ? 0 : num;
 }
 
-// ตัวอย่างการดึงราคาสมาคมฯ (ตรงตามเว็บ goldtraders.or.th)
-async function fetchOfficialAssociationPrice() {
-    const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
-    const data = await response.json();
-    if (data.status === "success") {
-        const goldBar = data.response.price.gold_bar;
-        // เอาตัวแปรนี้ไป updateText แสดงผล
-        console.log("ราคาสมาคม:", goldBar.buy, goldBar.sell); 
+// --- ดึงข้อมูลจาก API สมาคมค้าทองคำ (Thai Gold API) ---
+async function fetchGoldAPI() {
+    try {
+        const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+        const data = await response.json();
+        
+        if (data && data.status === "success") {
+            const goldData = data.response;
+            const goldBar = goldData.price.gold_bar; // ราคาทองคำแท่ง
+            
+            // อัปเดตราคา
+            updateText('gold-buy', parsePrice(goldBar.buy).toLocaleString());
+            updateText('gold-sell', parsePrice(goldBar.sell).toLocaleString());
+            
+            // อัปเดตเวลา
+            updateText('last-update', `อัปเดตล่าสุด: ${goldData.date} ${goldData.update_time}`);
+        } else {
+            throw new Error("API ไม่ส่งข้อมูลสถานะ success");
+        }
+    } catch (err) {
+        console.error("🔴 ดึงราคาทองไม่ได้:", err);
+        updateText('last-update', 'กำลังเชื่อมต่อราคา...');
     }
 }
+
+// --- Main Logic (Firebase Integration) ---
+const dbRef = ref(db, 'gold_data'); // สมมติว่าโครงสร้างใน Firebase ชื่อ gold_data
+
+onValue(dbRef, (snapshot) => {
+    const data = snapshot.val();
+    
+    // ตรวจสอบว่าเป็นโหมด Manual หรือ Auto
+    if (data && data.isManual) {
+        // โหมด Manual: ดึงจาก Firebase
+        updateText('gold-buy', parsePrice(data.buy).toLocaleString());
+        updateText('gold-sell', parsePrice(data.sell).toLocaleString());
+        updateText('last-update', 'Manual Mode');
+        document.getElementById('mode-indicator').style.display = 'block';
+    } else {
+        // โหมด Auto: ดึงจาก API
+        document.getElementById('mode-indicator').style.display = 'none';
+        fetchGoldAPI();
+    }
+});
+
+// --- Clock Update ---
+function updateClock() {
+    const now = new Date();
+    updateText('clock-time', now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    updateText('clock-date', now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// อัปเดตราคาจาก API ทุก 5 นาที (เพื่อไม่ให้ API โดนบล็อก)
+setInterval(fetchGoldAPI, 300000);
