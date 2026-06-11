@@ -1,146 +1,93 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้างทองเอราวัณ หาดใหญ่ - ราคาทอง</title>
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
-        body {
-            background: radial-gradient(circle, #a10000 0%, #4a0000 100%);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
-        .header { text-align: center; margin-bottom: 50px; }
-        .logo { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0px 0px 10px rgba(255, 215, 0, 0.5)); }
-        .shop-name {
-            font-size: 5rem; font-weight: 700;
-            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .title { font-size: 3.5rem; color: #fff; margin-top: 10px; }
-        .price-container { display: flex; gap: 50px; width: 80%; justify-content: center; }
-        .price-box { background: rgba(0, 0, 0, 0.4); border: 4px solid #D4AF37; border-radius: 20px; padding: 40px; width: 45%; text-align: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
-        .price-label { font-size: 3rem; color: #D4AF37; margin-bottom: 20px; }
-        .price-value { font-size: 6rem; font-weight: 700; color: #fff; text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5); }
-        .footer { margin-top: 50px; font-size: 1.5rem; color: #ccc; }
-        #update-time { color: #D4AF37; }
-    </style>
-</head>
-<body>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    <div class="header">
-        <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'"> 
-        <h1 class="shop-name">ห้างทองเอราวัณ หาดใหญ่</h1>
-        <h2 class="title">ราคาทองคำแท่ง</h2>
-    </div>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
+        authDomain: "goldshop-d5860.firebaseapp.com",
+        databaseURL: "https://goldshop-d5860-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "goldshop-d5860",
+        storageBucket: "goldshop-d5860.firebasestorage.app",
+        messagingSenderId: "15818908224",
+        appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
+        measurementId: "G-QT7YZPHHXG"
+    };
 
-    <div class="price-container">
-        <div class="price-box">
-            <div class="price-label">รับซื้อ (บาท)</div>
-            <div class="price-value" id="buy-price">กำลังโหลด...</div>
-        </div>
-        <div class="price-box">
-            <div class="price-label">ขายออก (บาท)</div>
-            <div class="price-value" id="sell-price">กำลังโหลด...</div>
-        </div>
-    </div>
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    <div class="footer">
-        อัปเดตล่าสุด: <span id="update-time">...</span> | ระบบ: <span id="mode-status">...</span>
-    </div>
+    const buyPriceEl = document.getElementById('buy-price');
+    const sellPriceEl = document.getElementById('sell-price');
+    const updateTimeEl = document.getElementById('update-time');
+    const modeStatusEl = document.getElementById('mode-status');
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    function formatNumber(num) {
+        if(!num || isNaN(num)) return "รอข้อมูล";
+        return Number(num).toLocaleString('th-TH');
+    }
 
-        // อัปเดต Firebase Config เป็นตัวใหม่เรียบร้อยครับ
-        const firebaseConfig = {
-            apiKey: "AIzaSyCypw3-0kmRKQCtMuVakq4dL-IfQ3UIAG4",
-            authDomain: "goldshop-d5860.firebaseapp.com",
-            databaseURL: "https://goldshop-d5860-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "goldshop-d5860",
-            storageBucket: "goldshop-d5860.firebasestorage.app",
-            messagingSenderId: "15818908224",
-            appId: "1:15818908224:web:5f0ec26cbcd0a20e0075a5",
-            measurementId: "G-QT7YZPHHXG"
-        };
+    // ฟังก์ชันดึงข้อมูลแบบมีลิงก์สำรองอัตโนมัติ
+    async function fetchApiPrices() {
+        // ลิงก์หลัก (chnwt.dev) และ ลิงก์สำรอง (CORS Proxy ผ่านสมาคมฯ)
+        const apiUrls = [
+            'https://api.chnwt.dev/thai-gold-api/latest',
+            'https://api.allorigins.win/raw?url=https://api.chnwt.dev/thai-gold-api/latest' // วิ่งผ่าน Proxy แก้ปัญหา CORS
+        ];
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        let success = false;
 
-        const buyPriceEl = document.getElementById('buy-price');
-        const sellPriceEl = document.getElementById('sell-price');
-        const updateTimeEl = document.getElementById('update-time');
-        const modeStatusEl = document.getElementById('mode-status');
-
-        function formatNumber(num) {
-            if(!num || isNaN(num)) return "0";
-            return Number(num).toLocaleString('th-TH');
-        }
-
-        async function fetchApiPrices() {
+        for (let url of apiUrls) {
             try {
-                const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+                const response = await fetch(url);
                 const data = await response.json();
+                
                 if (data.status === 'success' && data.response && data.response.price) {
                     const goldBar = data.response.price.gold_bar;
                     buyPriceEl.innerText = formatNumber(goldBar.buy);
                     sellPriceEl.innerText = formatNumber(goldBar.sell);
                     updateTimeEl.innerText = `${data.response.date} ${data.response.update_time}`;
-                } else {
-                    buyPriceEl.innerText = "Error API";
-                    sellPriceEl.innerText = "Error API";
-                    console.error("API response error:", data);
+                    success = true;
+                    break; // ดึงสำเร็จแล้ว ให้หยุดการทำงานลูปทันที
                 }
             } catch (error) {
-                console.error("Error fetching API:", error);
-                updateTimeEl.innerText = "ไม่สามารถเชื่อมต่อ API ได้";
+                console.warn(`ลิงก์ดึงราคามีปัญหา กำลังสลับไปใช้ลิงก์สำรอง...`, error);
             }
         }
 
-        const settingsRef = ref(db, 'gold_settings');
-        onValue(settingsRef, (snapshot) => {
-            const data = snapshot.val();
-            
-            // ป้องกันราคาขึ้นเป็น 0 หากยังไม่มีข้อมูลใน database ใหม่ ให้ Default ไปที่ Auto ก่อน
-            const mode = data ? data.mode : 'auto'; 
-            const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
-            const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
+        if (!success) {
+            buyPriceEl.innerText = "เปิดโหมดแมนนวล";
+            sellPriceEl.innerText = "เปิดโหมดแมนนวล";
+            updateTimeEl.innerText = "ระบบ API หลักขัดข้องชั่วคราว";
+        }
+    }
 
-            if (mode === 'auto') {
-                modeStatusEl.innerText = "อัตโนมัติ (API)";
-                fetchApiPrices();
-                if(!window.apiInterval) {
-                    window.apiInterval = setInterval(fetchApiPrices, 300000); // อัปเดตทุกๆ 5 นาที
-                }
-            } else {
-                modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
-                if(window.apiInterval) {
-                    clearInterval(window.apiInterval);
-                    window.apiInterval = null;
-                }
-                buyPriceEl.innerText = formatNumber(manualBuy);
-                sellPriceEl.innerText = formatNumber(manualSell);
-                const now = new Date();
-                updateTimeEl.innerText = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
+    const settingsRef = ref(db, 'gold_settings');
+    onValue(settingsRef, (snapshot) => {
+        const data = snapshot.val();
+        const mode = data ? data.mode : 'auto'; 
+        const manualBuy = data && data.manualPrices ? data.manualPrices.buy : null;
+        const manualSell = data && data.manualPrices ? data.manualPrices.sell : null;
+
+        if (mode === 'auto') {
+            modeStatusEl.innerText = "อัตโนมัติ (API)";
+            fetchApiPrices();
+            if(!window.apiInterval) {
+                window.apiInterval = setInterval(fetchApiPrices, 300000); // อัปเดตทุก 5 นาที
             }
-        }, (error) => {
-            console.error("Firebase Database Error: อาจจะยังไม่ได้ตั้งค่า Rules ให้เปิดสิทธิ์การเข้าถึง", error);
-            buyPriceEl.innerText = "Error DB";
-            sellPriceEl.innerText = "Error DB";
-        });
-    </script>
-</body>
-</html>
+        } else {
+            modeStatusEl.innerText = "ปรับตั้งเอง (Manual)";
+            if(window.apiInterval) {
+                clearInterval(window.apiInterval);
+                window.apiInterval = null;
+            }
+            buyPriceEl.innerText = formatNumber(manualBuy);
+            sellPriceEl.innerText = formatNumber(manualSell);
+            const now = new Date();
+            updateTimeEl.innerText = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
+        }
+    }, (error) => {
+        console.error("Firebase Connect Error:", error);
+        buyPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
+        sellPriceEl.innerText = "เชื่อมต่อฐานข้อมูลไม่ได้";
+    });
+</script>
