@@ -243,50 +243,38 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจากเว็บสมาคมค้าทองคำโดยตรง (แก้ไขปัญหา Proxy ล่ม / CORS) ---
+// --- ดึงข้อมูลจาก API ฮั่วเซ่งเฮง ---
 async function fetchGoldAPI() {
     try {
-        // 1. ระบุ URL สมาคมฯ (+ แนบเวลาเพื่อป้องกันเบราว์เซอร์จำค่าเก่า)
-        const targetUrl = 'https://goldtraders.or.th/default.aspx?v=' + Date.now();
-        
-        // 2. เปลี่ยนมาใช้ Proxy ของ CodeTabs ซึ่งเสถียรกว่า
-        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + targetUrl;
-        
-        const response = await fetch(proxyUrl);
+        // เพิ่ม ?v=${Date.now()} เพื่อป้องกันเบราว์เซอร์จำค่าเก่า (Cache)
+        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice?v=' + Date.now());
         
         if (!response.ok) {
-            throw new Error(`Proxy ขัดข้อง (Status: ${response.status})`);
+            throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ฮั่วเซ่งเฮงได้');
         }
+
+        const data = await response.json();
         
-        // 3. Proxy ตัวใหม่นี้คืนค่าเป็น HTML ตรงๆ (ไม่ต้องผ่าน JSON)
-        const htmlText = await response.text();
-        
-        // 4. แปลง Text ให้เป็น HTML จำลองเพื่อหาข้อมูล
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-        
-        // 5. ดึงตัวเลขจาก ID หน้าเว็บสมาคมฯ
-        const sellEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLSell'); 
-        const buyEl = doc.getElementById('DetailPlace_uc_goldprices1_lblBLBuy');   
-        const timeEl = doc.getElementById('DetailPlace_uc_goldprices1_lblAsTime'); 
-        
-        if (sellEl && buyEl) {
-            const buyPrice = buyEl.innerText.trim();
-            const sellPrice = sellEl.innerText.trim();
+        // ข้อมูลที่ได้จะเป็น Array ให้ดึง index ที่ 0 (ข้อมูลล่าสุด)
+        if (data && data.length > 0) {
+            const goldData = data[0];
             
-            // อัปเดตราคา
-            updateText('gold-buy', parsePrice(buyPrice).toLocaleString());
-            updateText('gold-sell', parsePrice(sellPrice).toLocaleString());
+            // ใช้ parsePrice ฟังก์ชันเดิมของคุณเพื่อเคลียร์ค่า
+            const buyPrice = parsePrice(goldData.Buy);
+            const sellPrice = parsePrice(goldData.Sell);
             
-            // อัปเดตเวลา
-            const updateTime = timeEl ? timeEl.innerText.trim() : "";
-            updateText('last-update', `อัปเดตล่าสุด: ${updateTime}`);
+            updateText('gold-buy', buyPrice.toLocaleString());
+            updateText('gold-sell', sellPrice.toLocaleString());
+            
+            // แสดงวันที่และเวลาอัปเดต (จาก StrDate ของ API)
+            updateText('last-update', `อัปเดตล่าสุด: ${goldData.StrDate || ''}`);
+            
+            console.log("✅ ดึงราคาทองสำเร็จ:", goldData);
         } else {
-            console.error("❌ หาตำแหน่งราคาหน้าเว็บไม่พบ");
-            updateText('last-update', 'รอสมาคมฯ อัปเดตโครงสร้างราคา');
+            updateText('last-update', 'ไม่พบข้อมูลราคา');
         }
-    } catch (err) { 
-        console.error("🔴 ดึงราคาล้มเหลว:", err);
-        updateText('last-update', 'กำลังพยายามเชื่อมต่อเซิร์ฟเวอร์สมาคมฯ...');
+    } catch (err) {
+        console.error("🔴 ดึงราคาทองล้มเหลว:", err);
+        updateText('last-update', 'ระบบดึงราคาขัดข้อง');
     }
 }
