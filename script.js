@@ -243,38 +243,13 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-// --- ดึงข้อมูลจาก API ฮั่วเซ่งเฮง ---
-async function fetchGoldAPI() {
-    try {
-        // เพิ่ม ?v=${Date.now()} เพื่อป้องกันเบราว์เซอร์จำค่าเก่า (Cache)
-        const response = await fetch('https://apicheckpricev3.huasengheng.com/api/Values/GetPrice?v=' + Date.now());
-        
-        if (!response.ok) {
-            throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ฮั่วเซ่งเฮงได้');
-        }
-
-        const data = await response.json();
-        
-        // ข้อมูลที่ได้จะเป็น Array ให้ดึง index ที่ 0 (ข้อมูลล่าสุด)
-        if (data && data.length > 0) {
-            const goldData = data[0];
-            
-            // ใช้ parsePrice ฟังก์ชันเดิมของคุณเพื่อเคลียร์ค่า
-            const buyPrice = parsePrice(goldData.Buy);
-            const sellPrice = parsePrice(goldData.Sell);
-            
-            updateText('gold-buy', buyPrice.toLocaleString());
-            updateText('gold-sell', sellPrice.toLocaleString());
-            
-            // แสดงวันที่และเวลาอัปเดต (จาก StrDate ของ API)
-            updateText('last-update', `อัปเดตล่าสุด: ${goldData.StrDate || ''}`);
-            
-            console.log("✅ ดึงราคาทองสำเร็จ:", goldData);
-        } else {
-            updateText('last-update', 'ไม่พบข้อมูลราคา');
-        }
-    } catch (err) {
-        console.error("🔴 ดึงราคาทองล้มเหลว:", err);
-        updateText('last-update', 'ระบบดึงราคาขัดข้อง');
+// ตัวอย่างการดึงราคาสมาคมฯ (ตรงตามเว็บ goldtraders.or.th)
+async function fetchOfficialAssociationPrice() {
+    const response = await fetch('https://api.chnwt.dev/thai-gold-api/latest');
+    const data = await response.json();
+    if (data.status === "success") {
+        const goldBar = data.response.price.gold_bar;
+        // เอาตัวแปรนี้ไป updateText แสดงผล
+        console.log("ราคาสมาคม:", goldBar.buy, goldBar.sell); 
     }
 }
